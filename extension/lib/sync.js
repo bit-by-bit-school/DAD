@@ -43,7 +43,8 @@
             code: sol.code,
             score: 1.0,
             status: 'Accepted',
-            submittedAt: sol.fetchedAt ? new Date(sol.fetchedAt).toISOString() : new Date().toISOString()
+            submittedAt: sol.fetchedAt ? new Date(sol.fetchedAt).toISOString() : new Date().toISOString(),
+            username: username
           });
         }
       }

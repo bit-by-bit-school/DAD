@@ -62,8 +62,25 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="filter-user">Submitted User</label>
-            <input type="text" id="filter-user" class="form-control" placeholder="Filter by username">
+            <label>Submitted Users (Multiselect)</label>
+            <div id="multiselect-user-wrapper" class="multiselect-wrapper">
+              <button type="button" id="multiselect-user-btn" class="multiselect-btn">
+                <span id="multiselect-user-label" class="multiselect-label">All Users</span>
+                <span class="multiselect-arrow">▼</span>
+              </button>
+              <div id="multiselect-user-dropdown" class="multiselect-dropdown hidden">
+                <div class="multiselect-header">
+                  <input type="text" id="multiselect-user-search" class="form-control" placeholder="Search users..." autocomplete="off">
+                  <div class="multiselect-actions">
+                    <button type="button" id="multiselect-select-all" class="btn-micro">Select All</button>
+                    <button type="button" id="multiselect-clear-all" class="btn-micro">Clear</button>
+                  </div>
+                </div>
+                <div id="multiselect-user-options" class="multiselect-options">
+                  <!-- Options populated dynamically -->
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-group" style="justify-content: flex-end;">
             <button id="btn-apply-filters" class="btn-retro btn-green" style="height: 38px;">Apply Filters</button>

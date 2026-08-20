@@ -12,28 +12,30 @@ async function runVerification() {
     const authRes = await axios.post(`${BASE_URL}/api/auth/verify-token`, { token: ADMIN_TOKEN });
     console.log('   ✅ Auth Response:', authRes.data.user.username, 'Role:', authRes.data.user.role);
 
-    // 2. Test Extension Solution Auto-Sync
+    // 2. Test Extension Solution Auto-Sync with Username Mapping
     console.log('\n2️⃣ Testing Solution Sync Endpoint (/api/solutions/sync)...');
     const sampleSolutions = [
       {
-        submissionId: 'test_sub_001',
+        submissionId: 'test_sub_alex_01',
         challengeSlug: 'solve-me-first',
         challengeTitle: 'Solve Me First',
         contestSlug: 'master',
         language: 'python',
         code: 'def solveMeFirst(a,b):\n    return a+b',
         score: 1.0,
-        status: 'Accepted'
+        status: 'Accepted',
+        username: 'alex_coder'
       },
       {
-        submissionId: 'test_sub_002',
+        submissionId: 'test_sub_sarah_01',
         challengeSlug: 'simple-array-sum',
         challengeTitle: 'Simple Array Sum',
         contestSlug: 'master',
         language: 'cpp',
         code: 'int simpleArraySum(vector<int> ar) {\n    int sum = 0;\n    for(int x : ar) sum += x;\n    return sum;\n}',
         score: 1.0,
-        status: 'Accepted'
+        status: 'Accepted',
+        username: 'sarah_dev'
       }
     ];
 
@@ -43,31 +45,43 @@ async function runVerification() {
     );
     console.log('   ✅ Sync Response:', syncRes.data);
 
-    // 3. Query Solutions List
-    console.log('\n3️⃣ Querying Solutions List (/api/solutions)...');
-    const listRes = await axios.get(`${BASE_URL}/api/solutions`);
-    console.log(`   ✅ Total Solutions in DB: ${listRes.data.solutions.length}`);
-    const firstSol = listRes.data.solutions[0];
-    console.log(`   Sample Solution: "${firstSol.challengeTitle}" (${firstSol.language}) ID: ${firstSol.id}`);
+    // 3. Test Users List Endpoint (/api/users)
+    console.log('\n3️⃣ Testing User Directory Endpoint (/api/users)...');
+    const usersRes = await axios.get(`${BASE_URL}/api/users`);
+    const usernamesList = usersRes.data.users.map(u => u.username);
+    console.log(`   ✅ Total Users: ${usersRes.data.users.length} (${usernamesList.slice(0, 5).join(', ')})`);
+    if (!usernamesList.includes('alex_coder') || !usernamesList.includes('sarah_dev')) {
+      throw new Error('Sync failed to create separate user accounts for alex_coder / sarah_dev');
+    }
 
-    // 4. Test Dual Rating
-    console.log('\n4️⃣ Testing Dual Rating (/api/solutions/:id/rate)...');
+    // 4. Query Solutions List with Multiselect User Filtering
+    console.log('\n4️⃣ Querying Solutions List with Multi-User Filtering (/api/solutions?usernames=alex_coder,sarah_dev)...');
+    const listRes = await axios.get(`${BASE_URL}/api/solutions?usernames=alex_coder,sarah_dev`);
+    console.log(`   ✅ Total Solutions for alex_coder & sarah_dev: ${listRes.data.solutions.length}`);
+    const mappedUsers = listRes.data.solutions.map(s => s.user.username);
+    console.log(`   Mapped solution submitters: [${Array.from(new Set(mappedUsers)).join(', ')}]`);
+
+    const firstSol = listRes.data.solutions[0];
+    console.log(`   Sample Solution: "${firstSol.challengeTitle}" (${firstSol.language}) by @${firstSol.user.username}`);
+
+    // 5. Test Dual Rating
+    console.log('\n5️⃣ Testing Dual Rating (/api/solutions/:id/rate)...');
     const rateRes = await axios.post(`${BASE_URL}/api/solutions/${firstSol.id}/rate`,
       { cleverness: 5, readability: 4 },
       { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
     );
-    console.log('   ✅ Rating Saved:', rateRes.data.rating);
+    console.log('   ✅ Rating Saved:', rateRes.data.rating.id);
 
-    // 5. Test Posting Comment
-    console.log('\n5️⃣ Testing Comments (/api/solutions/:id/comments)...');
+    // 6. Test Posting Comment
+    console.log('\n6️⃣ Testing Comments (/api/solutions/:id/comments)...');
     const commentRes = await axios.post(`${BASE_URL}/api/solutions/${firstSol.id}/comments`,
       { content: 'Super clean and concise implementation! Great work.' },
       { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
     );
     console.log('   ✅ Comment Posted:', commentRes.data.comment.content);
 
-    // 6. Test Gemini Code Review Draft & Publishing Round 1
-    console.log('\n6️⃣ Testing Gemini AI Review Draft & Round 1 Publishing...');
+    // 7. Test Gemini Code Review Draft & Publishing Round 1
+    console.log('\n7️⃣ Testing Gemini AI Review Draft & Round 1 Publishing...');
     const draftRes = await axios.post(`${BASE_URL}/api/solutions/${firstSol.id}/review/draft`,
       {},
       { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
@@ -85,10 +99,11 @@ async function runVerification() {
     );
     console.log('   ✅ Code Review Round 1 Published:', publishRes.data.reviewRound.status);
 
-    // 7. Test Admin User Token Generation
-    console.log('\n7️⃣ Testing Admin User Token Creation (/api/admin/tokens)...');
+    // 8. Test Admin User Token Generation
+    console.log('\n8️⃣ Testing Admin User Token Creation (/api/admin/tokens)...');
+    const newUsername = `test_dev_${Date.now().toString().slice(-4)}`;
     const tokenRes = await axios.post(`${BASE_URL}/api/admin/tokens`,
-      { username: 'test_dev_01', role: 'USER' },
+      { username: newUsername, role: 'USER' },
       { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
     );
     console.log('   ✅ New User Token Generated:', tokenRes.data.user.username, '->', tokenRes.data.user.token);

@@ -10,7 +10,7 @@ router.post('/sync', authenticateUser, async (req, res) => {
     return res.status(400).json({ error: 'Payload must contain a "solutions" array.' });
   }
 
-  const userId = req.user.id;
+  const defaultUserId = req.user.id;
   const syncResults = [];
 
   try {
@@ -27,9 +27,37 @@ router.post('/sync', authenticateUser, async (req, res) => {
 
       if (!code) continue;
 
+      // Determine target user for this solution
+      let targetUserId = defaultUserId;
+      if (sol.username && typeof sol.username === 'string') {
+        const usernameClean = sol.username.trim();
+        let targetUser = await prisma.user.findUnique({ where: { username: usernameClean } });
+        if (!targetUser) {
+          targetUser = await prisma.user.create({
+            data: {
+              username: usernameClean,
+              token: `hr_${usernameClean}_${Math.random().toString(36).substring(2, 8)}`,
+              role: 'USER'
+            }
+          });
+        }
+        targetUserId = targetUser.id;
+      }
+
+      // If this submissionId already exists under another user (e.g. admin), remove old duplicate
+      const existingAdminSol = await prisma.solution.findFirst({
+        where: {
+          submissionId,
+          user: { role: 'ADMIN' }
+        }
+      });
+      if (existingAdminSol && existingAdminSol.userId !== targetUserId) {
+        await prisma.solution.delete({ where: { id: existingAdminSol.id } }).catch(() => {});
+      }
+
       const record = await prisma.solution.upsert({
         where: {
-          submissionId_userId: { submissionId, userId }
+          submissionId_userId: { submissionId, userId: targetUserId }
         },
         update: {
           challengeTitle,
@@ -50,10 +78,38 @@ router.post('/sync', authenticateUser, async (req, res) => {
           score,
           status,
           submittedAt,
-          userId
+          userId: targetUserId
         }
       });
       syncResults.push(record.id);
+    }
+
+    // Auto-remap legacy admin-owned solutions where submissionId encodes username (e.g. slug_username)
+    const adminUser = await prisma.user.findUnique({ where: { token: 'hr_admin_master_token_2026' } });
+    if (adminUser) {
+      const adminSolutions = await prisma.solution.findMany({ where: { userId: adminUser.id } });
+      for (const sol of adminSolutions) {
+        const lastUnderscoreIdx = sol.submissionId.lastIndexOf('_');
+        if (lastUnderscoreIdx > 0) {
+          const possibleUsername = sol.submissionId.substring(lastUnderscoreIdx + 1);
+          if (possibleUsername && possibleUsername !== 'admin') {
+            let userMatch = await prisma.user.findUnique({ where: { username: possibleUsername } });
+            if (!userMatch) {
+              userMatch = await prisma.user.create({
+                data: {
+                  username: possibleUsername,
+                  token: `hr_${possibleUsername}_${Math.random().toString(36).substring(2, 8)}`,
+                  role: 'USER'
+                }
+              });
+            }
+            await prisma.solution.update({
+              where: { id: sol.id },
+              data: { userId: userMatch.id }
+            }).catch(() => {});
+          }
+        }
+      }
     }
 
     res.json({
@@ -67,14 +123,51 @@ router.post('/sync', authenticateUser, async (req, res) => {
   }
 });
 
+// GET /api/solutions/users (List users for filters)
+router.get('/users', async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        discordAvatar: true,
+        role: true,
+        _count: { select: { solutions: true } }
+      },
+      orderBy: { username: 'asc' }
+    });
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/solutions (Query list)
 router.get('/', async (req, res) => {
-  const { challengeSlug, language, userId, search, page = 1, limit = 50 } = req.query;
+  const { challengeSlug, language, userId, userIds, username, usernames, search, page = 1, limit = 50 } = req.query;
 
   const where = {};
   if (challengeSlug) where.challengeSlug = challengeSlug;
   if (language) where.language = language;
-  if (userId) where.userId = userId;
+
+  const rawUsernames = usernames || username;
+  const rawUserIds = userIds || userId;
+
+  if (rawUsernames) {
+    const nameList = (Array.isArray(rawUsernames) ? rawUsernames : String(rawUsernames).split(',')).map(s => s.trim()).filter(Boolean);
+    if (nameList.length === 1) {
+      where.user = { username: nameList[0] };
+    } else if (nameList.length > 1) {
+      where.user = { username: { in: nameList } };
+    }
+  } else if (rawUserIds) {
+    const idList = (Array.isArray(rawUserIds) ? rawUserIds : String(rawUserIds).split(',')).map(s => s.trim()).filter(Boolean);
+    if (idList.length === 1) {
+      where.userId = idList[0];
+    } else if (idList.length > 1) {
+      where.userId = { in: idList };
+    }
+  }
 
   if (search) {
     where.OR = [

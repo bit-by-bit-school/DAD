@@ -29,10 +29,136 @@
   // Solution Explorer DOM
   const filterSearch = document.getElementById('filter-search');
   const filterLanguage = document.getElementById('filter-language');
-  const filterUser = document.getElementById('filter-user');
   const btnApplyFilters = document.getElementById('btn-apply-filters');
   const solutionsGrid = document.getElementById('solutions-grid');
   const solutionsCountBadge = document.getElementById('solutions-count-badge');
+
+  // Multiselect Users Controller
+  const multiselectUser = {
+    wrapper: document.getElementById('multiselect-user-wrapper'),
+    btn: document.getElementById('multiselect-user-btn'),
+    label: document.getElementById('multiselect-user-label'),
+    dropdown: document.getElementById('multiselect-user-dropdown'),
+    searchInput: document.getElementById('multiselect-user-search'),
+    selectAllBtn: document.getElementById('multiselect-select-all'),
+    clearAllBtn: document.getElementById('multiselect-clear-all'),
+    optionsContainer: document.getElementById('multiselect-user-options'),
+    usersList: [],
+    selectedUsernames: new Set(),
+
+    async init() {
+      if (!this.wrapper) return;
+      this.btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = this.dropdown.classList.contains('hidden');
+        if (isHidden) {
+          this.dropdown.classList.remove('hidden');
+          this.wrapper.classList.add('open');
+          this.searchInput.focus();
+        } else {
+          this.close();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!this.wrapper.contains(e.target)) {
+          this.close();
+        }
+      });
+
+      this.searchInput.addEventListener('input', () => {
+        this.renderOptions();
+      });
+
+      this.selectAllBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.usersList.forEach(u => this.selectedUsernames.add(u.username));
+        this.renderOptions();
+        this.updateButtonLabel();
+      });
+
+      this.clearAllBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.selectedUsernames.clear();
+        this.renderOptions();
+        this.updateButtonLabel();
+      });
+
+      await this.fetchUsers();
+    },
+
+    close() {
+      if (this.dropdown) this.dropdown.classList.add('hidden');
+      if (this.wrapper) this.wrapper.classList.remove('open');
+    },
+
+    async fetchUsers() {
+      try {
+        const res = await fetch('/api/users');
+        const data = await res.json();
+        this.usersList = data.users || [];
+        this.renderOptions();
+        this.updateButtonLabel();
+      } catch (e) {
+        console.warn('Error fetching users for multiselect:', e);
+      }
+    },
+
+    renderOptions() {
+      if (!this.optionsContainer) return;
+      const searchTerm = this.searchInput.value.trim().toLowerCase();
+      this.optionsContainer.innerHTML = '';
+
+      const filtered = this.usersList.filter(u => u.username.toLowerCase().includes(searchTerm));
+
+      if (filtered.length === 0) {
+        this.optionsContainer.innerHTML = '<div style="font-size: 0.75rem; color: var(--text-muted); padding: 0.4rem; text-align: center;">No users found</div>';
+        return;
+      }
+
+      filtered.forEach(u => {
+        const isChecked = this.selectedUsernames.has(u.username);
+        const label = document.createElement('label');
+        label.className = 'multiselect-option';
+
+        const solCount = u._count?.solutions !== undefined ? ` (${u._count.solutions})` : '';
+
+        label.innerHTML = `
+          <input type="checkbox" value="${escapeHtml(u.username)}" ${isChecked ? 'checked' : ''}>
+          <span>@${escapeHtml(u.username)}${solCount}</span>
+        `;
+
+        const cb = label.querySelector('input');
+        cb.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            this.selectedUsernames.add(u.username);
+          } else {
+            this.selectedUsernames.delete(u.username);
+          }
+          this.updateButtonLabel();
+        });
+
+        this.optionsContainer.appendChild(label);
+      });
+    },
+
+    updateButtonLabel() {
+      if (!this.label) return;
+      const count = this.selectedUsernames.size;
+      if (count === 0 || count === this.usersList.length) {
+        this.label.textContent = 'All Users (Any)';
+      } else if (count === 1) {
+        const singleName = Array.from(this.selectedUsernames)[0];
+        this.label.textContent = `@${singleName}`;
+      } else {
+        this.label.innerHTML = `${count} Users Selected <span class="multiselect-badge-count">${count}</span>`;
+      }
+    },
+
+    getSelectedUsernames() {
+      return Array.from(this.selectedUsernames);
+    }
+  };
 
   // Solution Detail DOM
   const detailChallengeTitle = document.getElementById('detail-challenge-title');
@@ -77,6 +203,7 @@
 
     initMonaco();
     setupEventListeners();
+    await multiselectUser.init();
     await verifyAuth();
     await loadSolutions();
   });
@@ -211,7 +338,11 @@
     const params = new URLSearchParams();
     if (filterSearch.value.trim()) params.append('search', filterSearch.value.trim());
     if (filterLanguage.value) params.append('language', filterLanguage.value);
-    if (filterUser.value.trim()) params.append('userId', filterUser.value.trim());
+
+    const selectedUsers = multiselectUser.getSelectedUsernames();
+    if (selectedUsers.length > 0 && selectedUsers.length < multiselectUser.usersList.length) {
+      params.append('usernames', selectedUsers.join(','));
+    }
 
     try {
       const res = await fetch(`/api/solutions?${params.toString()}`);

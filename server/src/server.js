@@ -24,6 +24,26 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/solutions', solutionsRouter);
+
+app.get('/api/users', async (req, res) => {
+  try {
+    const prisma = require('./db');
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        discordAvatar: true,
+        role: true,
+        _count: { select: { solutions: true } }
+      },
+      orderBy: { username: 'asc' }
+    });
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.use('/api', socialRouter);
 app.use('/api', reviewsRouter);
 

@@ -43,7 +43,7 @@ router.post('/solutions/:id/rate', async (req, res) => {
 
 // POST /api/solutions/:id/comments
 router.post('/solutions/:id/comments', async (req, res) => {
-  const { content } = req.body;
+  const { content, startLine, endLine } = req.body;
   const solutionId = req.params.id;
   const userId = req.user.id;
 
@@ -51,12 +51,36 @@ router.post('/solutions/:id/comments', async (req, res) => {
     return res.status(400).json({ error: 'Comment content cannot be empty.' });
   }
 
+  let sLine = null;
+  let eLine = null;
+  let commentType = 'GENERAL';
+
+  if (startLine !== undefined && startLine !== null && startLine !== '') {
+    sLine = parseInt(startLine);
+    if (isNaN(sLine) || sLine < 1) {
+      return res.status(400).json({ error: 'startLine must be a positive integer >= 1.' });
+    }
+
+    if (endLine !== undefined && endLine !== null && endLine !== '') {
+      eLine = parseInt(endLine);
+      if (isNaN(eLine) || eLine < sLine) {
+        return res.status(400).json({ error: 'endLine must be an integer >= startLine.' });
+      }
+    } else {
+      eLine = sLine;
+    }
+    commentType = 'LINE_REVIEW';
+  }
+
   try {
     const comment = await prisma.comment.create({
       data: {
         solutionId,
         userId,
-        content: content.trim()
+        content: content.trim(),
+        startLine: sLine,
+        endLine: eLine,
+        commentType
       },
       include: {
         user: { select: { id: true, username: true, discordAvatar: true, role: true } }

@@ -696,3 +696,143 @@ body::before {
   to { transform: rotate(360deg); }
 }
 
+/* Merged Solution & Code Review Workspace Styles */
+.editor-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+
+.editor-toolbar .editor-container {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.editor-selection-info {
+  color: var(--neon-cyan);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sidebar-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 4px;
+}
+
+.sidebar-tab-btn {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.sidebar-tab-btn:hover {
+  color: #fff;
+  border-color: rgba(0, 243, 255, 0.3);
+}
+
+.sidebar-tab-btn.active {
+  background: rgba(0, 243, 255, 0.12);
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  border-bottom-color: transparent;
+  font-weight: 600;
+}
+
+.sidebar-subtab-content {
+  display: none;
+}
+
+.sidebar-subtab-content.active {
+  display: block;
+}
+
+.comment-filter-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.pill-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pill-btn:hover, .pill-btn.active {
+  background: var(--neon-cyan);
+  color: #000;
+  border-color: var(--neon-cyan);
+  font-weight: 600;
+}
+
+.line-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 243, 255, 0.15);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.line-tag-badge:hover {
+  background: var(--neon-cyan);
+  color: #000;
+  box-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+}
+
+.btn-cyan {
+  background: rgba(0, 243, 255, 0.15);
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+
+.btn-cyan:hover {
+  background: var(--neon-cyan);
+  color: #000;
+}
+
+/* Monaco Editor Comment Line Highlight Decoration */
+.monaco-comment-line-highlight {
+  background: rgba(0, 243, 255, 0.12) !important;
+  border-left: 3px solid var(--neon-cyan) !important;
+}
+
+.monaco-comment-glyph-margin {
+  background: var(--neon-cyan);
+  border-radius: 50%;
+  width: 8px !important;
+  height: 8px !important;
+  margin-left: 4px;
+  margin-top: 5px;
+}
+
+

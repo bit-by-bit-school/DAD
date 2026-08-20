@@ -72,13 +72,19 @@ async function runVerification() {
     );
     console.log('   ✅ Rating Saved:', rateRes.data.rating.id);
 
-    // 6. Test Posting Comment
+    // 6. Test Posting Comment (General and Line Range)
     console.log('\n6️⃣ Testing Comments (/api/solutions/:id/comments)...');
     const commentRes = await axios.post(`${BASE_URL}/api/solutions/${firstSol.id}/comments`,
       { content: 'Super clean and concise implementation! Great work.' },
       { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
     );
-    console.log('   ✅ Comment Posted:', commentRes.data.comment.content);
+    console.log('   ✅ General Comment Posted:', commentRes.data.comment.content);
+
+    const lineCommentRes = await axios.post(`${BASE_URL}/api/solutions/${firstSol.id}/comments`,
+      { content: 'Consider optimizing this loop for O(N) time.', startLine: 2, endLine: 4 },
+      { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
+    );
+    console.log('   ✅ Line Range Comment Posted:', lineCommentRes.data.comment.content, `(Lines ${lineCommentRes.data.comment.startLine}-${lineCommentRes.data.comment.endLine})`);
 
     // 7. Test Gemini Code Review Draft & Publishing Round 1
     console.log('\n7️⃣ Testing Gemini AI Review Draft & Round 1 Publishing...');

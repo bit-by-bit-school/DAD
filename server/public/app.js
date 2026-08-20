@@ -10,6 +10,9 @@
     solutions: [],
     activeSolution: null,
     editor: null,
+    editorDecorations: [],
+    currentSelection: { startLine: 1, endLine: 1 },
+    commentFilter: 'all', // 'all', 'line', 'general'
     selectedCleverness: 0,
     selectedReadability: 0,
     // Infinite Scroll & Offset State
@@ -167,26 +170,29 @@
     }
   };
 
-  // Solution Detail DOM
+  // Merged Solution & Review Workspace DOM
   const detailChallengeTitle = document.getElementById('detail-challenge-title');
   const detailLanguageTag = document.getElementById('detail-language-tag');
   const detailUserName = document.getElementById('detail-user-name');
+  const detailReviewStatusBadge = document.getElementById('detail-review-status-badge');
+  const monacoSelectionBadge = document.getElementById('monaco-selection-badge');
+  const btnTargetSelection = document.getElementById('btn-target-selection');
+  const btnUseSelection = document.getElementById('btn-use-selection');
+  const commentStartLine = document.getElementById('comment-start-line');
+  const commentEndLine = document.getElementById('comment-end-line');
+  const btnClearLines = document.getElementById('btn-clear-lines');
   const avgClevernessVal = document.getElementById('avg-cleverness-val');
   const avgReadabilityVal = document.getElementById('avg-readability-val');
   const btnSubmitRating = document.getElementById('btn-submit-rating');
   const commentInput = document.getElementById('comment-input');
   const btnPostComment = document.getElementById('btn-post-comment');
   const commentsContainer = document.getElementById('comments-container');
-
-  // Reviews DOM
-  const reviewSolutionPicker = document.getElementById('review-solution-picker');
   const btnGenerateAiDraft = document.getElementById('btn-generate-ai-draft');
   const aiDraftOutput = document.getElementById('ai-draft-output');
   const reviewStatusSelect = document.getElementById('review-status-select');
   const adminReviewNotes = document.getElementById('admin-review-notes');
   const btnPublishReviewRound = document.getElementById('btn-publish-review-round');
   const reviewRoundsTimeline = document.getElementById('review-rounds-timeline');
-  const reviewAdminStatusTag = document.getElementById('review-admin-status-tag');
 
   // Admin DOM
   const adminAccessWarning = document.getElementById('admin-access-warning');
@@ -232,6 +238,22 @@
           fontFamily: "'Fira Code', 'Share Tech Mono', monospace",
           fontSize: 13
         });
+
+        // Track active line selection for code review comments
+        state.editor.onDidChangeCursorSelection((e) => {
+          const sel = e.selection;
+          const start = sel.startLineNumber;
+          const end = sel.endLineNumber;
+          state.currentSelection = { startLine: start, endLine: end };
+
+          if (monacoSelectionBadge) {
+            if (start === end) {
+              monacoSelectionBadge.textContent = `📍 Line ${start} selected`;
+            } else {
+              monacoSelectionBadge.textContent = `📍 Lines ${start} - ${end} selected (${end - start + 1} lines)`;
+            }
+          }
+        });
       });
     }
   }
@@ -255,6 +277,50 @@
         }
       });
     });
+
+    // Sidebar navigation sub-tabs (Comments / Reviews / Ratings)
+    document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetSubtab = btn.dataset.subtab;
+        document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.sidebar-subtab-content').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        const activeContent = document.getElementById(targetSubtab);
+        if (activeContent) activeContent.classList.add('active');
+      });
+    });
+
+    // Comment Filter Pills
+    document.querySelectorAll('.comment-filter-pills .pill-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.comment-filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.commentFilter = btn.dataset.filter;
+        if (state.activeSolution) {
+          renderComments(state.activeSolution.comments || []);
+        }
+      });
+    });
+
+    // Line Selection Target Buttons
+    const fillSelectionLines = () => {
+      if (state.currentSelection && commentStartLine && commentEndLine) {
+        commentStartLine.value = state.currentSelection.startLine;
+        commentEndLine.value = state.currentSelection.endLine;
+        const commentsTabBtn = document.querySelector('[data-subtab="subtab-comments"]');
+        if (commentsTabBtn) commentsTabBtn.click();
+        if (commentInput) commentInput.focus();
+      }
+    };
+
+    if (btnUseSelection) btnUseSelection.addEventListener('click', fillSelectionLines);
+    if (btnTargetSelection) btnTargetSelection.addEventListener('click', fillSelectionLines);
+    if (btnClearLines) {
+      btnClearLines.addEventListener('click', () => {
+        if (commentStartLine) commentStartLine.value = '';
+        if (commentEndLine) commentEndLine.value = '';
+      });
+    }
 
     // Modal controls
     openAuthModalBtn.addEventListener('click', () => authModal.classList.add('active'));
@@ -281,9 +347,6 @@
 
     // Comment Submit
     btnPostComment.addEventListener('click', postComment);
-
-    // Review picker
-    reviewSolutionPicker.addEventListener('change', (e) => loadReviewSolutionDetails(e.target.value));
 
     // AI Draft Generator
     btnGenerateAiDraft.addEventListener('click', generateAiDraft);
@@ -542,7 +605,7 @@
     return card;
   }
 
-  // Open Solution Detail Tab
+  // Open Solution Detail Tab (Merged Workspace)
   async function openSolutionDetail(id) {
     try {
       const res = await fetch(`/api/solutions/${id}`);
@@ -553,6 +616,23 @@
       detailChallengeTitle.textContent = sol.challengeTitle;
       detailLanguageTag.textContent = sol.language.toUpperCase();
       detailUserName.textContent = `@${sol.user?.username || 'unknown'}`;
+
+      // Update Review Status badge on header
+      if (detailReviewStatusBadge) {
+        const latestRound = sol.reviewRounds && sol.reviewRounds.length > 0
+          ? sol.reviewRounds[sol.reviewRounds.length - 1]
+          : null;
+
+        if (latestRound) {
+          detailReviewStatusBadge.style.display = 'inline-block';
+          detailReviewStatusBadge.textContent = `${latestRound.status} (R${latestRound.roundNumber})`;
+          detailReviewStatusBadge.className = `role-badge ${latestRound.status.toLowerCase().includes('approved') ? 'admin' : 'user'}`;
+        } else {
+          detailReviewStatusBadge.style.display = 'inline-block';
+          detailReviewStatusBadge.textContent = 'UNREVIEWED';
+          detailReviewStatusBadge.className = 'role-badge user';
+        }
+      }
 
       avgClevernessVal.textContent = sol.clevernessAvg ? `${sol.clevernessAvg} / 5` : '-- / 5';
       avgReadabilityVal.textContent = sol.readabilityAvg ? `${sol.readabilityAvg} / 5` : '-- / 5';
@@ -566,9 +646,12 @@
         
         monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);
         state.editor.setValue(sol.code || '');
+
+        updateMonacoDecorations(sol.comments || []);
       }
 
       renderComments(sol.comments || []);
+      renderReviewRoundsTimeline(sol.reviewRounds || []);
 
       // Switch tab
       document.querySelector('[data-tab="tab-detail"]').click();
@@ -576,6 +659,40 @@
       alert('Failed to load solution details: ' + err.message);
     }
   }
+
+  // Monaco line decorations for line-targeted code review comments
+  function updateMonacoDecorations(comments) {
+    if (!state.editor || typeof monaco === 'undefined') return;
+
+    const newDecorations = [];
+    (comments || []).forEach(c => {
+      if (c.startLine) {
+        const sLine = parseInt(c.startLine);
+        const eLine = parseInt(c.endLine) || sLine;
+        newDecorations.push({
+          range: new monaco.Range(sLine, 1, eLine, 1000),
+          options: {
+            isWholeLine: true,
+            className: 'monaco-comment-line-highlight',
+            glyphMarginClassName: 'monaco-comment-glyph-margin',
+            hoverMessage: { value: `💬 **@${c.user?.username || 'User'}**: ${c.content}` }
+          }
+        });
+      }
+    });
+
+    state.editorDecorations = state.editor.deltaDecorations(state.editorDecorations, newDecorations);
+  }
+
+  // Scroll editor to target line range and highlight
+  window.scrollToMonacoLines = function(startLine, endLine) {
+    if (!state.editor) return;
+    const sLine = parseInt(startLine);
+    const eLine = parseInt(endLine) || sLine;
+    state.editor.revealLineInCenter(sLine);
+    state.editor.setSelection(new monaco.Range(sLine, 1, eLine, 1000));
+    state.editor.focus();
+  };
 
   // Submit Rating Handler
   async function submitRating() {
@@ -611,44 +728,100 @@
 
   // Comments Renderer & Submit Handler
   function renderComments(comments) {
-    if (comments.length === 0) {
-      commentsContainer.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No comments yet. Be the first to comment!</div>';
+    if (!commentsContainer) return;
+
+    let filtered = comments || [];
+    if (state.commentFilter === 'line') {
+      filtered = filtered.filter(c => c.startLine !== null && c.startLine !== undefined);
+    } else if (state.commentFilter === 'general') {
+      filtered = filtered.filter(c => !c.startLine);
+    }
+
+    if (filtered.length === 0) {
+      commentsContainer.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">No ${state.commentFilter !== 'all' ? state.commentFilter : ''} comments yet. Be the first to add review feedback!</div>`;
       return;
     }
 
     commentsContainer.innerHTML = '';
-    comments.forEach(c => {
+    filtered.forEach(c => {
       const item = document.createElement('div');
       item.className = 'comment-item';
+
+      let lineBadgeHtml = '';
+      if (c.startLine) {
+        const lineText = (c.endLine && c.endLine > c.startLine) 
+          ? `Lines ${c.startLine}-${c.endLine}` 
+          : `Line ${c.startLine}`;
+        lineBadgeHtml = `<button class="line-tag-badge" onclick="scrollToMonacoLines(${c.startLine}, ${c.endLine || c.startLine})" title="Jump to code line in editor">🎯 ${lineText}</button>`;
+      }
+
+      const isAuthorOrAdmin = state.currentUser && (state.currentUser.id === c.userId || state.currentUser.role === 'ADMIN');
+      const deleteBtnHtml = isAuthorOrAdmin ? `<button class="btn-micro" style="color: var(--neon-pink); border-color: rgba(255,0,85,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` : '';
+
       item.innerHTML = `
         <div class="comment-header">
-          <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
-          <span>${new Date(c.createdAt).toLocaleString()}</span>
+          <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+            <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
+            ${lineBadgeHtml}
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span>${new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            ${deleteBtnHtml}
+          </div>
         </div>
-        <div style="color: #fff;">${escapeHtml(c.content)}</div>
+        <div style="color: #fff; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(c.content)}</div>
       `;
       commentsContainer.appendChild(item);
     });
   }
 
+  window.deleteComment = async function(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    try {
+      const res = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      if (res.ok) {
+        if (state.activeSolution) {
+          await openSolutionDetail(state.activeSolution.id);
+        }
+      } else {
+        const data = await res.json();
+        alert('Failed to delete comment: ' + data.error);
+      }
+    } catch (e) {
+      alert('Error deleting comment: ' + e.message);
+    }
+  };
+
   async function postComment() {
-    if (!state.activeSolution) return alert('No solution selected');
+    if (!state.activeSolution) return alert('Please select a solution first');
     const content = commentInput.value.trim();
-    if (!content) return;
+    if (!content) return alert('Comment content cannot be empty');
+
+    const startLineVal = commentStartLine && commentStartLine.value ? parseInt(commentStartLine.value) : null;
+    const endLineVal = commentEndLine && commentEndLine.value ? parseInt(commentEndLine.value) : null;
 
     try {
+      const payload = { content };
+      if (startLineVal) payload.startLine = startLineVal;
+      if (endLineVal) payload.endLine = endLineVal;
+
       const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${state.currentToken}`
         },
-        body: JSON.stringify({ content })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
       if (res.ok) {
         commentInput.value = '';
+        if (commentStartLine) commentStartLine.value = '';
+        if (commentEndLine) commentEndLine.value = '';
         await openSolutionDetail(state.activeSolution.id);
       } else {
         alert('Failed to post comment: ' + data.error);
@@ -658,34 +831,12 @@
     }
   }
 
-  // CODE REVIEWS
-  function populateReviewPicker(solutions) {
-    reviewSolutionPicker.innerHTML = '<option value="">-- Choose a Solution from Database --</option>';
-    solutions.forEach(sol => {
-      const opt = document.createElement('option');
-      opt.value = sol.id;
-      opt.textContent = `${sol.challengeTitle} (@${sol.user?.username || 'unknown'} - ${sol.language})`;
-      reviewSolutionPicker.appendChild(opt);
-    });
-  }
-
-  async function loadReviewSolutionDetails(solutionId) {
-    if (!solutionId) return;
-
-    try {
-      const res = await fetch(`/api/solutions/${solutionId}`);
-      const data = await res.json();
-      const sol = data.solution;
-
-      renderReviewRoundsTimeline(sol.reviewRounds || []);
-    } catch (err) {
-      console.error('Error loading review details:', err);
-    }
-  }
-
+  // CODE REVIEWS (Integrated into Active Solution Workspace)
   function renderReviewRoundsTimeline(rounds) {
+    if (!reviewRoundsTimeline) return;
+
     if (rounds.length === 0) {
-      reviewRoundsTimeline.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">No review rounds recorded yet. Use the Gemini AI Assistant on the left to start Round 1.</div>';
+      reviewRoundsTimeline.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">No review rounds recorded yet. Use the Gemini AI Assistant above to start Round 1.</div>';
       return;
     }
 
@@ -696,7 +847,7 @@
       
       let parsedGemini = null;
       try {
-        if (r.geminiDraft) parsedGemini = JSON.parse(r.geminiDraft);
+        if (r.geminiDraft) parsedGemini = typeof r.geminiDraft === 'string' ? JSON.parse(r.geminiDraft) : r.geminiDraft;
       } catch (e) {}
 
       item.innerHTML = `
@@ -705,23 +856,22 @@
           <span style="color: var(--text-muted);">${new Date(r.createdAt).toLocaleDateString()}</span>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">Reviewed by @${r.reviewer?.username || 'Admin'}</div>
-        <div style="color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.4rem;">
+        <div style="color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.4rem; white-space: pre-wrap;">
           ${escapeHtml(r.adminNotes)}
         </div>
-        ${parsedGemini && parsedGemini.complexity ? `<div style="font-size: 0.75rem; color: var(--neon-cyan);">Complexity: ${escapeHtml(parsedGemini.complexity)}</div>` : ''}
+        ${parsedGemini && (typeof parsedGemini === 'string' ? parsedGemini : parsedGemini.complexity) ? `<div style="font-size: 0.75rem; color: var(--neon-cyan); background: rgba(0,243,255,0.05); padding: 4px; border-radius: 3px; font-family: monospace;">Gemini AI Draft Included</div>` : ''}
       `;
       reviewRoundsTimeline.appendChild(item);
     });
   }
 
   async function generateAiDraft() {
-    const solutionId = reviewSolutionPicker.value;
-    if (!solutionId) return alert('Please select a solution from the dropdown first');
+    if (!state.activeSolution) return alert('Please select a solution first');
 
-    aiDraftOutput.textContent = ' querying Gemini 1.5 Flash AI Assistant for code analysis...';
+    aiDraftOutput.textContent = ' querying Gemini AI Assistant for automated complexity & edge-case analysis...';
 
     try {
-      const res = await fetch(`/api/solutions/${solutionId}/review/draft`, {
+      const res = await fetch(`/api/solutions/${state.activeSolution.id}/review/draft`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -742,8 +892,7 @@
   }
 
   async function publishReviewRound() {
-    const solutionId = reviewSolutionPicker.value;
-    if (!solutionId) return alert('Please select a solution to review');
+    if (!state.activeSolution) return alert('Please select a solution to review');
     
     const status = reviewStatusSelect.value;
     const adminNotes = adminReviewNotes.value.trim();
@@ -751,14 +900,13 @@
     if (!adminNotes) return alert('Please write feedback notes in the box before publishing');
 
     try {
-      // Get current round count
-      const roundsRes = await fetch(`/api/solutions/${solutionId}/reviews`, {
+      const roundsRes = await fetch(`/api/solutions/${state.activeSolution.id}/reviews`, {
         headers: { 'Authorization': `Bearer ${state.currentToken}` }
       });
       const roundsData = await roundsRes.json();
       const nextRoundNumber = (roundsData.rounds?.length || 0) + 1;
 
-      const res = await fetch(`/api/solutions/${solutionId}/review/publish`, {
+      const res = await fetch(`/api/solutions/${state.activeSolution.id}/review/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -776,7 +924,7 @@
       if (res.ok) {
         alert(`Published Review Round ${nextRoundNumber} successfully!`);
         adminReviewNotes.value = '';
-        await loadReviewSolutionDetails(solutionId);
+        await openSolutionDetail(state.activeSolution.id);
       } else {
         alert('Failed to publish review: ' + data.error);
       }

@@ -20,8 +20,7 @@
 
       <nav class="nav-links">
         <button id="nav-explorer-btn" class="nav-btn active" data-tab="tab-explorer">📂 Solution Explorer</button>
-        <button id="nav-detail-btn" class="nav-btn" data-tab="tab-detail">💻 Solution Workspace</button>
-        <button id="nav-reviews-btn" class="nav-btn" data-tab="tab-reviews">🤖 Code Reviews</button>
+        <button id="nav-detail-btn" class="nav-btn" data-tab="tab-detail">💻 Solution & Review Workspace</button>
         <button id="nav-admin-btn" class="nav-btn" data-tab="tab-admin">⚙️ Admin Hub</button>
       </nav>
 
@@ -102,13 +101,14 @@
       </div>
     </section>
 
-    <!-- 2. SOLUTION WORKSPACE / DETAIL TAB -->
+    <!-- 2. MERGED SOLUTION & CODE REVIEW WORKSPACE TAB -->
     <section id="tab-detail" class="tab-content">
       <div class="glass-panel">
         <div class="panel-title">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
             <span id="detail-challenge-title">Select a Solution</span>
             <span id="detail-language-tag" class="lang-tag">CODE</span>
+            <span id="detail-review-status-badge" class="role-badge user" style="display: none;">NO REVIEW</span>
           </div>
           <div style="font-size: 0.85rem; color: var(--text-muted);">
             Submitted by: <strong id="detail-user-name" style="color: var(--neon-cyan);">--</strong>
@@ -116,136 +116,154 @@
         </div>
 
         <div class="solution-detail-layout">
-          <!-- Code Editor View -->
+          <!-- Left Column: Code Editor View & Line Selection Toolbar -->
           <div>
+            <div class="editor-toolbar">
+              <div class="editor-selection-info">
+                <span id="monaco-selection-badge">📍 Click or drag line in code editor to target comment</span>
+              </div>
+              <div class="editor-toolbar-actions">
+                <button id="btn-target-selection" class="btn-micro btn-cyan">🎯 Comment on Line(s)</button>
+              </div>
+            </div>
             <div id="monaco-editor" class="editor-container"></div>
           </div>
 
-          <!-- Social Sidebar (Ratings & Comments) -->
+          <!-- Right Column: Sidebar (Sub-tabs for Comments, AI/Admin Reviews, and Ratings) -->
           <div>
-            <!-- Dual Ratings Panel -->
-            <div class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
-              <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">⭐ Community Ratings</h3>
-              
-              <!-- Aggregates -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: var(--radius-sm);">
-                <div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Cleverness</div>
-                  <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-amber);" id="avg-cleverness-val">-- / 5</div>
-                </div>
-                <div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Readability</div>
-                  <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-green);" id="avg-readability-val">-- / 5</div>
-                </div>
-              </div>
+            <!-- Sidebar Navigation Sub-tabs -->
+            <div class="sidebar-tabs">
+              <button class="sidebar-tab-btn active" data-subtab="subtab-comments">💬 Comments & Line Reviews</button>
+              <button class="sidebar-tab-btn" data-subtab="subtab-reviews">🤖 AI & Admin Reviews</button>
+              <button class="sidebar-tab-btn" data-subtab="subtab-ratings">⭐ Ratings</button>
+            </div>
 
-              <!-- Submit Your Rating -->
-              <div id="rate-submission-box">
-                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">Rate this solution:</div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                  <span style="font-size: 0.8rem;">Cleverness:</span>
-                  <div id="star-cleverness-selector" class="star-selector" data-type="cleverness">
-                    <button class="star-btn" data-val="1">★</button>
-                    <button class="star-btn" data-val="2">★</button>
-                    <button class="star-btn" data-val="3">★</button>
-                    <button class="star-btn" data-val="4">★</button>
-                    <button class="star-btn" data-val="5">★</button>
-                  </div>
-                </div>
-
+            <!-- Subtab 1: Code Review & Discussion Comments -->
+            <div id="subtab-comments" class="sidebar-subtab-content active">
+              <div class="glass-panel" style="padding: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                  <span style="font-size: 0.8rem;">Readability:</span>
-                  <div id="star-readability-selector" class="star-selector" data-type="readability">
-                    <button class="star-btn" data-val="1">★</button>
-                    <button class="star-btn" data-val="2">★</button>
-                    <button class="star-btn" data-val="3">★</button>
-                    <button class="star-btn" data-val="4">★</button>
-                    <button class="star-btn" data-val="5">★</button>
+                  <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin: 0;">💬 Code Review & Discussion</h3>
+                  <div class="comment-filter-pills">
+                    <button class="pill-btn active" data-filter="all">All</button>
+                    <button class="pill-btn" data-filter="line">Line Reviews</button>
+                    <button class="pill-btn" data-filter="general">General</button>
                   </div>
                 </div>
 
-                <button id="btn-submit-rating" class="btn-retro btn-green" style="width: 100%; font-size: 0.8rem; padding: 0.4rem;">Submit Rating</button>
+                <div id="comments-container" class="comments-list">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No comments yet. Be the first to add a code review comment!</div>
+                </div>
+
+                <!-- Post Comment Box -->
+                <div class="form-group" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--neon-cyan);">Add Review Comment</label>
+                    <button id="btn-use-selection" class="btn-micro" style="font-size: 0.7rem;">🎯 Use Active Code Selection</button>
+                  </div>
+
+                  <!-- Line Range Target Controls -->
+                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.4rem;">
+                    <input type="number" id="comment-start-line" class="form-control" placeholder="Start Line (e.g. 5)" min="1" style="font-size: 0.75rem; padding: 4px 8px;">
+                    <input type="number" id="comment-end-line" class="form-control" placeholder="End Line (e.g. 10)" min="1" style="font-size: 0.75rem; padding: 4px 8px;">
+                    <button id="btn-clear-lines" class="btn-micro" type="button" title="Clear line targeting">✕</button>
+                  </div>
+
+                  <textarea id="comment-input" class="form-control" rows="3" placeholder="Write line feedback or general review comment..."></textarea>
+                  <button id="btn-post-comment" class="btn-retro btn-green" style="margin-top: 0.5rem; width: 100%; font-size: 0.8rem;">Post Comment</button>
+                </div>
               </div>
             </div>
 
-            <!-- Comments Section -->
-            <div class="glass-panel" style="padding: 1rem;">
-              <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">💬 Discussion Comments</h3>
-              
-              <div id="comments-container" class="comments-list">
-                <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No comments yet. Be the first to comment!</div>
+            <!-- Subtab 2: AI Draft & Admin Review Rounds -->
+            <div id="subtab-reviews" class="sidebar-subtab-content">
+              <!-- AI Review Assistant -->
+              <div class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin: 0;">⚡ Gemini AI Review Assistant</h3>
+                  <button id="btn-generate-ai-draft" class="btn-retro btn-pink" style="font-size: 0.75rem; padding: 4px 8px;">Generate AI Draft</button>
+                </div>
+                <div id="ai-draft-output" class="form-control" style="height: 180px; overflow-y: auto; white-space: pre-wrap; font-size: 0.78rem; background: rgba(0,0,0,0.4);">
+                  Click "Generate AI Draft" to query Gemini AI for automated time/space complexity analysis, edge cases, and code suggestions.
+                </div>
               </div>
 
-              <!-- Post Comment Box -->
-              <div class="form-group">
-                <textarea id="comment-input" class="form-control" rows="2" placeholder="Write a constructive comment or suggestion..."></textarea>
-                <button id="btn-post-comment" class="btn-retro" style="margin-top: 0.4rem; align-self: flex-end; font-size: 0.8rem;">Post Comment</button>
+              <!-- Admin Review Round Publisher -->
+              <div id="admin-review-publisher-box" class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
+                <h3 style="font-size: 0.95rem; color: var(--neon-green); margin-bottom: 0.75rem;">✍️ Admin Code Review Decision</h3>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                  <label style="font-size: 0.8rem;">Review Status</label>
+                  <select id="review-status-select" class="form-control" style="font-size: 0.8rem;">
+                    <option value="APPROVED">✅ APPROVED (Passes Code Review)</option>
+                    <option value="CHANGES_REQUESTED">⚠️ CHANGES REQUESTED (Needs Refactoring)</option>
+                    <option value="DRAFT">📝 DRAFT WORK IN PROGRESS</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                  <label style="font-size: 0.8rem;">Admin Feedback / Summary Notes</label>
+                  <textarea id="admin-review-notes" class="form-control" rows="3" placeholder="Enter code review round decision notes..." style="font-size: 0.8rem;"></textarea>
+                </div>
+                <button id="btn-publish-review-round" class="btn-retro btn-green" style="width: 100%; font-size: 0.8rem;">Publish Review Round</button>
+              </div>
+
+              <!-- Review Rounds Timeline -->
+              <div class="glass-panel" style="padding: 1rem;">
+                <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">📜 Review Rounds History</h3>
+                <div id="review-rounds-timeline" class="timeline">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No review rounds recorded yet.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subtab 3: Ratings Panel -->
+            <div id="subtab-ratings" class="sidebar-subtab-content">
+              <div class="glass-panel" style="padding: 1rem;">
+                <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">⭐ Community Ratings</h3>
+                
+                <!-- Aggregates -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: var(--radius-sm);">
+                  <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Cleverness</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-amber);" id="avg-cleverness-val">-- / 5</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Readability</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-green);" id="avg-readability-val">-- / 5</div>
+                  </div>
+                </div>
+
+                <!-- Submit Your Rating -->
+                <div id="rate-submission-box">
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">Rate this solution:</div>
+                  
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-size: 0.8rem;">Cleverness:</span>
+                    <div id="star-cleverness-selector" class="star-selector" data-type="cleverness">
+                      <button class="star-btn" data-val="1">★</button>
+                      <button class="star-btn" data-val="2">★</button>
+                      <button class="star-btn" data-val="3">★</button>
+                      <button class="star-btn" data-val="4">★</button>
+                      <button class="star-btn" data-val="5">★</button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.8rem;">Readability:</span>
+                    <div id="star-readability-selector" class="star-selector" data-type="readability">
+                      <button class="star-btn" data-val="1">★</button>
+                      <button class="star-btn" data-val="2">★</button>
+                      <button class="star-btn" data-val="3">★</button>
+                      <button class="star-btn" data-val="4">★</button>
+                      <button class="star-btn" data-val="5">★</button>
+                    </div>
+                  </div>
+
+                  <button id="btn-submit-rating" class="btn-retro btn-green" style="width: 100%; font-size: 0.8rem; padding: 0.4rem;">Submit Rating</button>
+                </div>
               </div>
             </div>
 
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- 3. CODE REVIEWS TAB -->
-    <section id="tab-reviews" class="tab-content">
-      <div class="glass-panel">
-        <div class="panel-title">
-          <span>🤖 Gemini AI Multi-Round Code Review Center</span>
-          <span style="font-size: 0.85rem; color: var(--neon-pink);" id="review-admin-status-tag">Admin Review Mode</span>
-        </div>
-
-        <div style="margin-bottom: 1.25rem;">
-          <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Select Solution to Review:</label>
-          <select id="review-solution-picker" class="form-control" style="width: 100%;">
-            <option value="">-- Choose a Solution from Database --</option>
-          </select>
-        </div>
-
-        <!-- Review Workspace Grid -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-          <!-- Left: Code & Draft Assistant -->
-          <div>
-            <div class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <h3 style="font-size: 0.95rem; color: var(--neon-cyan);">⚡ Gemini AI Review Assistant</h3>
-                <button id="btn-generate-ai-draft" class="btn-retro btn-pink" style="font-size: 0.8rem;">Generate AI Review Draft</button>
-              </div>
-              <div id="ai-draft-output" class="form-control" style="height: 220px; overflow-y: auto; white-space: pre-wrap; font-size: 0.8rem; background: rgba(0,0,0,0.4);">
-                Click "Generate AI Review Draft" to query Gemini AI for automated time/space complexity analysis, edge cases, and code style suggestions.
-              </div>
-            </div>
-
-            <!-- Admin Notes & Round Publisher -->
-            <div id="admin-review-publisher-box" class="glass-panel" style="padding: 1rem;">
-              <h3 style="font-size: 0.95rem; color: var(--neon-green); margin-bottom: 0.75rem;">✍️ Admin Code Review Decision</h3>
-              <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label>Review Status</label>
-                <select id="review-status-select" class="form-control">
-                  <option value="APPROVED">✅ APPROVED (Passes Code Review)</option>
-                  <option value="CHANGES_REQUESTED">⚠️ CHANGES REQUESTED (Needs Refactoring)</option>
-                  <option value="DRAFT">📝 DRAFT WORK IN PROGRESS</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label>Admin Feedback / Review Notes</label>
-                <textarea id="admin-review-notes" class="form-control" rows="4" placeholder="Enter final code review comments for the user..."></textarea>
-              </div>
-              <button id="btn-publish-review-round" class="btn-retro btn-green" style="width: 100%;">Publish Code Review Round</button>
-            </div>
-          </div>
-
-          <!-- Right: Historical Multi-Round Review Timeline -->
-          <div class="glass-panel" style="padding: 1rem;">
-            <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 1rem;">📜 Review Rounds History</h3>
-            <div id="review-rounds-timeline" class="timeline">
-              <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Select a solution above to view its review round history.</div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </section>
 

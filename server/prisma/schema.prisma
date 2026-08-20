@@ -68,14 +68,17 @@ model Rating {
 }
 
 model Comment {
-  id         String   @id @default(uuid())
-  solutionId String
-  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content    String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(uuid())
+  solutionId  String
+  solution    Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String
+  startLine   Int?
+  endLine     Int?
+  commentType String   @default("GENERAL") // "GENERAL" or "LINE_REVIEW"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ReviewRound {

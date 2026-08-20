@@ -3,9 +3,9 @@
  * Manifest V3 compliant service worker
  */
 
-// Import seed data and storage scripts in service worker
+// Import seed data, storage, api and sync scripts in service worker
 try {
-  importScripts('../data/seed-data.js', '../lib/storage.js', '../lib/api.js');
+  importScripts('../data/seed-data.js', '../lib/storage.js', '../lib/api.js', '../lib/sync.js');
 } catch (e) {
   console.error('Failed to import scripts in service worker:', e);
 }
@@ -16,6 +16,19 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   if (typeof HRStorage !== 'undefined') {
     await HRStorage.init();
     await updateBadge();
+  }
+  
+  // Set up periodic sync alarm (every 15 minutes)
+  chrome.alarms.create('periodicLocalServerSync', { periodInMinutes: 15 });
+});
+
+// Periodic alarm handler for background auto-push
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === 'periodicLocalServerSync') {
+    if (typeof HRSync !== 'undefined') {
+      const res = await HRSync.pushToServer();
+      console.log('Background periodic sync result:', res);
+    }
   }
 });
 
@@ -49,6 +62,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'REFRESH_BADGE') {
     updateBadge().then(() => sendResponse({ success: true }));
+    return true;
+  }
+
+  if (message.type === 'TRIGGER_SERVER_SYNC') {
+    if (typeof HRSync !== 'undefined') {
+      HRSync.pushToServer().then(res => sendResponse(res));
+    } else {
+      sendResponse({ success: false, error: 'HRSync not loaded' });
+    }
     return true;
   }
 

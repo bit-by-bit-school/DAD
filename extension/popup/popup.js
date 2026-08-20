@@ -1,5 +1,5 @@
 /**
- * HackerRank Solutions - Popup Controller
+ * HackerRank Solutions - Popup Controller with Local Server Sync Support
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const fetchAlert = document.getElementById('fetch-alert');
   const alertMessage = document.getElementById('alert-message');
 
+  const serverTokenInput = document.getElementById('server-token-input');
+  const saveTokenBtn = document.getElementById('save-token-btn');
+  const syncNowBtn = document.getElementById('sync-now-btn');
+  const syncStatusBadge = document.getElementById('sync-status-badge');
+  const syncAlert = document.getElementById('sync-alert');
+
   const metricTotalProblems = document.getElementById('metric-total-problems');
   const metricTotalSolutions = document.getElementById('metric-total-solutions');
   const metricTotalUsers = document.getElementById('metric-total-users');
@@ -29,9 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let abortController = null;
 
-  // Initialize Storage
+  // Initialize Storage & Server Settings
   await HRStorage.init();
   await refreshDatabaseStats();
+  await loadServerSettings();
   checkAuth();
 
   // Load problem slugs list
@@ -41,6 +48,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else {
     const problems = await HRStorage.getProblems();
     problemSlugs = Object.keys(problems);
+  }
+
+  // Load local server settings into popup
+  async function loadServerSettings() {
+    const settings = await HRStorage.getSettings();
+    if (settings.authToken) {
+      serverTokenInput.value = settings.authToken;
+      syncStatusBadge.textContent = 'Token Set';
+      syncStatusBadge.style.color = '#00EA64';
+    } else {
+      syncStatusBadge.textContent = 'Token Unset';
+      syncStatusBadge.style.color = '#ff9900';
+    }
+  }
+
+  // Save server token handler
+  saveTokenBtn.addEventListener('click', async () => {
+    const token = serverTokenInput.value.trim();
+    await HRStorage.saveSettings({ authToken: token });
+    showSyncAlert(token ? 'Token saved successfully!' : 'Token cleared.', token ? 'success' : 'error');
+    await loadServerSettings();
+  });
+
+  // Sync now button handler
+  syncNowBtn.addEventListener('click', async () => {
+    syncNowBtn.disabled = true;
+    syncNowBtn.textContent = 'Syncing...';
+    showSyncAlert('Syncing solutions to local backend server...', 'info');
+
+    try {
+      const result = await HRSync.pushToServer();
+      if (result.success) {
+        showSyncAlert(`Synced ${result.syncedCount} solutions as user @${result.syncedUser}!`, 'success');
+      } else {
+        showSyncAlert(`Sync failed: ${result.error}`, 'error');
+      }
+    } catch (err) {
+      showSyncAlert(`Sync error: ${err.message}`, 'error');
+    } finally {
+      syncNowBtn.disabled = false;
+      syncNowBtn.textContent = 'Sync Now';
+    }
+  });
+
+  function showSyncAlert(msg, type = 'success') {
+    syncAlert.textContent = msg;
+    syncAlert.style.color = type === 'success' ? '#00EA64' : (type === 'info' ? '#00d2ff' : '#ff4d4d');
+    syncAlert.classList.remove('hidden');
   }
 
   // Refresh summary stats and user chips
@@ -157,13 +212,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const saveResult = await HRStorage.saveUserSolutions(username, result.solutions);
       await refreshDatabaseStats();
 
-      // Notify background worker to refresh badge
-      if (typeof chrome !== 'undefined' && chrome.runtime) {
-        chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
-      }
+      // Trigger server sync automatically after fetching
+      const syncRes = await HRSync.pushToServer();
 
       showAlert(
-        `Success! Found ${result.solvedCount} solutions for @${username} (${saveResult.newlyAddedCount} new, ${saveResult.updatedCount} updated).`,
+        `Success! Found ${result.solvedCount} solutions for @${username}. ${syncRes.success ? 'Synced to server!' : ''}`,
         'success'
       );
     } catch (err) {
@@ -187,16 +240,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Handle Open Dashboard
-  openDashboardBtn.addEventListener('click', () => {
-    const targetUser = usernameInput.value.trim();
-    const query = targetUser ? `?user=${encodeURIComponent(targetUser)}` : '';
-    const dashboardUrl = chrome.runtime ? chrome.runtime.getURL(`dashboard/dashboard.html${query}`) : `../dashboard/dashboard.html${query}`;
+  // Handle Open Local Server Dashboard
+  openDashboardBtn.addEventListener('click', async () => {
+    const settings = await HRStorage.getSettings();
+    const serverUrl = settings.serverUrl || 'http://localhost:3000';
+    const token = settings.authToken || '';
+    const targetUrl = token ? `${serverUrl}?token=${encodeURIComponent(token)}` : serverUrl;
 
     if (typeof chrome !== 'undefined' && chrome.tabs) {
-      chrome.tabs.create({ url: dashboardUrl });
+      chrome.tabs.create({ url: targetUrl });
     } else {
-      window.open(dashboardUrl, '_blank');
+      window.open(targetUrl, '_blank');
     }
   });
 

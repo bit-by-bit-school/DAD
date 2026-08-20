@@ -1,6 +1,16 @@
 # Dependencies
 node_modules/
+**/node_modules/
 /.pnpm-store
+
+# SQLite Database & Prisma
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+dev.db
+server/dev.db
+server/prisma/*.db
 
 # Build & Output
 dist/
@@ -21,6 +31,7 @@ lerna-debug.log*
 .env.local
 .env.*.local
 *.env
+server/.env
 
 # IDEs & Editors
 .vscode/

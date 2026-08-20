@@ -96,6 +96,30 @@
         </div>
       </section>
 
+      <!-- Local Backend Server Sync Section -->
+      <section class="card server-card">
+        <div class="card-header">
+          <h2>🌐 Local Server Auto-Sync</h2>
+          <span id="sync-status-badge" class="card-hint">Offline / Unset</span>
+        </div>
+        <div class="server-sync-form" style="margin-top: 10px;">
+          <div class="input-group" style="margin-bottom: 8px;">
+            <label for="server-token-input" style="font-size: 11px;">Server Auth Token</label>
+            <input 
+              type="password" 
+              id="server-token-input" 
+              placeholder="e.g. hr_admin_master_token_2026" 
+              style="width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #fff; font-size: 12px;"
+            />
+          </div>
+          <div class="button-row" style="gap: 6px;">
+            <button type="button" id="save-token-btn" class="btn btn-secondary" style="flex: 1; font-size: 12px; padding: 6px;">Save Token</button>
+            <button type="button" id="sync-now-btn" class="btn btn-primary" style="flex: 1; font-size: 12px; padding: 6px; background: #00EA64; color: #000;">Sync Now</button>
+          </div>
+          <div id="sync-alert" class="alert hidden" style="margin-top: 8px; font-size: 11px;"></div>
+        </div>
+      </section>
+
       <!-- Database Summary Card -->
       <section class="card stats-card">
         <div class="card-header">
@@ -126,7 +150,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
         </svg>
-        <span>Open Full Solutions Dashboard</span>
+        <span>Open Local Server Dashboard</span>
       </button>
     </footer>
   </div>
@@ -136,6 +160,7 @@
   <script src="../data/problems-list.js"></script>
   <script src="../lib/storage.js"></script>
   <script src="../lib/api.js"></script>
+  <script src="../lib/sync.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

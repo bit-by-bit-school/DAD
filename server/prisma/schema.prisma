@@ -1,0 +1,95 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String         @id @default(uuid())
+  username        String         @unique
+  token           String         @unique
+  discordId       String?        @unique
+  discordUsername String?
+  discordAvatar   String?
+  role            String         @default("USER") // "ADMIN" or "USER"
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  solutions       Solution[]
+  ratings         Rating[]
+  comments        Comment[]
+  reviewRounds    ReviewRound[]
+}
+
+model UnmappedDiscord {
+  id              String   @id @default(uuid())
+  discordId       String   @unique
+  discordUsername String
+  discordAvatar   String?
+  loggedInAt      DateTime @default(now())
+}
+
+model Solution {
+  id             String        @id @default(uuid())
+  submissionId   String
+  challengeSlug  String
+  challengeTitle String
+  contestSlug    String?       @default("master")
+  language       String
+  code           String
+  score          Float?
+  status         String?
+  submittedAt    DateTime?
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  ratings        Rating[]
+  comments       Comment[]
+  reviewRounds   ReviewRound[]
+
+  @@unique([submissionId, userId])
+}
+
+model Rating {
+  id         String   @id @default(uuid())
+  solutionId String
+  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cleverness Int // 1 to 5
+  readability Int // 1 to 5
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([solutionId, userId])
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  solutionId String
+  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ReviewRound {
+  id          String   @id @default(uuid())
+  solutionId  String
+  solution    Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  roundNumber Int
+  reviewerId  String
+  reviewer    User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  status      String   @default("APPROVED") // "APPROVED", "CHANGES_REQUESTED", "DRAFT"
+  geminiDraft String?
+  adminNotes  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([solutionId, roundNumber])
+}

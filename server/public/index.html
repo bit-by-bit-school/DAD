@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HackerRank Solutions Hub // Retro Digital Dashboard</title>
+  <link rel="stylesheet" href="retro-digital.css">
+  <!-- Monaco Editor CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+</head>
+<body>
+
+  <!-- Header & Navigation -->
+  <header class="header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-logo">⚡ HACKERRANK_HUB</div>
+        <span class="version-badge">v1.0 RETRO</span>
+      </div>
+
+      <nav class="nav-links">
+        <button id="nav-explorer-btn" class="nav-btn active" data-tab="tab-explorer">📂 Solution Explorer</button>
+        <button id="nav-detail-btn" class="nav-btn" data-tab="tab-detail">💻 Solution Workspace</button>
+        <button id="nav-reviews-btn" class="nav-btn" data-tab="tab-reviews">🤖 Code Reviews</button>
+        <button id="nav-admin-btn" class="nav-btn" data-tab="tab-admin">⚙️ Admin Hub</button>
+      </nav>
+
+      <div class="user-widget">
+        <div id="user-info-tag" class="user-tag">
+          <span id="active-user-name">Guest User</span>
+          <span id="active-user-role" class="role-badge user">USER</span>
+        </div>
+        <button id="open-auth-modal-btn" class="btn-retro">🔑 Switch Token / Login</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- 1. SOLUTION EXPLORER TAB -->
+    <section id="tab-explorer" class="tab-content active">
+      <div class="glass-panel">
+        <div class="panel-title">
+          <span>🔍 Filter Solutions Database</span>
+          <span id="solutions-count-badge" style="font-size: 0.85rem; color: var(--neon-cyan);">0 Solutions Found</span>
+        </div>
+        <div class="filter-grid">
+          <div class="form-group">
+            <label for="filter-search">Search Keyword / Slug / Code</label>
+            <input type="text" id="filter-search" class="form-control" placeholder="e.g. subarray, python, binary search...">
+          </div>
+          <div class="form-group">
+            <label for="filter-language">Language</label>
+            <select id="filter-language" class="form-control">
+              <option value="">All Languages</option>
+              <option value="python">Python 3</option>
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="javascript">JavaScript</option>
+              <option value="pypy3">PyPy 3</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filter-user">Submitted User</label>
+            <input type="text" id="filter-user" class="form-control" placeholder="Filter by username">
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <button id="btn-apply-filters" class="btn-retro btn-green" style="height: 38px;">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solutions Grid -->
+      <div id="solutions-grid" class="solutions-grid">
+        <div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
+          Loading solutions from local database...
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SOLUTION WORKSPACE / DETAIL TAB -->
+    <section id="tab-detail" class="tab-content">
+      <div class="glass-panel">
+        <div class="panel-title">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span id="detail-challenge-title">Select a Solution</span>
+            <span id="detail-language-tag" class="lang-tag">CODE</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Submitted by: <strong id="detail-user-name" style="color: var(--neon-cyan);">--</strong>
+          </div>
+        </div>
+
+        <div class="solution-detail-layout">
+          <!-- Code Editor View -->
+          <div>
+            <div id="monaco-editor" class="editor-container"></div>
+          </div>
+
+          <!-- Social Sidebar (Ratings & Comments) -->
+          <div>
+            <!-- Dual Ratings Panel -->
+            <div class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
+              <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">⭐ Community Ratings</h3>
+              
+              <!-- Aggregates -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: var(--radius-sm);">
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Cleverness</div>
+                  <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-amber);" id="avg-cleverness-val">-- / 5</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Readability</div>
+                  <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-green);" id="avg-readability-val">-- / 5</div>
+                </div>
+              </div>
+
+              <!-- Submit Your Rating -->
+              <div id="rate-submission-box">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">Rate this solution:</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <span style="font-size: 0.8rem;">Cleverness:</span>
+                  <div id="star-cleverness-selector" class="star-selector" data-type="cleverness">
+                    <button class="star-btn" data-val="1">★</button>
+                    <button class="star-btn" data-val="2">★</button>
+                    <button class="star-btn" data-val="3">★</button>
+                    <button class="star-btn" data-val="4">★</button>
+                    <button class="star-btn" data-val="5">★</button>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <span style="font-size: 0.8rem;">Readability:</span>
+                  <div id="star-readability-selector" class="star-selector" data-type="readability">
+                    <button class="star-btn" data-val="1">★</button>
+                    <button class="star-btn" data-val="2">★</button>
+                    <button class="star-btn" data-val="3">★</button>
+                    <button class="star-btn" data-val="4">★</button>
+                    <button class="star-btn" data-val="5">★</button>
+                  </div>
+                </div>
+
+                <button id="btn-submit-rating" class="btn-retro btn-green" style="width: 100%; font-size: 0.8rem; padding: 0.4rem;">Submit Rating</button>
+              </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="glass-panel" style="padding: 1rem;">
+              <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">💬 Discussion Comments</h3>
+              
+              <div id="comments-container" class="comments-list">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No comments yet. Be the first to comment!</div>
+              </div>
+
+              <!-- Post Comment Box -->
+              <div class="form-group">
+                <textarea id="comment-input" class="form-control" rows="2" placeholder="Write a constructive comment or suggestion..."></textarea>
+                <button id="btn-post-comment" class="btn-retro" style="margin-top: 0.4rem; align-self: flex-end; font-size: 0.8rem;">Post Comment</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CODE REVIEWS TAB -->
+    <section id="tab-reviews" class="tab-content">
+      <div class="glass-panel">
+        <div class="panel-title">
+          <span>🤖 Gemini AI Multi-Round Code Review Center</span>
+          <span style="font-size: 0.85rem; color: var(--neon-pink);" id="review-admin-status-tag">Admin Review Mode</span>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Select Solution to Review:</label>
+          <select id="review-solution-picker" class="form-control" style="width: 100%;">
+            <option value="">-- Choose a Solution from Database --</option>
+          </select>
+        </div>
+
+        <!-- Review Workspace Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <!-- Left: Code & Draft Assistant -->
+          <div>
+            <div class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 0.95rem; color: var(--neon-cyan);">⚡ Gemini AI Review Assistant</h3>
+                <button id="btn-generate-ai-draft" class="btn-retro btn-pink" style="font-size: 0.8rem;">Generate AI Review Draft</button>
+              </div>
+              <div id="ai-draft-output" class="form-control" style="height: 220px; overflow-y: auto; white-space: pre-wrap; font-size: 0.8rem; background: rgba(0,0,0,0.4);">
+                Click "Generate AI Review Draft" to query Gemini AI for automated time/space complexity analysis, edge cases, and code style suggestions.
+              </div>
+            </div>
+
+            <!-- Admin Notes & Round Publisher -->
+            <div id="admin-review-publisher-box" class="glass-panel" style="padding: 1rem;">
+              <h3 style="font-size: 0.95rem; color: var(--neon-green); margin-bottom: 0.75rem;">✍️ Admin Code Review Decision</h3>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label>Review Status</label>
+                <select id="review-status-select" class="form-control">
+                  <option value="APPROVED">✅ APPROVED (Passes Code Review)</option>
+                  <option value="CHANGES_REQUESTED">⚠️ CHANGES REQUESTED (Needs Refactoring)</option>
+                  <option value="DRAFT">📝 DRAFT WORK IN PROGRESS</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label>Admin Feedback / Review Notes</label>
+                <textarea id="admin-review-notes" class="form-control" rows="4" placeholder="Enter final code review comments for the user..."></textarea>
+              </div>
+              <button id="btn-publish-review-round" class="btn-retro btn-green" style="width: 100%;">Publish Code Review Round</button>
+            </div>
+          </div>
+
+          <!-- Right: Historical Multi-Round Review Timeline -->
+          <div class="glass-panel" style="padding: 1rem;">
+            <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 1rem;">📜 Review Rounds History</h3>
+            <div id="review-rounds-timeline" class="timeline">
+              <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Select a solution above to view its review round history.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. ADMIN CONTROL CENTER TAB -->
+    <section id="tab-admin" class="tab-content">
+      <div id="admin-access-warning" class="glass-panel" style="border-color: var(--neon-pink); display: none;">
+        <h3 style="color: var(--neon-pink);">⚠️ Admin Access Required</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">
+          You are currently logged in as a standard user. Admin privileges are required to generate tokens or map Discord accounts.
+        </p>
+      </div>
+
+      <div id="admin-dashboard-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          
+          <!-- Token Generator Panel -->
+          <div class="glass-panel">
+            <div class="panel-title">
+              <span>🔑 Generate User Tokens</span>
+            </div>
+            
+            <form id="form-create-token" style="margin-bottom: 1.25rem;">
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="token-username-input">HackerRank Username / Handle</label>
+                <input type="text" id="token-username-input" class="form-control" placeholder="e.g. alex_coder" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="token-role-select">User Role</label>
+                <select id="token-role-select" class="form-control">
+                  <option value="USER">Standard User</option>
+                  <option value="ADMIN">Admin User</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-retro btn-green" style="width: 100%;">Generate Access Token</button>
+            </form>
+
+            <h4 style="font-size: 0.9rem; color: var(--neon-cyan); margin-bottom: 0.5rem;">Registered Users & Tokens</h4>
+            <div id="admin-users-list" style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Discord OAuth Mapping Panel -->
+          <div class="glass-panel">
+            <div class="panel-title">
+              <span>👾 Discord OAuth Account Mapping</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+              When users sign in via Discord, unmapped sign-ins appear below. Map their Discord ID to their App Token profile.
+            </p>
+
+            <div id="unmapped-discord-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">No pending Discord sign-ins to map.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AUTH / LOGIN MODAL -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="color: var(--neon-cyan); font-size: 1.1rem;">🔑 Authenticate / Switch Token</h3>
+        <button id="close-auth-modal-btn" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Token Login -->
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label for="modal-token-input">App Access Token</label>
+        <input type="password" id="modal-token-input" class="form-control" placeholder="Paste user token (e.g. hr_admin_master_token_2026)">
+      </div>
+      <button id="btn-login-token" class="btn-retro btn-green" style="width: 100%; margin-bottom: 1.25rem;">Login with Token</button>
+
+      <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">— OR SIGN IN WITH DISCORD —</div>
+
+      <!-- Discord OAuth Sign-In -->
+      <a id="btn-discord-login" href="/api/auth/discord/login" class="btn-retro" style="display: block; text-align: center; text-decoration: none; background: #5865F2; color: #fff; border-color: #5865F2;">
+        👾 Sign in with Discord
+      </a>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>

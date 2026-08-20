@@ -352,7 +352,10 @@
         <label for="modal-token-input">App Access Token</label>
         <input type="password" id="modal-token-input" class="form-control" placeholder="Paste user token (e.g. hr_admin_master_token_2026)">
       </div>
-      <button id="btn-login-token" class="btn-retro btn-green" style="width: 100%; margin-bottom: 1.25rem;">Login with Token</button>
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+        <button id="btn-login-token" class="btn-retro btn-green" style="flex: 1;">Login with Token</button>
+        <button id="btn-logout-token" class="btn-retro" style="background: rgba(255, 60, 60, 0.2); border-color: #ff4444; color: #ff6666;">Logout</button>
+      </div>
 
       <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">— OR SIGN IN WITH DISCORD —</div>
 

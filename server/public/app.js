@@ -5,7 +5,7 @@
 (function () {
   // Global State
   const state = {
-    currentToken: localStorage.getItem('hr_app_token') || 'hr_admin_master_token_2026',
+    currentToken: localStorage.getItem('hr_app_token') || null,
     currentUser: null,
     solutions: [],
     activeSolution: null,
@@ -39,6 +39,7 @@
   const closeAuthModalBtn = document.getElementById('close-auth-modal-btn');
   const modalTokenInput = document.getElementById('modal-token-input');
   const btnLoginToken = document.getElementById('btn-login-token');
+  const btnLogoutToken = document.getElementById('btn-logout-token');
 
   // Solution Explorer DOM
   const filterSearch = document.getElementById('filter-search');
@@ -415,6 +416,19 @@
       await loadSolutions();
     });
 
+    if (btnLogoutToken) {
+      btnLogoutToken.addEventListener('click', async () => {
+        state.currentToken = null;
+        localStorage.removeItem('hr_app_token');
+        authModal.classList.remove('active');
+        await verifyAuth();
+        await loadSolutions();
+        if (state.currentUser && state.currentUser.role !== 'ADMIN' && document.getElementById('tab-admin').classList.contains('active')) {
+          document.getElementById('nav-explorer-btn').click();
+        }
+      });
+    }
+
     // Filters
     btnApplyFilters.addEventListener('click', () => loadSolutions({ append: false }));
 
@@ -460,6 +474,13 @@
   // Auth Verification
   async function verifyAuth() {
     try {
+      if (!state.currentToken) {
+        state.currentUser = { username: 'Guest', role: 'USER' };
+        activeUserName.textContent = 'Guest User';
+        activeUserRole.textContent = 'USER';
+        activeUserRole.className = 'role-badge user';
+        return;
+      }
       const res = await fetch('/api/auth/verify-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -473,12 +494,19 @@
         activeUserRole.className = `role-badge ${data.user.role.toLowerCase()}`;
       } else {
         // Fallback to guest
+        state.currentToken = null;
+        localStorage.removeItem('hr_app_token');
         state.currentUser = { username: 'Guest', role: 'USER' };
         activeUserName.textContent = 'Guest User';
         activeUserRole.textContent = 'USER';
+        activeUserRole.className = 'role-badge user';
       }
     } catch (err) {
       console.warn('Auth check error:', err);
+      state.currentUser = { username: 'Guest', role: 'USER' };
+      activeUserName.textContent = 'Guest User';
+      activeUserRole.textContent = 'USER';
+      activeUserRole.className = 'role-badge user';
     }
   }
 

@@ -11,7 +11,13 @@
     activeSolution: null,
     editor: null,
     selectedCleverness: 0,
-    selectedReadability: 0
+    selectedReadability: 0,
+    // Infinite Scroll & Offset State
+    offset: 0,
+    limit: 30,
+    hasMore: true,
+    isLoading: false,
+    totalCount: 0
   };
 
   // DOM Elements
@@ -32,6 +38,7 @@
   const btnApplyFilters = document.getElementById('btn-apply-filters');
   const solutionsGrid = document.getElementById('solutions-grid');
   const solutionsCountBadge = document.getElementById('solutions-count-badge');
+  const infiniteScrollSentinel = document.getElementById('infinite-scroll-sentinel');
 
   // Multiselect Users Controller
   const multiselectUser = {
@@ -205,7 +212,9 @@
     setupEventListeners();
     await multiselectUser.init();
     await verifyAuth();
-    await loadSolutions();
+    virtualGrid.init();
+    setupInfiniteScroll();
+    await loadSolutions({ append: false });
   });
 
   // Monaco Editor Initialization
@@ -262,7 +271,7 @@
     });
 
     // Filters
-    btnApplyFilters.addEventListener('click', () => loadSolutions());
+    btnApplyFilters.addEventListener('click', () => loadSolutions({ append: false }));
 
     // Star Selectors
     setupStarSelectors();
@@ -331,11 +340,125 @@
     }
   }
 
-  // Fetch Solutions
-  async function loadSolutions() {
-    solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center;">Loading solutions...</div>';
+  // DOM Virtualization Controller (Virtual Window)
+  const virtualGrid = {
+    cardMinWidth: 320,
+    cardGap: 20, // 1.25rem = 20px
+    estimatedRowHeight: 145,
+    overscanRows: 2,
+    rafId: null,
+
+    init() {
+      window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+      window.addEventListener('resize', () => this.onScroll(), { passive: true });
+    },
+
+    onScroll() {
+      if (this.rafId) cancelAnimationFrame(this.rafId);
+      this.rafId = requestAnimationFrame(() => {
+        this.render();
+      });
+    },
+
+    render() {
+      if (!solutionsGrid) return;
+
+      if (state.solutions.length === 0) {
+        if (!state.isLoading) {
+          solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No solutions match the specified filters.</div>';
+        }
+        return;
+      }
+
+      const totalItems = state.solutions.length;
+      const gridWidth = solutionsGrid.clientWidth || 1200;
+      
+      const columnsCount = Math.max(1, Math.floor((gridWidth + this.cardGap) / (this.cardMinWidth + this.cardGap)));
+      const totalRows = Math.ceil(totalItems / columnsCount);
+
+      let rowHeight = this.estimatedRowHeight;
+      const sampleCard = solutionsGrid.querySelector('.solution-card');
+      if (sampleCard && sampleCard.offsetHeight > 50) {
+        rowHeight = sampleCard.offsetHeight + this.cardGap;
+        this.estimatedRowHeight = rowHeight;
+      }
+
+      const gridRect = solutionsGrid.getBoundingClientRect();
+      const gridTopAbsolute = gridRect.top + window.scrollY;
+      const relativeScrollTop = Math.max(0, window.scrollY - gridTopAbsolute);
+      const viewportHeight = window.innerHeight;
+
+      const visibleStartRow = Math.max(0, Math.floor(relativeScrollTop / rowHeight) - this.overscanRows);
+      const visibleEndRow = Math.min(totalRows - 1, Math.ceil((relativeScrollTop + viewportHeight) / rowHeight) + this.overscanRows);
+
+      const startIndex = visibleStartRow * columnsCount;
+      const endIndex = Math.min(totalItems, (visibleEndRow + 1) * columnsCount);
+
+      const topHeight = visibleStartRow * rowHeight;
+      const bottomHeight = Math.max(0, (totalRows - (visibleEndRow + 1)) * rowHeight);
+
+      solutionsGrid.innerHTML = '';
+
+      if (topHeight > 0) {
+        const topSpacer = document.createElement('div');
+        topSpacer.className = 'virtual-spacer';
+        topSpacer.style.height = `${topHeight}px`;
+        solutionsGrid.appendChild(topSpacer);
+      }
+
+      const visibleSlice = state.solutions.slice(startIndex, endIndex);
+      visibleSlice.forEach(sol => {
+        solutionsGrid.appendChild(createSolutionCard(sol));
+      });
+
+      if (bottomHeight > 0) {
+        const bottomSpacer = document.createElement('div');
+        bottomSpacer.className = 'virtual-spacer';
+        bottomSpacer.style.height = `${bottomHeight}px`;
+        solutionsGrid.appendChild(bottomSpacer);
+      }
+    }
+  };
+
+  // Infinite Scroll Observer Setup
+  function setupInfiniteScroll() {
+    if (!infiniteScrollSentinel) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting && state.hasMore && !state.isLoading) {
+        loadSolutions({ append: true });
+      }
+    }, {
+      root: null,
+      rootMargin: '300px',
+      threshold: 0.1
+    });
+
+    observer.observe(infiniteScrollSentinel);
+  }
+
+  // Fetch Solutions (Infinite Scroll / Offset API)
+  async function loadSolutions({ append = false } = {}) {
+    if (state.isLoading) return;
+    if (append && !state.hasMore) return;
+
+    state.isLoading = true;
+
+    if (!append) {
+      state.offset = 0;
+      state.hasMore = true;
+      state.solutions = [];
+      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center;">Loading solutions...</div>';
+      if (infiniteScrollSentinel) infiniteScrollSentinel.classList.add('hidden');
+    } else {
+      if (infiniteScrollSentinel) infiniteScrollSentinel.classList.remove('hidden');
+    }
 
     const params = new URLSearchParams();
+    params.append('offset', state.offset);
+    params.append('limit', state.limit);
+
     if (filterSearch.value.trim()) params.append('search', filterSearch.value.trim());
     if (filterLanguage.value) params.append('language', filterLanguage.value);
 
@@ -347,61 +470,76 @@
     try {
       const res = await fetch(`/api/solutions?${params.toString()}`);
       const data = await res.json();
-      state.solutions = data.solutions || [];
-      solutionsCountBadge.textContent = `${state.solutions.length} Solutions Found`;
 
-      renderSolutionsGrid(state.solutions);
+      const newSolutions = data.solutions || [];
+      const pagination = data.pagination || {};
+
+      state.totalCount = pagination.total || 0;
+      state.hasMore = Boolean(pagination.hasMore);
+      state.offset = pagination.nextOffset !== undefined ? pagination.nextOffset : (state.offset + newSolutions.length);
+
+      if (!append) {
+        state.solutions = newSolutions;
+      } else {
+        state.solutions.push(...newSolutions);
+      }
+
+      virtualGrid.render();
+      solutionsCountBadge.textContent = `Loaded ${state.solutions.length} / ${state.totalCount} Solutions`;
       populateReviewPicker(state.solutions);
     } catch (err) {
-      solutionsGrid.innerHTML = `<div class="glass-panel" style="grid-column: 1 / -1; color: var(--neon-pink);">Failed to load solutions: ${err.message}</div>`;
+      if (!append) {
+        solutionsGrid.innerHTML = `<div class="glass-panel" style="grid-column: 1 / -1; color: var(--neon-pink);">Failed to load solutions: ${err.message}</div>`;
+      }
+    } finally {
+      state.isLoading = false;
+      if (infiniteScrollSentinel) {
+        if (state.hasMore) {
+          infiniteScrollSentinel.classList.remove('hidden');
+        } else {
+          infiniteScrollSentinel.classList.add('hidden');
+        }
+      }
     }
   }
 
-  // Render Solutions Grid Cards
-  function renderSolutionsGrid(solutions) {
-    if (solutions.length === 0) {
-      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No solutions match the specified filters.</div>';
-      return;
-    }
+  // Create Solution Card Element
+  function createSolutionCard(sol) {
+    const card = document.createElement('div');
+    card.className = 'solution-card';
+    
+    const cleverStars = sol.clevernessAvg ? `★ ${sol.clevernessAvg}` : 'Unrated';
+    const readStars = sol.readabilityAvg ? `★ ${sol.readabilityAvg}` : 'Unrated';
+    const reviewsCount = sol._count?.reviewRounds || 0;
 
-    solutionsGrid.innerHTML = '';
-    solutions.forEach(sol => {
-      const card = document.createElement('div');
-      card.className = 'solution-card';
-      
-      const cleverStars = sol.clevernessAvg ? `★ ${sol.clevernessAvg}` : 'Unrated';
-      const readStars = sol.readabilityAvg ? `★ ${sol.readabilityAvg}` : 'Unrated';
-      const reviewsCount = sol._count?.reviewRounds || 0;
-
-      card.innerHTML = `
-        <div>
-          <div class="sol-header">
-            <div class="sol-title">${escapeHtml(sol.challengeTitle)}</div>
-            <span class="lang-tag">${escapeHtml(sol.language)}</span>
-          </div>
-          <div class="sol-meta">
-            <span>By <strong>@${escapeHtml(sol.user?.username || 'unknown')}</strong></span>
-            <span>•</span>
-            <span>Score: ${sol.score || 1.0}</span>
-          </div>
+    card.innerHTML = `
+      <div>
+        <div class="sol-header">
+          <div class="sol-title">${escapeHtml(sol.challengeTitle)}</div>
+          <span class="lang-tag">${escapeHtml(sol.language)}</span>
         </div>
-
-        <div class="sol-ratings-summary">
-          <div class="rating-badge">
-            <span class="star-icon">🧠</span> Clever: ${cleverStars}
-          </div>
-          <div class="rating-badge">
-            <span class="star-icon">📖</span> Read: ${readStars}
-          </div>
-          <div class="rating-badge" style="margin-left: auto;">
-            🤖 Reviews: ${reviewsCount}
-          </div>
+        <div class="sol-meta">
+          <span>By <strong>@${escapeHtml(sol.user?.username || 'unknown')}</strong></span>
+          <span>•</span>
+          <span>Score: ${sol.score || 1.0}</span>
         </div>
-      `;
+      </div>
 
-      card.addEventListener('click', () => openSolutionDetail(sol.id));
-      solutionsGrid.appendChild(card);
-    });
+      <div class="sol-ratings-summary">
+        <div class="rating-badge">
+          <span class="star-icon">🧠</span> Clever: ${cleverStars}
+        </div>
+        <div class="rating-badge">
+          <span class="star-icon">📖</span> Read: ${readStars}
+        </div>
+        <div class="rating-badge" style="margin-left: auto;">
+          🤖 Reviews: ${reviewsCount}
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => openSolutionDetail(sol.id));
+    return card;
   }
 
   // Open Solution Detail Tab

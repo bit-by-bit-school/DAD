@@ -144,7 +144,7 @@ router.get('/users', async (req, res) => {
 
 // GET /api/solutions (Query list)
 router.get('/', async (req, res) => {
-  const { challengeSlug, language, userId, userIds, username, usernames, search, page = 1, limit = 50 } = req.query;
+  const { challengeSlug, language, userId, userIds, username, usernames, search, page = 1, limit = 50, offset } = req.query;
 
   const where = {};
   if (challengeSlug) where.challengeSlug = challengeSlug;
@@ -177,8 +177,14 @@ router.get('/', async (req, res) => {
     ];
   }
 
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-  const take = parseInt(limit);
+  const parsedLimit = parseInt(limit);
+  let skip = 0;
+  if (offset !== undefined) {
+    skip = parseInt(offset);
+  } else if (page) {
+    skip = (parseInt(page) - 1) * parsedLimit;
+  }
+  const take = parsedLimit;
 
   try {
     const [solutions, totalCount] = await Promise.all([
@@ -214,13 +220,20 @@ router.get('/', async (req, res) => {
       };
     });
 
+    const currentOffset = skip;
+    const hasMore = (currentOffset + formattedSolutions.length) < totalCount;
+    const nextOffset = currentOffset + formattedSolutions.length;
+
     res.json({
       solutions: formattedSolutions,
       pagination: {
         total: totalCount,
+        offset: currentOffset,
+        limit: take,
         page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(totalCount / limit)
+        totalPages: Math.ceil(totalCount / take),
+        hasMore,
+        nextOffset
       }
     });
   } catch (err) {

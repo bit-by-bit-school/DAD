@@ -371,8 +371,19 @@ body::before {
   gap: 0.3rem;
 }
 
+.star-rating {
+  display: inline-flex;
+  gap: 1px;
+  align-items: center;
+}
+
 .star-icon {
   color: var(--neon-amber);
+  transition: opacity 0.2s ease;
+}
+
+.star-icon.empty {
+  opacity: 0.25;
 }
 
 /* Split Pane View for Single Solution */
@@ -442,22 +453,50 @@ body::before {
 
 .star-selector {
   display: flex;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 6px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.rating-feedback-label {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--neon-cyan);
+  background: rgba(0, 243, 255, 0.1);
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 243, 255, 0.25);
+  transition: all 0.2s ease;
 }
 
 .star-btn {
   background: transparent;
   border: none;
   color: var(--text-dim);
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 2px;
   cursor: pointer;
-  transition: color 0.15s;
+  border-radius: 4px;
+  transition: transform 0.1s ease, color 0.12s ease, text-shadow 0.12s ease;
+  user-select: none;
 }
 
-.star-btn.active, .star-btn:hover {
+.star-btn:hover,
+.star-btn.hover-highlight {
+  color: var(--neon-amber);
+  text-shadow: 0 0 10px rgba(255, 183, 0, 0.75);
+  transform: scale(1.2);
+}
+
+.star-btn.active {
   color: var(--neon-amber);
   text-shadow: 0 0 8px rgba(255, 183, 0, 0.6);
+}
+
+.star-btn:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
 }
 
 /* Review Round Timeline */
@@ -1018,6 +1057,13 @@ body::before {
   max-width: calc(100% - 58px);
   overflow: hidden;
   z-index: 20;
+  pointer-events: auto !important;
+}
+
+.monaco-inline-thread-zone button,
+.monaco-inline-thread-zone textarea,
+.monaco-inline-thread-zone input {
+  pointer-events: auto !important;
 }
 
 .monaco-inline-thread-zone.has-draft {

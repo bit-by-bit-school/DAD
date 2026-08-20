@@ -40,7 +40,7 @@ router.get('/users', async (req, res) => {
 
 // POST /api/admin/tokens (Generate user token)
 router.post('/tokens', async (req, res) => {
-  const { username, role = 'USER' } = req.body;
+  const { username, role = 'USER', discordUsername = null } = req.body;
   if (!username) return res.status(400).json({ error: 'Username is required' });
 
   const generatedToken = 'hr_' + crypto.randomBytes(16).toString('hex');
@@ -49,6 +49,7 @@ router.post('/tokens', async (req, res) => {
     const user = await prisma.user.create({
       data: {
         username: username.trim(),
+        discordUsername: discordUsername ? discordUsername.trim() : null,
         token: generatedToken,
         role: role.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'USER'
       }
@@ -58,6 +59,26 @@ router.post('/tokens', async (req, res) => {
     if (err.code === 'P2002') {
       return res.status(400).json({ error: `Username "${username}" already exists.` });
     }
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/advance-map-discord (Pre-assign Discord username to user)
+router.post('/advance-map-discord', async (req, res) => {
+  const { userId, discordUsername } = req.body;
+  if (!userId || !discordUsername) {
+    return res.status(400).json({ error: 'userId and discordUsername are required' });
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        discordUsername: discordUsername.trim()
+      }
+    });
+    res.json({ success: true, user });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

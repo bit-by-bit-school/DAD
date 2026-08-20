@@ -8,6 +8,7 @@ const adminRouter = require('./routes/admin');
 const solutionsRouter = require('./routes/solutions');
 const socialRouter = require('./routes/social');
 const reviewsRouter = require('./routes/reviews');
+const feedbackRouter = require('./routes/feedback');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,7 @@ app.get('/api/users', async (req, res) => {
 
 app.use('/api', socialRouter);
 app.use('/api', reviewsRouter);
+app.use('/api', feedbackRouter);
 
 // Catch-all route to serve Dashboard SPA
 app.get('*', (req, res) => {

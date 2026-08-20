@@ -96,11 +96,26 @@ router.get('/discord/callback', async (req, res) => {
     const discordUsername = `${discordUser.username}#${discordUser.discriminator !== '0' ? discordUser.discriminator : ''}`.replace(/#$/, '');
     const discordAvatar = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordId}/${discordUser.avatar}.png` : null;
 
-    // 3. Check if mapped to existing User
-    let user = await prisma.user.findUnique({ where: { discordId } });
+    // 3. Check if mapped to existing User (by discordId or pre-mapped discordUsername)
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { discordId: discordId },
+          { discordUsername: discordUsername },
+          { discordUsername: discordUser.username }
+        ]
+      }
+    });
 
     if (user) {
-      // User found! Redirect to dashboard with token
+      // User found! Update/refresh discordId & avatar if missing
+      if (!user.discordId || user.discordId !== discordId || user.discordAvatar !== discordAvatar) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { discordId, discordUsername, discordAvatar }
+        });
+      }
+      // Redirect to dashboard with token
       return res.redirect(`/?token=${encodeURIComponent(user.token)}&login=discord_success`);
     }
 

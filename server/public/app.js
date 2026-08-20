@@ -14,6 +14,7 @@
     editorDraftDecorations: [],
     editorHoverDecorations: [],
     viewZoneIds: [],
+    collapsedZones: new Set(),
     activeDraftComments: [],
     activeInlineLine: null,
     showSelectionTooltip: false,
@@ -182,12 +183,6 @@
   const detailLanguageTag = document.getElementById('detail-language-tag');
   const detailUserName = document.getElementById('detail-user-name');
   const detailReviewStatusBadge = document.getElementById('detail-review-status-badge');
-  const monacoSelectionBadge = document.getElementById('monaco-selection-badge');
-  const btnTargetSelection = document.getElementById('btn-target-selection');
-  const btnUseSelection = document.getElementById('btn-use-selection');
-  const commentStartLine = document.getElementById('comment-start-line');
-  const commentEndLine = document.getElementById('comment-end-line');
-  const btnClearLines = document.getElementById('btn-clear-lines');
   const avgClevernessVal = document.getElementById('avg-cleverness-val');
   const avgReadabilityVal = document.getElementById('avg-readability-val');
   const btnSubmitRating = document.getElementById('btn-submit-rating');
@@ -209,13 +204,17 @@
   const btnRejectAllDrafts = document.getElementById('btn-reject-all-drafts');
 
   // Admin DOM
-  const adminAccessWarning = document.getElementById('admin-access-warning');
+  const navAdminBtn = document.getElementById('nav-admin-btn');
   const adminDashboardBody = document.getElementById('admin-dashboard-body');
   const formCreateToken = document.getElementById('form-create-token');
   const tokenUsernameInput = document.getElementById('token-username-input');
+  const tokenDiscordInput = document.getElementById('token-discord-input');
   const tokenRoleSelect = document.getElementById('token-role-select');
   const adminUsersList = document.getElementById('admin-users-list');
   const unmappedDiscordContainer = document.getElementById('unmapped-discord-container');
+  const formAdvanceDiscordMap = document.getElementById('form-advance-discord-map');
+  const advanceMapUserSelect = document.getElementById('advance-map-user-select');
+  const advanceMapDiscordUsername = document.getElementById('advance-map-discord-username');
 
   // Initialize Application
   document.addEventListener('DOMContentLoaded', async () => {
@@ -414,14 +413,6 @@
       });
     });
 
-    if (btnClearLines) {
-      btnClearLines.addEventListener('click', () => {
-        if (commentStartLine) commentStartLine.value = '';
-        if (commentEndLine) commentEndLine.value = '';
-        hideSelectionTooltip();
-      });
-    }
-
     if (btnApproveAllDrafts) btnApproveAllDrafts.addEventListener('click', approveAllDraftComments);
     if (btnRejectAllDrafts) btnRejectAllDrafts.addEventListener('click', rejectAllDraftComments);
 
@@ -471,27 +462,148 @@
     btnPublishReviewRound.addEventListener('click', publishReviewRound);
 
     // Admin Token Form
-    formCreateToken.addEventListener('submit', createToken);
+    if (formCreateToken) formCreateToken.addEventListener('submit', createToken);
+
+    // Advance Discord Pre-Mapping Form
+    if (formAdvanceDiscordMap) {
+      formAdvanceDiscordMap.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userId = advanceMapUserSelect ? advanceMapUserSelect.value : '';
+        const discordUsername = advanceMapDiscordUsername ? advanceMapDiscordUsername.value.trim() : '';
+        if (!userId || !discordUsername) return alert('Please select a user and enter a Discord username');
+
+        try {
+          const res = await fetch('/api/admin/advance-map-discord', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${state.currentToken}`
+            },
+            body: JSON.stringify({ userId, discordUsername })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            alert(`Discord username @${discordUsername} pre-assigned to user @${data.user.username}!`);
+            if (advanceMapDiscordUsername) advanceMapDiscordUsername.value = '';
+            await loadAdminUsers();
+          } else {
+            alert('Failed to pre-map Discord username: ' + data.error);
+          }
+        } catch (err) {
+          alert('Error saving Discord pre-mapping: ' + err.message);
+        }
+      });
+    }
   }
 
-  // Star Rating Input Logic
+  // Accessible & High-Fidelity Star Rating UX
+  const clevernessLabels = ['Not rated', '1/5 - Basic', '2/5 - Fair', '3/5 - Good', '4/5 - Clever', '5/5 - Brilliant!'];
+  const readabilityLabels = ['Not rated', '1/5 - Hard to follow', '2/5 - Acceptable', '3/5 - Readable', '4/5 - Clean', '5/5 - Pristine!'];
+
+  function updateStarVisuals(type, score, isHover = false) {
+    const container = document.getElementById(`star-${type}-selector`);
+    const label = document.getElementById(`${type}-rating-label`);
+    if (!container) return;
+
+    const stars = container.querySelectorAll('.star-btn');
+    const labels = type === 'cleverness' ? clevernessLabels : readabilityLabels;
+
+    stars.forEach(btn => {
+      const val = parseInt(btn.dataset.val);
+      if (isHover) {
+        btn.classList.toggle('hover-highlight', val <= score);
+      } else {
+        btn.classList.remove('hover-highlight');
+        btn.classList.toggle('active', val <= score);
+        btn.setAttribute('aria-checked', val === score ? 'true' : 'false');
+      }
+    });
+
+    if (label) {
+      label.textContent = labels[score] || 'Not rated';
+      if (score > 0) {
+        label.style.color = type === 'cleverness' ? 'var(--neon-amber)' : 'var(--neon-green)';
+        label.style.borderColor = type === 'cleverness' ? 'rgba(255, 183, 0, 0.4)' : 'rgba(0, 255, 157, 0.4)';
+      } else {
+        label.style.color = 'var(--neon-cyan)';
+        label.style.borderColor = 'rgba(0, 243, 255, 0.25)';
+      }
+    }
+  }
+
+  function setupStarSelector(type) {
+    const container = document.getElementById(`star-${type}-selector`);
+    if (!container) return;
+
+    const stars = container.querySelectorAll('.star-btn');
+
+    stars.forEach(btn => {
+      const val = parseInt(btn.dataset.val);
+
+      // Hover Preview Chaining
+      btn.addEventListener('mouseenter', () => {
+        updateStarVisuals(type, val, true);
+        const label = document.getElementById(`${type}-rating-label`);
+        const labels = type === 'cleverness' ? clevernessLabels : readabilityLabels;
+        if (label) label.textContent = labels[val];
+      });
+
+      // Click Selection (click same star toggles to 0)
+      btn.addEventListener('click', () => {
+        const currentScore = type === 'cleverness' ? state.selectedCleverness : state.selectedReadability;
+        const newScore = (currentScore === val) ? 0 : val;
+
+        if (type === 'cleverness') state.selectedCleverness = newScore;
+        else state.selectedReadability = newScore;
+
+        updateStarVisuals(type, newScore, false);
+      });
+
+      // Keyboard Accessibility
+      btn.addEventListener('keydown', (e) => {
+        let currentScore = type === 'cleverness' ? state.selectedCleverness : state.selectedReadability;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const next = Math.min(5, (currentScore || 0) + 1);
+          if (type === 'cleverness') state.selectedCleverness = next;
+          else state.selectedReadability = next;
+          updateStarVisuals(type, next, false);
+          container.querySelector(`[data-val="${next}"]`)?.focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const prev = Math.max(0, (currentScore || 1) - 1);
+          if (type === 'cleverness') state.selectedCleverness = prev;
+          else state.selectedReadability = prev;
+          updateStarVisuals(type, prev, false);
+          if (prev > 0) container.querySelector(`[data-val="${prev}"]`)?.focus();
+        }
+      });
+    });
+
+    // Container Mouseleave
+    container.addEventListener('mouseleave', () => {
+      const currentScore = type === 'cleverness' ? state.selectedCleverness : state.selectedReadability;
+      stars.forEach(b => b.classList.remove('hover-highlight'));
+      updateStarVisuals(type, currentScore, false);
+    });
+  }
+
   function setupStarSelectors() {
-    const cleverStars = document.querySelectorAll('#star-cleverness-selector .star-btn');
-    const readStars = document.querySelectorAll('#star-readability-selector .star-btn');
+    setupStarSelector('cleverness');
+    setupStarSelector('readability');
+  }
 
-    cleverStars.forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.selectedCleverness = parseInt(btn.dataset.val);
-        cleverStars.forEach(b => b.classList.toggle('active', parseInt(b.dataset.val) <= state.selectedCleverness));
-      });
-    });
-
-    readStars.forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.selectedReadability = parseInt(btn.dataset.val);
-        readStars.forEach(b => b.classList.toggle('active', parseInt(b.dataset.val) <= state.selectedReadability));
-      });
-    });
+  function updateRoleUI() {
+    const isAdmin = state.currentUser && state.currentUser.role === 'ADMIN';
+    if (window.setFeedbackInspectorAdminState) {
+      window.setFeedbackInspectorAdminState(isAdmin);
+    }
+    if (navAdminBtn) {
+      navAdminBtn.style.display = isAdmin ? 'inline-block' : 'none';
+    }
+    if (!isAdmin && document.getElementById('tab-admin')?.classList.contains('active')) {
+      document.getElementById('nav-explorer-btn')?.click();
+    }
   }
 
   // Auth Verification
@@ -502,6 +614,7 @@
         activeUserName.textContent = 'Guest User';
         activeUserRole.textContent = 'USER';
         activeUserRole.className = 'role-badge user';
+        updateRoleUI();
         return;
       }
       const res = await fetch('/api/auth/verify-token', {
@@ -531,6 +644,7 @@
       activeUserRole.textContent = 'USER';
       activeUserRole.className = 'role-badge user';
     }
+    updateRoleUI();
   }
 
   // DOM Virtualization Controller (Virtual Window)
@@ -696,13 +810,27 @@
     }
   }
 
+  // Helper to render 5 star ratings HTML
+  function renderStarsHtml(avgRating) {
+    const score = Math.round(avgRating || 0);
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      if (i <= score) {
+        html += '<span class="star-icon filled">★</span>';
+      } else {
+        html += '<span class="star-icon empty">★</span>';
+      }
+    }
+    return `<span class="star-rating">${html}</span>`;
+  }
+
   // Create Solution Card Element
   function createSolutionCard(sol) {
     const card = document.createElement('div');
     card.className = 'solution-card';
     
-    const cleverStars = sol.clevernessAvg ? `★ ${sol.clevernessAvg}` : 'Unrated';
-    const readStars = sol.readabilityAvg ? `★ ${sol.readabilityAvg}` : 'Unrated';
+    const cleverStarsHtml = renderStarsHtml(sol.clevernessAvg);
+    const readStarsHtml = renderStarsHtml(sol.readabilityAvg);
     const reviewsCount = sol._count?.reviewRounds || 0;
 
     card.innerHTML = `
@@ -713,20 +841,18 @@
         </div>
         <div class="sol-meta">
           <span>By <strong>@${escapeHtml(sol.user?.username || 'unknown')}</strong></span>
-          <span>•</span>
-          <span>Score: ${sol.score || 1.0}</span>
         </div>
       </div>
 
       <div class="sol-ratings-summary">
-        <div class="rating-badge">
-          <span class="star-icon">🧠</span> Clever: ${cleverStars}
+        <div class="rating-badge" title="Cleverness: ${sol.clevernessAvg ? sol.clevernessAvg + '/5' : 'Unrated'}">
+          <span class="star-label-icon">🧠</span> ${cleverStarsHtml}
         </div>
-        <div class="rating-badge">
-          <span class="star-icon">📖</span> Read: ${readStars}
+        <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : 'Unrated'}">
+          <span class="star-label-icon">📖</span> ${readStarsHtml}
         </div>
-        <div class="rating-badge" style="margin-left: auto;">
-          🤖 Reviews: ${reviewsCount}
+        <div class="rating-badge" style="margin-left: auto;" title="Reviews: ${reviewsCount}">
+          <span class="review-icon">💬</span> ${reviewsCount}
         </div>
       </div>
     `;
@@ -780,9 +906,16 @@
         updateMonacoDecorations(sol.comments || []);
       }
 
-      // Reset active AI draft comments & view zones on new solution selection
+      // Reset active AI draft comments, ratings & view zones on new solution selection
       state.activeDraftComments = [];
       state.activeInlineLine = null;
+      state.selectedCleverness = 0;
+      state.selectedReadability = 0;
+      if (typeof updateStarVisuals === 'function') {
+        updateStarVisuals('cleverness', 0, false);
+        updateStarVisuals('readability', 0, false);
+      }
+      state.collapsedZones.clear();
       closeInlineCommentBox();
       renderAiDraftComments();
       updateMonacoDraftDecorations();
@@ -972,28 +1105,23 @@
     const content = commentInput.value.trim();
     if (!content) return alert('Comment content cannot be empty');
 
-    const startLineVal = commentStartLine && commentStartLine.value ? parseInt(commentStartLine.value) : null;
-    const endLineVal = commentEndLine && commentEndLine.value ? parseInt(commentEndLine.value) : null;
-
     try {
-      const payload = { content };
-      if (startLineVal) payload.startLine = startLineVal;
-      if (endLineVal) payload.endLine = endLineVal;
-
       const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${state.currentToken}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          content,
+          startLine: null,
+          endLine: null
+        })
       });
 
       const data = await res.json();
       if (res.ok) {
         commentInput.value = '';
-        if (commentStartLine) commentStartLine.value = '';
-        if (commentEndLine) commentEndLine.value = '';
         await openSolutionDetail(state.activeSolution.id);
       } else {
         alert('Failed to post comment: ' + data.error);
@@ -1044,8 +1172,13 @@
 
     state.currentSelection = { startLine: sLine, endLine: eLine };
     state.activeInlineLine = eLine;
+    state.collapsedZones.delete(eLine);
 
     updateMonacoViewZones();
+    setTimeout(() => {
+      const input = document.getElementById(`zone-input-${eLine}`);
+      if (input) input.focus();
+    }, 80);
   }
 
   function closeInlineCommentBox() {
@@ -1055,10 +1188,12 @@
   }
 
   window.closeLineViewZone = function(lineNum) {
-    if (state.activeInlineLine === lineNum) {
+    const num = parseInt(lineNum);
+    state.collapsedZones.add(num);
+    if (state.activeInlineLine === num) {
       state.activeInlineLine = null;
     }
-    closeInlineCommentBox();
+    hideSelectionTooltip();
     updateMonacoViewZones();
   };
 
@@ -1084,6 +1219,7 @@
       const data = await res.json();
       if (res.ok) {
         state.activeInlineLine = null;
+        state.collapsedZones.delete(lineNum);
         await openSolutionDetail(state.activeSolution.id);
       } else {
         alert('Failed to post inline comment: ' + data.error);
@@ -1133,7 +1269,15 @@
       }
       state.viewZoneIds = [];
 
-      const lineNumbers = Array.from(lineMap.keys()).sort((a, b) => a - b);
+      const lineNumbers = Array.from(lineMap.keys())
+        .filter(lNum => {
+          // If collapsed and user didn't explicitly click to open input for this line, hide zone
+          if (state.collapsedZones.has(lNum) && state.activeInlineLine !== lNum) {
+            return false;
+          }
+          return true;
+        })
+        .sort((a, b) => a - b);
 
       lineNumbers.forEach(lineNum => {
         const data = lineMap.get(lineNum);
@@ -1185,10 +1329,10 @@
 
         const inputFormHtml = `
           <div class="monaco-thread-input-row">
-            <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="Write GitHub-style inline review comment on line ${lineNum}..."></textarea>
+            <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="Write inline review comment on line ${lineNum}..."></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 0.4rem;">
-              <button type="button" class="btn-micro" onclick="closeLineViewZone(${lineNum})">Cancel</button>
-              <button type="button" class="btn-retro btn-green" style="font-size: 0.75rem; padding: 3px 8px;" onclick="postViewZoneComment(${lineNum})">Post Comment</button>
+              <button type="button" class="btn-micro btn-zone-cancel" data-line="${lineNum}">Cancel</button>
+              <button type="button" class="btn-retro btn-green btn-zone-post" style="font-size: 0.75rem; padding: 3px 8px;" data-line="${lineNum}">Post Comment</button>
             </div>
           </div>
         `;
@@ -1196,12 +1340,47 @@
         zoneNode.innerHTML = `
           <div class="monaco-thread-header">
             <span>💬 Line ${lineNum} Code Review Thread</span>
-            <button type="button" class="btn-micro" onclick="closeLineViewZone(${lineNum})" style="font-size: 0.65rem;">✕ Close</button>
+            <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">✕ Close</button>
           </div>
           ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
           ${draftCommentsHtml ? `<div style="margin-bottom: 0.5rem;">${draftCommentsHtml}</div>` : ''}
           ${inputFormHtml}
         `;
+
+        // Direct event bindings to guarantee Monaco click propagation
+        const closeBtn = zoneNode.querySelector('.btn-zone-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeLineViewZone(lineNum);
+          });
+        }
+
+        const cancelBtn = zoneNode.querySelector('.btn-zone-cancel');
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (data.comments.length === 0 && data.drafts.length === 0) {
+              closeLineViewZone(lineNum);
+            } else {
+              const input = document.getElementById(`zone-input-${lineNum}`);
+              if (input) input.value = '';
+              state.activeInlineLine = null;
+              updateMonacoViewZones();
+            }
+          });
+        }
+
+        const postBtn = zoneNode.querySelector('.btn-zone-post');
+        if (postBtn) {
+          postBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            postViewZoneComment(lineNum);
+          });
+        }
 
         zoneNode.querySelectorAll('.monaco-thread-item').forEach((threadItem, index) => {
           const comment = data.comments[index];
@@ -1488,13 +1667,12 @@
   // ADMIN CONTROL PANEL
   async function loadAdminPanel() {
     if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
-      adminAccessWarning.style.display = 'block';
-      adminDashboardBody.style.display = 'none';
+      const explorerBtn = document.getElementById('nav-explorer-btn');
+      if (explorerBtn) explorerBtn.click();
       return;
     }
 
-    adminAccessWarning.style.display = 'none';
-    adminDashboardBody.style.display = 'block';
+    if (adminDashboardBody) adminDashboardBody.style.display = 'block';
 
     await loadAdminUsers();
     await loadUnmappedDiscords();
@@ -1525,12 +1703,18 @@
         <div>
           <div><strong>@${escapeHtml(u.username)}</strong> <span class="role-badge ${u.role.toLowerCase()}">${u.role}</span></div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Token: <code>${u.token}</code></div>
-          ${u.discordUsername ? `<div style="font-size: 0.7rem; color: var(--neon-cyan);">Discord: ${escapeHtml(u.discordUsername)}</div>` : ''}
+          ${u.discordUsername ? `<div style="font-size: 0.7rem; color: #5865F2; font-weight: 600; margin-top: 2px;">👾 Discord: @${escapeHtml(u.discordUsername)}</div>` : ''}
         </div>
         <button class="btn-retro btn-pink" style="font-size: 0.7rem; padding: 2px 6px;" onclick="copyToken('${u.token}')">Copy Token</button>
       `;
       adminUsersList.appendChild(item);
     });
+
+    // Populate Advance Discord Mapping User Select dropdown
+    if (advanceMapUserSelect) {
+      advanceMapUserSelect.innerHTML = '<option value="">-- Choose User Profile --</option>' + 
+        users.map(u => `<option value="${u.id}">@${escapeHtml(u.username)} (${u.role})${u.discordUsername ? ' [Mapped: ' + escapeHtml(u.discordUsername) + ']' : ''}</option>`).join('');
+    }
   }
 
   window.copyToken = function(t) {
@@ -1541,6 +1725,7 @@
   async function createToken(e) {
     e.preventDefault();
     const username = tokenUsernameInput.value.trim();
+    const discordUsername = tokenDiscordInput ? tokenDiscordInput.value.trim() : null;
     const role = tokenRoleSelect.value;
 
     if (!username) return;
@@ -1552,13 +1737,14 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${state.currentToken}`
         },
-        body: JSON.stringify({ username, role })
+        body: JSON.stringify({ username, role, discordUsername })
       });
 
       const data = await res.json();
       if (res.ok) {
         alert(`Token created for @${data.user.username}!\nToken: ${data.user.token}`);
         tokenUsernameInput.value = '';
+        if (tokenDiscordInput) tokenDiscordInput.value = '';
         await loadAdminUsers();
       } else {
         alert('Failed to create token: ' + data.error);

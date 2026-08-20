@@ -15,13 +15,12 @@
     <div class="header-container">
       <div class="brand-section">
         <div class="brand-logo">⚡ HACKERRANK_HUB</div>
-        <span class="version-badge">v1.0 RETRO</span>
       </div>
 
       <nav class="nav-links">
         <button id="nav-explorer-btn" class="nav-btn active" data-tab="tab-explorer">📂 Solution Explorer</button>
         <button id="nav-detail-btn" class="nav-btn" data-tab="tab-detail">💻 Solution & Review Workspace</button>
-        <button id="nav-admin-btn" class="nav-btn" data-tab="tab-admin">⚙️ Admin Hub</button>
+        <button id="nav-admin-btn" class="nav-btn" data-tab="tab-admin" style="display: none;">⚙️ Admin Hub</button>
       </nav>
 
       <div class="user-widget">
@@ -154,18 +153,9 @@
                 <!-- Post Comment Box -->
                 <div class="form-group" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--neon-cyan);">Add Review Comment</label>
-                    <button id="btn-use-selection" class="btn-micro" style="font-size: 0.7rem;">🎯 Use Active Code Selection</button>
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--neon-cyan);">💬 Add General Solution Comment</label>
                   </div>
-
-                  <!-- Line Range Target Controls -->
-                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.4rem; width: 100%;">
-                    <input type="number" id="comment-start-line" class="form-control" placeholder="Start Line (e.g. 5)" min="1" style="flex: 1; min-width: 0; font-size: 0.75rem; padding: 4px 8px;">
-                    <input type="number" id="comment-end-line" class="form-control" placeholder="End Line (e.g. 10)" min="1" style="flex: 1; min-width: 0; font-size: 0.75rem; padding: 4px 8px;">
-                    <button id="btn-clear-lines" class="btn-micro" type="button" title="Clear line targeting">✕</button>
-                  </div>
-
-                  <textarea id="comment-input" class="form-control" rows="3" placeholder="Write line feedback or general review comment..."></textarea>
+                  <textarea id="comment-input" class="form-control" rows="3" placeholder="Write a general review comment for this solution... (Line reviews can be added directly on code lines in the editor)"></textarea>
                   <button id="btn-post-comment" class="btn-retro btn-green" style="margin-top: 0.5rem; width: 100%; font-size: 0.8rem;">Post Comment</button>
                 </div>
               </div>
@@ -246,27 +236,33 @@
 
                 <!-- Submit Your Rating -->
                 <div id="rate-submission-box">
-                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">Rate this solution:</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem;">Rate this solution:</div>
                   
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <span style="font-size: 0.8rem;">Cleverness:</span>
-                    <div id="star-cleverness-selector" class="star-selector" data-type="cleverness">
-                      <button class="star-btn" data-val="1">★</button>
-                      <button class="star-btn" data-val="2">★</button>
-                      <button class="star-btn" data-val="3">★</button>
-                      <button class="star-btn" data-val="4">★</button>
-                      <button class="star-btn" data-val="5">★</button>
+                  <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                      <span style="font-size: 0.8rem; font-weight: 600;">Cleverness</span>
+                      <span id="cleverness-rating-label" class="rating-feedback-label">Not rated</span>
+                    </div>
+                    <div id="star-cleverness-selector" class="star-selector" data-type="cleverness" role="radiogroup" aria-label="Cleverness rating out of 5 stars">
+                      <button type="button" class="star-btn" data-val="1" role="radio" aria-label="1 star - Basic">★</button>
+                      <button type="button" class="star-btn" data-val="2" role="radio" aria-label="2 stars - Fair">★</button>
+                      <button type="button" class="star-btn" data-val="3" role="radio" aria-label="3 stars - Good">★</button>
+                      <button type="button" class="star-btn" data-val="4" role="radio" aria-label="4 stars - Clever">★</button>
+                      <button type="button" class="star-btn" data-val="5" role="radio" aria-label="5 stars - Brilliant">★</button>
                     </div>
                   </div>
 
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <span style="font-size: 0.8rem;">Readability:</span>
-                    <div id="star-readability-selector" class="star-selector" data-type="readability">
-                      <button class="star-btn" data-val="1">★</button>
-                      <button class="star-btn" data-val="2">★</button>
-                      <button class="star-btn" data-val="3">★</button>
-                      <button class="star-btn" data-val="4">★</button>
-                      <button class="star-btn" data-val="5">★</button>
+                  <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                      <span style="font-size: 0.8rem; font-weight: 600;">Readability</span>
+                      <span id="readability-rating-label" class="rating-feedback-label">Not rated</span>
+                    </div>
+                    <div id="star-readability-selector" class="star-selector" data-type="readability" role="radiogroup" aria-label="Readability rating out of 5 stars">
+                      <button type="button" class="star-btn" data-val="1" role="radio" aria-label="1 star - Hard to follow">★</button>
+                      <button type="button" class="star-btn" data-val="2" role="radio" aria-label="2 stars - Acceptable">★</button>
+                      <button type="button" class="star-btn" data-val="3" role="radio" aria-label="3 stars - Readable">★</button>
+                      <button type="button" class="star-btn" data-val="4" role="radio" aria-label="4 stars - Clean">★</button>
+                      <button type="button" class="star-btn" data-val="5" role="radio" aria-label="5 stars - Pristine">★</button>
                     </div>
                   </div>
 
@@ -282,13 +278,6 @@
 
     <!-- 4. ADMIN CONTROL CENTER TAB -->
     <section id="tab-admin" class="tab-content">
-      <div id="admin-access-warning" class="glass-panel" style="border-color: var(--neon-pink); display: none;">
-        <h3 style="color: var(--neon-pink);">⚠️ Admin Access Required</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">
-          You are currently logged in as a standard user. Admin privileges are required to generate tokens or map Discord accounts.
-        </p>
-      </div>
-
       <div id="admin-dashboard-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
           
@@ -302,6 +291,10 @@
               <div class="form-group" style="margin-bottom: 0.75rem;">
                 <label for="token-username-input">HackerRank Username / Handle</label>
                 <input type="text" id="token-username-input" class="form-control" placeholder="e.g. alex_coder" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="token-discord-input">Discord Username / Handle <span style="font-weight: normal; color: var(--text-muted);">(Optional pre-mapping)</span></label>
+                <input type="text" id="token-discord-input" class="form-control" placeholder="e.g. alex_dev or alex#1234">
               </div>
               <div class="form-group" style="margin-bottom: 0.75rem;">
                 <label for="token-role-select">User Role</label>
@@ -325,9 +318,30 @@
               <span>👾 Discord OAuth Account Mapping</span>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
-              When users sign in via Discord, unmapped sign-ins appear below. Map their Discord ID to their App Token profile.
+              Pre-assign Discord usernames in advance or map pending Discord logins to user profiles.
             </p>
 
+            <!-- Advance Pre-Mapping Form -->
+            <form id="form-advance-discord-map" style="background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(88,101,242,0.3); margin-bottom: 1.25rem;">
+              <h4 style="font-size: 0.85rem; color: #5865F2; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                ➕ Pre-Assign Discord Username in Advance
+              </h4>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label for="advance-map-user-select" style="font-size: 0.75rem;">Select Registered User Profile</label>
+                <select id="advance-map-user-select" class="form-control" style="font-size: 0.75rem;" required>
+                  <option value="">-- Choose User Profile --</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.6rem;">
+                <label for="advance-map-discord-username" style="font-size: 0.75rem;">Discord Username / Tag</label>
+                <input type="text" id="advance-map-discord-username" class="form-control" placeholder="e.g. cyber_samurai or user#0000" style="font-size: 0.75rem;" required>
+              </div>
+              <button type="submit" class="btn-retro" style="width: 100%; font-size: 0.75rem; padding: 4px 8px; background: rgba(88,101,242,0.2); border-color: #5865F2; color: #7289da;">
+                💾 Save Discord Pre-Mapping
+              </button>
+            </form>
+
+            <h4 style="font-size: 0.85rem; color: var(--neon-cyan); margin-bottom: 0.5rem;">Pending / Unmapped Logins</h4>
             <div id="unmapped-discord-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
               <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">No pending Discord sign-ins to map.</div>
             </div>
@@ -368,5 +382,7 @@
 
   <!-- App Script -->
   <script src="app.js"></script>
+  <!-- Interactive Feedback Inspector -->
+  <script src="feedback-inspector.js"></script>
 </body>
 </html>

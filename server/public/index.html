@@ -120,10 +120,7 @@
           <div>
             <div class="editor-toolbar">
               <div class="editor-selection-info">
-                <span id="monaco-selection-badge">📍 Click or drag line in code editor to target comment</span>
-              </div>
-              <div class="editor-toolbar-actions">
-                <button id="btn-target-selection" class="btn-micro btn-cyan">🎯 Comment on Line(s)</button>
+                <span id="monaco-selection-badge">📍 Select code line(s) to add inline review comment</span>
               </div>
             </div>
             <div id="monaco-editor" class="editor-container"></div>
@@ -162,9 +159,9 @@
                   </div>
 
                   <!-- Line Range Target Controls -->
-                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.4rem;">
-                    <input type="number" id="comment-start-line" class="form-control" placeholder="Start Line (e.g. 5)" min="1" style="font-size: 0.75rem; padding: 4px 8px;">
-                    <input type="number" id="comment-end-line" class="form-control" placeholder="End Line (e.g. 10)" min="1" style="font-size: 0.75rem; padding: 4px 8px;">
+                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.4rem; width: 100%;">
+                    <input type="number" id="comment-start-line" class="form-control" placeholder="Start Line (e.g. 5)" min="1" style="flex: 1; min-width: 0; font-size: 0.75rem; padding: 4px 8px;">
+                    <input type="number" id="comment-end-line" class="form-control" placeholder="End Line (e.g. 10)" min="1" style="flex: 1; min-width: 0; font-size: 0.75rem; padding: 4px 8px;">
                     <button id="btn-clear-lines" class="btn-micro" type="button" title="Clear line targeting">✕</button>
                   </div>
 
@@ -182,8 +179,24 @@
                   <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin: 0;">⚡ Gemini AI Review Assistant</h3>
                   <button id="btn-generate-ai-draft" class="btn-retro btn-pink" style="font-size: 0.75rem; padding: 4px 8px;">Generate AI Draft</button>
                 </div>
-                <div id="ai-draft-output" class="form-control" style="height: 180px; overflow-y: auto; white-space: pre-wrap; font-size: 0.78rem; background: rgba(0,0,0,0.4);">
+                <div id="ai-draft-output" class="form-control" style="height: 140px; overflow-y: auto; white-space: pre-wrap; font-size: 0.78rem; background: rgba(0,0,0,0.4); margin-bottom: 0.75rem;">
                   Click "Generate AI Draft" to query Gemini AI for automated time/space complexity analysis, edge cases, and code suggestions.
+                </div>
+
+                <!-- AI Draft Line Comments Section -->
+                <div id="ai-draft-comments-wrapper" style="display: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--neon-pink);">
+                      🤖 AI Draft Line Comments (<span id="draft-comments-count">0</span>)
+                    </div>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <button type="button" id="btn-approve-all-drafts" class="btn-approve" style="font-size: 0.68rem; padding: 2px 6px;">Approve All</button>
+                      <button type="button" id="btn-reject-all-drafts" class="btn-reject" style="font-size: 0.68rem; padding: 2px 6px;">Reject All</button>
+                    </div>
+                  </div>
+                  <div id="ai-draft-comments-list" class="draft-comments-section" style="max-height: 220px; overflow-y: auto;">
+                    <!-- Draft comment cards rendered dynamically -->
+                  </div>
                 </div>
               </div>
 

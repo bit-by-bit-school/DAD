@@ -289,6 +289,9 @@ body::before {
   border-radius: var(--radius-sm);
   outline: none;
   transition: border-color 0.2s;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .form-control:focus {
@@ -375,13 +378,22 @@ body::before {
 /* Split Pane View for Single Solution */
 .solution-detail-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1fr) 380px;
   gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.solution-detail-layout > div {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 1024px) {
   .solution-detail-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -390,6 +402,10 @@ body::before {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
 }
 
 /* Social & Comments Section */
@@ -834,5 +850,264 @@ body::before {
   margin-left: 4px;
   margin-top: 5px;
 }
+
+/* Monaco AI Draft Comment Line Highlight Decoration */
+.monaco-draft-line-highlight {
+  background: rgba(255, 0, 85, 0.15) !important;
+  border-left: 3px solid var(--neon-pink) !important;
+}
+
+.monaco-draft-glyph-margin {
+  background: var(--neon-pink);
+  border-radius: 50%;
+  width: 8px !important;
+  height: 8px !important;
+  margin-left: 4px;
+  margin-top: 5px;
+  box-shadow: 0 0 6px var(--neon-pink);
+}
+
+/* Inline Review Comment Creation Widget inside Monaco / Code View */
+.inline-editor-comment-box {
+  background: rgba(13, 17, 26, 0.95);
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 4px 20px rgba(0, 243, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  animation: fadeInDown 0.2s ease-out;
+  position: relative;
+  z-index: 50;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.inline-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--neon-cyan);
+  font-weight: 600;
+}
+
+.inline-comment-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* AI Line Draft Comments Card Styles */
+.draft-comments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.draft-comment-card {
+  background: rgba(255, 0, 85, 0.08);
+  border: 1px solid rgba(255, 0, 85, 0.4);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.draft-comment-card:hover {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.25);
+}
+
+.draft-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.draft-badge {
+  background: rgba(255, 0, 85, 0.2);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.draft-comment-content {
+  font-size: 0.82rem;
+  color: #fff;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.draft-comment-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.btn-approve {
+  background: rgba(0, 234, 100, 0.2);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.btn-approve:hover {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 10px rgba(0, 234, 100, 0.5);
+}
+
+.btn-reject {
+  background: rgba(255, 0, 85, 0.15);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: all 0.15s;
+}
+
+.btn-reject:hover {
+  background: var(--neon-pink);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+}
+
+/* GitHub / Bitbucket Embedded Monaco ViewZone Thread Styles */
+.monaco-inline-thread-zone {
+  background: rgba(13, 17, 26, 0.96);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--neon-cyan);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin: 4px 12px 4px 46px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 243, 255, 0.15);
+  font-family: var(--font-mono);
+  box-sizing: border-box;
+  width: calc(100% - 58px);
+  max-width: calc(100% - 58px);
+  overflow: hidden;
+  z-index: 20;
+}
+
+.monaco-inline-thread-zone.has-draft {
+  border-left-color: var(--neon-pink);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 10px rgba(255, 0, 85, 0.15);
+}
+
+.monaco-thread-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--neon-cyan);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.monaco-thread-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.monaco-thread-item {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.8rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.monaco-thread-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.monaco-thread-input-row textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+/* Floating Code Selection Comment Tooltip Widget */
+.monaco-selection-tooltip {
+  z-index: 100 !important;
+  pointer-events: auto;
+  animation: tooltipPop 0.15s ease-out;
+}
+
+@keyframes tooltipPop {
+  from { opacity: 0; transform: scale(0.9) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.btn-tooltip-comment {
+  background: var(--neon-cyan);
+  color: #000;
+  border: 1px solid #fff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 243, 255, 0.6);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-tooltip-comment:hover {
+  transform: scale(1.06);
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.9);
+}
+
+
+
 
 

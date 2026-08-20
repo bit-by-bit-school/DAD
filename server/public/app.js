@@ -11,6 +11,11 @@
     activeSolution: null,
     editor: null,
     editorDecorations: [],
+    editorDraftDecorations: [],
+    viewZoneIds: [],
+    activeDraftComments: [],
+    activeInlineLine: null,
+    showSelectionTooltip: false,
     currentSelection: { startLine: 1, endLine: 1 },
     commentFilter: 'all', // 'all', 'line', 'general'
     selectedCleverness: 0,
@@ -194,6 +199,13 @@
   const btnPublishReviewRound = document.getElementById('btn-publish-review-round');
   const reviewRoundsTimeline = document.getElementById('review-rounds-timeline');
 
+  // AI Draft Line Comments DOM
+  const aiDraftCommentsWrapper = document.getElementById('ai-draft-comments-wrapper');
+  const aiDraftCommentsList = document.getElementById('ai-draft-comments-list');
+  const draftCommentsCount = document.getElementById('draft-comments-count');
+  const btnApproveAllDrafts = document.getElementById('btn-approve-all-drafts');
+  const btnRejectAllDrafts = document.getElementById('btn-reject-all-drafts');
+
   // Admin DOM
   const adminAccessWarning = document.getElementById('admin-access-warning');
   const adminDashboardBody = document.getElementById('admin-dashboard-body');
@@ -239,6 +251,8 @@
           fontSize: 13
         });
 
+        setupSelectionTooltipWidget();
+
         // Track active line selection for code review comments
         state.editor.onDidChangeCursorSelection((e) => {
           const sel = e.selection;
@@ -253,8 +267,82 @@
               monacoSelectionBadge.textContent = `📍 Lines ${start} - ${end} selected (${end - start + 1} lines)`;
             }
           }
+
+          // Trigger floating popup tooltip over active line selection
+          showSelectionTooltip();
+        });
+
+        state.editor.onDidScrollChange(() => hideSelectionTooltip());
+
+        // Global debounced resize listener for Monaco editor responsiveness
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+          if (resizeTimer) clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            if (state.editor) {
+              state.editor.layout();
+            }
+          }, 100);
         });
       });
+    }
+  }
+
+  // Monaco Selection Floating Popup Tooltip Widget
+  let selectionTooltipWidget = null;
+
+  function setupSelectionTooltipWidget() {
+    if (!state.editor || typeof monaco === 'undefined') return;
+
+    selectionTooltipWidget = {
+      domNode: null,
+      getId: function() { return 'monaco.selection.comment.tooltip'; },
+      getDomNode: function() {
+        if (!this.domNode) {
+          this.domNode = document.createElement('div');
+          this.domNode.className = 'monaco-selection-tooltip';
+          this.domNode.innerHTML = `<button type="button" class="btn-tooltip-comment">💬 Add Comment</button>`;
+
+          this.domNode.querySelector('button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.currentSelection) {
+              const endLine = state.currentSelection.endLine;
+              state.activeInlineLine = endLine;
+              updateMonacoViewZones();
+              hideSelectionTooltip();
+            }
+          });
+        }
+        return this.domNode;
+      },
+      getPosition: function() {
+        if (!state.showSelectionTooltip || !state.currentSelection) return null;
+        return {
+          position: {
+            lineNumber: state.currentSelection.endLine,
+            column: 1
+          },
+          preference: [
+            monaco.editor.ContentWidgetPositionPreference.BELOW
+          ]
+        };
+      }
+    };
+
+    state.editor.addContentWidget(selectionTooltipWidget);
+  }
+
+  function showSelectionTooltip() {
+    state.showSelectionTooltip = true;
+    if (state.editor && selectionTooltipWidget) {
+      state.editor.layoutContentWidget(selectionTooltipWidget);
+    }
+  }
+
+  function hideSelectionTooltip() {
+    state.showSelectionTooltip = false;
+    if (state.editor && selectionTooltipWidget) {
+      state.editor.layoutContentWidget(selectionTooltipWidget);
     }
   }
 
@@ -302,25 +390,16 @@
       });
     });
 
-    // Line Selection Target Buttons
-    const fillSelectionLines = () => {
-      if (state.currentSelection && commentStartLine && commentEndLine) {
-        commentStartLine.value = state.currentSelection.startLine;
-        commentEndLine.value = state.currentSelection.endLine;
-        const commentsTabBtn = document.querySelector('[data-subtab="subtab-comments"]');
-        if (commentsTabBtn) commentsTabBtn.click();
-        if (commentInput) commentInput.focus();
-      }
-    };
-
-    if (btnUseSelection) btnUseSelection.addEventListener('click', fillSelectionLines);
-    if (btnTargetSelection) btnTargetSelection.addEventListener('click', fillSelectionLines);
     if (btnClearLines) {
       btnClearLines.addEventListener('click', () => {
         if (commentStartLine) commentStartLine.value = '';
         if (commentEndLine) commentEndLine.value = '';
+        hideSelectionTooltip();
       });
     }
+
+    if (btnApproveAllDrafts) btnApproveAllDrafts.addEventListener('click', approveAllDraftComments);
+    if (btnRejectAllDrafts) btnRejectAllDrafts.addEventListener('click', rejectAllDraftComments);
 
     // Modal controls
     openAuthModalBtn.addEventListener('click', () => authModal.classList.add('active'));
@@ -650,6 +729,14 @@
         updateMonacoDecorations(sol.comments || []);
       }
 
+      // Reset active AI draft comments & view zones on new solution selection
+      state.activeDraftComments = [];
+      state.activeInlineLine = null;
+      closeInlineCommentBox();
+      renderAiDraftComments();
+      updateMonacoDraftDecorations();
+      updateMonacoViewZones();
+
       renderComments(sol.comments || []);
       renderReviewRoundsTimeline(sol.reviewRounds || []);
 
@@ -684,7 +771,7 @@
     state.editorDecorations = state.editor.deltaDecorations(state.editorDecorations, newDecorations);
   }
 
-  // Scroll editor to target line range and highlight
+  // Scroll editor to target line range and open inline ViewZone thread
   window.scrollToMonacoLines = function(startLine, endLine) {
     if (!state.editor) return;
     const sLine = parseInt(startLine);
@@ -692,6 +779,9 @@
     state.editor.revealLineInCenter(sLine);
     state.editor.setSelection(new monaco.Range(sLine, 1, eLine, 1000));
     state.editor.focus();
+
+    state.activeInlineLine = eLine;
+    updateMonacoViewZones();
   };
 
   // Submit Rating Handler
@@ -865,10 +955,343 @@
     });
   }
 
+  // Inline Review ViewZone Handlers
+  function openInlineCommentBox(startLine, endLine) {
+    const sLine = parseInt(startLine) || state.currentSelection?.startLine || 1;
+    const eLine = parseInt(endLine) || state.currentSelection?.endLine || sLine;
+
+    state.currentSelection = { startLine: sLine, endLine: eLine };
+    state.activeInlineLine = eLine;
+
+    updateMonacoViewZones();
+  }
+
+  function closeInlineCommentBox() {
+    state.activeInlineLine = null;
+    hideSelectionTooltip();
+    updateMonacoViewZones();
+  }
+
+  window.closeLineViewZone = function(lineNum) {
+    if (state.activeInlineLine === lineNum) {
+      state.activeInlineLine = null;
+    }
+    closeInlineCommentBox();
+    updateMonacoViewZones();
+  };
+
+  window.postViewZoneComment = async function(lineNum) {
+    const textarea = document.getElementById(`zone-input-${lineNum}`);
+    const content = textarea ? textarea.value.trim() : '';
+    if (!content) return alert('Comment content cannot be empty');
+
+    try {
+      const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.currentToken}`
+        },
+        body: JSON.stringify({
+          content,
+          startLine: lineNum,
+          endLine: lineNum
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        state.activeInlineLine = null;
+        await openSolutionDetail(state.activeSolution.id);
+      } else {
+        alert('Failed to post inline comment: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error posting inline comment: ' + err.message);
+    }
+  };
+
+  // Monaco ViewZones Manager for GitHub / Bitbucket style embedded inline threads
+  function updateMonacoViewZones() {
+    if (!state.editor || typeof monaco === 'undefined') return;
+
+    const comments = state.activeSolution?.comments || [];
+    const drafts = state.activeDraftComments || [];
+
+    // Collect all line numbers that need an embedded ViewZone
+    const lineMap = new Map();
+
+    // 1. Group published line comments by target line number
+    comments.forEach(c => {
+      if (c.startLine) {
+        const lineNum = parseInt(c.endLine) || parseInt(c.startLine);
+        if (!lineMap.has(lineNum)) lineMap.set(lineNum, { comments: [], drafts: [], isInputOpen: false });
+        lineMap.get(lineNum).comments.push(c);
+      }
+    });
+
+    // 2. Group pending AI draft comments by target line number
+    drafts.forEach(d => {
+      const lineNum = parseInt(d.endLine) || parseInt(d.startLine) || 1;
+      if (!lineMap.has(lineNum)) lineMap.set(lineNum, { comments: [], drafts: [], isInputOpen: false });
+      lineMap.get(lineNum).drafts.push(d);
+    });
+
+    // 3. Include actively targeted inline line number if user opened comment creation
+    if (state.activeInlineLine) {
+      const activeLineNum = parseInt(state.activeInlineLine);
+      if (!lineMap.has(activeLineNum)) lineMap.set(activeLineNum, { comments: [], drafts: [], isInputOpen: true });
+      else lineMap.get(activeLineNum).isInputOpen = true;
+    }
+
+    state.editor.changeViewZones(function(accessor) {
+      // Clear previously registered ViewZones
+      if (state.viewZoneIds && state.viewZoneIds.length > 0) {
+        state.viewZoneIds.forEach(id => accessor.removeZone(id));
+      }
+      state.viewZoneIds = [];
+
+      const lineNumbers = Array.from(lineMap.keys()).sort((a, b) => a - b);
+
+      lineNumbers.forEach(lineNum => {
+        const data = lineMap.get(lineNum);
+        const hasDraft = data.drafts.length > 0;
+
+        const zoneNode = document.createElement('div');
+        zoneNode.className = `monaco-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
+
+        // Build HTML content for thread
+        let publishedCommentsHtml = '';
+        data.comments.forEach(c => {
+          const isAuthorOrAdmin = state.currentUser && (state.currentUser.id === c.userId || state.currentUser.role === 'ADMIN');
+          const deleteBtnHtml = isAuthorOrAdmin 
+            ? `<button class="btn-micro" style="color: var(--neon-pink); border-color: rgba(255,0,85,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` 
+            : '';
+
+          publishedCommentsHtml += `
+            <div class="monaco-thread-item">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem; color: var(--text-muted);">
+                <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <span>${new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  ${deleteBtnHtml}
+                </div>
+              </div>
+              <div style="color: #fff; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(c.content)}</div>
+            </div>
+          `;
+        });
+
+        let draftCommentsHtml = '';
+        data.drafts.forEach(d => {
+          draftCommentsHtml += `
+            <div class="draft-comment-card" style="margin-bottom: 0.4rem;">
+              <div class="draft-comment-header">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span class="draft-badge">🤖 AI DRAFT</span>
+                  <span style="font-size: 0.72rem; color: var(--neon-pink); font-weight: 600;">${escapeHtml(d.type)}</span>
+                </div>
+              </div>
+              <div class="draft-comment-content">${escapeHtml(d.content)}</div>
+              <div class="draft-comment-actions">
+                <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">❌ Reject</button>
+                <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">✅ Approve</button>
+              </div>
+            </div>
+          `;
+        });
+
+        const inputFormHtml = `
+          <div class="monaco-thread-input-row">
+            <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="Write GitHub-style inline review comment on line ${lineNum}..."></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 0.4rem;">
+              <button type="button" class="btn-micro" onclick="closeLineViewZone(${lineNum})">Cancel</button>
+              <button type="button" class="btn-retro btn-green" style="font-size: 0.75rem; padding: 3px 8px;" onclick="postViewZoneComment(${lineNum})">Post Comment</button>
+            </div>
+          </div>
+        `;
+
+        zoneNode.innerHTML = `
+          <div class="monaco-thread-header">
+            <span>💬 Line ${lineNum} Code Review Thread</span>
+            <button type="button" class="btn-micro" onclick="closeLineViewZone(${lineNum})" style="font-size: 0.65rem;">✕ Close</button>
+          </div>
+          ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
+          ${draftCommentsHtml ? `<div style="margin-bottom: 0.5rem;">${draftCommentsHtml}</div>` : ''}
+          ${inputFormHtml}
+        `;
+
+        const estimatedHeight = 65 
+          + (data.comments.length * 60) 
+          + (data.drafts.length * 105) 
+          + 95;
+
+        const zoneId = accessor.addZone({
+          afterLineNumber: lineNum,
+          heightInPx: estimatedHeight,
+          domNode: zoneNode,
+          suppressMouseDown: false
+        });
+
+        state.viewZoneIds.push(zoneId);
+      });
+    });
+  }
+
+  async function postInlineComment() {
+    if (!state.activeSolution) return alert('Please select a solution first');
+    const content = inlineCommentTextarea ? inlineCommentTextarea.value.trim() : '';
+    if (!content) return alert('Comment content cannot be empty');
+
+    const startLine = state.currentSelection?.startLine || 1;
+    const endLine = state.currentSelection?.endLine || startLine;
+
+    try {
+      const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.currentToken}`
+        },
+        body: JSON.stringify({ content, startLine, endLine })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        closeInlineCommentBox();
+        await openSolutionDetail(state.activeSolution.id);
+      } else {
+        alert('Failed to post inline comment: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error posting inline comment: ' + err.message);
+    }
+  }
+
+  // AI Draft Comments Renderer & Approve/Reject Handlers
+  function renderAiDraftComments() {
+    if (!aiDraftCommentsWrapper || !aiDraftCommentsList) return;
+
+    const pendingDrafts = state.activeDraftComments || [];
+    if (draftCommentsCount) draftCommentsCount.textContent = pendingDrafts.length;
+
+    if (pendingDrafts.length === 0) {
+      aiDraftCommentsWrapper.style.display = 'none';
+      return;
+    }
+
+    aiDraftCommentsWrapper.style.display = 'block';
+    aiDraftCommentsList.innerHTML = '';
+
+    pendingDrafts.forEach(d => {
+      const card = document.createElement('div');
+      card.className = 'draft-comment-card';
+
+      const lineText = (d.endLine && d.endLine > d.startLine)
+        ? `Lines ${d.startLine}-${d.endLine}`
+        : `Line ${d.startLine}`;
+
+      card.innerHTML = `
+        <div class="draft-comment-header">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span class="draft-badge">🤖 AI DRAFT</span>
+            <button class="line-tag-badge" onclick="scrollToMonacoLines(${d.startLine}, ${d.endLine})">🎯 ${lineText}</button>
+          </div>
+          <span style="font-size: 0.7rem; color: var(--neon-pink);">${escapeHtml(d.type)}</span>
+        </div>
+        <div class="draft-comment-content">${escapeHtml(d.content)}</div>
+        <div class="draft-comment-actions">
+          <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">❌ Reject</button>
+          <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">✅ Approve</button>
+        </div>
+      `;
+
+      aiDraftCommentsList.appendChild(card);
+    });
+  }
+
+  function updateMonacoDraftDecorations() {
+    if (!state.editor || typeof monaco === 'undefined') return;
+
+    const newDraftDecorations = [];
+    (state.activeDraftComments || []).forEach(d => {
+      const sLine = parseInt(d.startLine);
+      const eLine = parseInt(d.endLine) || sLine;
+      newDraftDecorations.push({
+        range: new monaco.Range(sLine, 1, eLine, 1000),
+        options: {
+          isWholeLine: true,
+          className: 'monaco-draft-line-highlight',
+          glyphMarginClassName: 'monaco-draft-glyph-margin',
+          hoverMessage: { value: `🤖 **AI Draft (${d.type})**: ${d.content}` }
+        }
+      });
+    });
+
+    state.editorDraftDecorations = state.editor.deltaDecorations(state.editorDraftDecorations || [], newDraftDecorations);
+  }
+
+  window.approveDraftComment = async function(draftId) {
+    const draft = (state.activeDraftComments || []).find(d => d.id === draftId);
+    if (!draft || !state.activeSolution) return;
+
+    try {
+      const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.currentToken}`
+        },
+        body: JSON.stringify({
+          content: `[AI Review] ${draft.content}`,
+          startLine: draft.startLine,
+          endLine: draft.endLine
+        })
+      });
+
+      if (res.ok) {
+        state.activeDraftComments = (state.activeDraftComments || []).filter(d => d.id !== draftId);
+        renderAiDraftComments();
+        updateMonacoDraftDecorations();
+        updateMonacoViewZones();
+        await openSolutionDetail(state.activeSolution.id);
+      } else {
+        const data = await res.json();
+        alert('Failed to approve draft comment: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error approving draft comment: ' + err.message);
+    }
+  };
+
+  window.rejectDraftComment = function(draftId) {
+    state.activeDraftComments = (state.activeDraftComments || []).filter(d => d.id !== draftId);
+    renderAiDraftComments();
+    updateMonacoDraftDecorations();
+    updateMonacoViewZones();
+  };
+
+  async function approveAllDraftComments() {
+    if (!state.activeDraftComments || state.activeDraftComments.length === 0) return;
+    const draftsToApprove = [...state.activeDraftComments];
+
+    for (const draft of draftsToApprove) {
+      await window.approveDraftComment(draft.id);
+    }
+  }
+
+  function rejectAllDraftComments() {
+    state.activeDraftComments = [];
+    renderAiDraftComments();
+    updateMonacoDraftDecorations();
+    updateMonacoViewZones();
+  }
+
   async function generateAiDraft() {
     if (!state.activeSolution) return alert('Please select a solution first');
 
-    aiDraftOutput.textContent = ' querying Gemini AI Assistant for automated complexity & edge-case analysis...';
+    aiDraftOutput.textContent = '⚡ Querying Gemini AI Assistant for automated complexity & edge-case analysis...';
+    if (aiDraftCommentsWrapper) aiDraftCommentsWrapper.style.display = 'none';
 
     try {
       const res = await fetch(`/api/solutions/${state.activeSolution.id}/review/draft`, {
@@ -882,7 +1305,34 @@
       const data = await res.json();
       if (res.ok) {
         aiDraftOutput.textContent = data.draft;
-        adminReviewNotes.value = `Gemini AI Analysis:\n${data.draft}`;
+        if (adminReviewNotes) adminReviewNotes.value = `Gemini AI Analysis:\n${data.draft}`;
+
+        // Parse line-targeted draft comments
+        const parsed = data.parsedDraft;
+        let draftComments = [];
+        if (parsed && Array.isArray(parsed.lineComments)) {
+          draftComments = parsed.lineComments;
+        } else {
+          try {
+            const match = data.draft.match(/\{[\s\S]*\}/);
+            if (match) {
+              const obj = JSON.parse(match[0]);
+              if (Array.isArray(obj.lineComments)) draftComments = obj.lineComments;
+            }
+          } catch (e) {}
+        }
+
+        state.activeDraftComments = draftComments.map((c, idx) => ({
+          id: `draft_${Date.now()}_${idx}`,
+          startLine: parseInt(c.startLine) || 1,
+          endLine: parseInt(c.endLine) || parseInt(c.startLine) || 1,
+          type: c.type || 'SUGGESTION',
+          content: c.content || 'AI review suggestion'
+        }));
+
+        renderAiDraftComments();
+        updateMonacoDraftDecorations();
+        updateMonacoViewZones();
       } else {
         aiDraftOutput.textContent = `Error: ${data.error}`;
       }

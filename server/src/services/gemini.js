@@ -11,7 +11,15 @@ async function generateCodeReviewDraft({ challengeTitle, language, code, previou
       summary: "Gemini API key missing. Manual review mode active.",
       strengths: ["Clean submission synced successfully."],
       edgeCases: "Configure GEMINI_API_KEY in server/.env to enable automated AI edge case auditing.",
-      suggestions: ["Add GEMINI_API_KEY to server/.env for automated AI code reviews."]
+      suggestions: ["Add GEMINI_API_KEY to server/.env for automated AI code reviews."],
+      lineComments: [
+        {
+          startLine: 1,
+          endLine: 2,
+          type: "SUGGESTION",
+          content: "[Demo AI Draft] Ensure edge cases (empty inputs or nulls) are handled explicitly at function entry."
+        }
+      ]
     });
   }
 
@@ -23,9 +31,9 @@ async function generateCodeReviewDraft({ challengeTitle, language, code, previou
 Challenge: ${challengeTitle}
 Language: ${language}
 ${historyContext}
-Code:
+Code (with line numbers 1..N):
 \`\`\`${language}
-${code}
+${code.split('\n').map((line, idx) => `${idx + 1}: ${line}`).join('\n')}
 \`\`\`
 
 Provide a comprehensive, structured code review.
@@ -37,7 +45,15 @@ Format your output strictly as a JSON object with the following fields:
   "summary": "Brief overall summary of the solution logic",
   "strengths": ["List of key strengths"],
   "edgeCases": "Analysis of potential edge cases or bugs",
-  "suggestions": ["Actionable improvement suggestions for future review rounds"]
+  "suggestions": ["Actionable improvement suggestions"],
+  "lineComments": [
+    {
+      "startLine": 1,
+      "endLine": 3,
+      "type": "SUGGESTION",
+      "content": "Specific line-by-line feedback or improvement advice attached to this line range"
+    }
+  ]
 }`;
 
   try {

@@ -45,10 +45,18 @@ router.post('/solutions/:id/review/draft', async (req, res) => {
       previousReviews: solution.reviewRounds
     });
 
+    let parsedDraft = null;
+    try {
+      parsedDraft = typeof draftText === 'string' ? JSON.parse(draftText) : draftText;
+    } catch (e) {
+      console.warn("Could not parse Gemini draft JSON:", e.message);
+    }
+
     res.json({
       success: true,
       nextRoundNumber: solution.reviewRounds.length + 1,
-      draft: draftText
+      draft: draftText,
+      parsedDraft: parsedDraft || { summary: draftText, lineComments: [] }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

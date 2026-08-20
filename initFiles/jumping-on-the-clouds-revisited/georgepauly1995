@@ -1,0 +1,47 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+#
+
+
+def jumpingOnClouds(c, k):
+    n = len(c)
+    curr_pos = 0
+    energy_level = 100
+    x = True
+    while x:
+        
+            
+        if c[(curr_pos + k) % n] == 1:
+            energy_level -= 3
+            curr_pos += k
+        else:
+            energy_level -= 1
+            curr_pos += k
+            
+        if curr_pos != 0 and curr_pos % n == 0:
+            x = False    
+                  
+    return energy_level        
+
+           
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    nk = input().split()
+
+    n = int(nk[0])
+
+    k = int(nk[1])
+
+    c = list(map(int, input().rstrip().split()))
+
+    result = jumpingOnClouds(c, k)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

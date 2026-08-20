@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HackerRank Solutions</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M4 4h4v6h8V4h4v16h-4v-6H8v6H4V4z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>HackerRank Hub</h1>
+          <span class="badge-tag">v1.0</span>
+        </div>
+      </div>
+      <div id="auth-status-badge" class="auth-badge checking" title="Checking HackerRank login status">
+        <span class="status-dot"></span>
+        <span class="status-text">Checking login...</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="popup-content">
+      <!-- Fetch Card -->
+      <section class="card fetch-card">
+        <div class="card-header">
+          <h2>Fetch User Solutions</h2>
+          <span class="card-hint">Download code from HackerRank</span>
+        </div>
+
+        <form id="fetch-form" class="fetch-form">
+          <div class="input-group">
+            <label for="username-input">HackerRank Username</label>
+            <div class="input-wrapper">
+              <span class="input-icon">@</span>
+              <input 
+                type="text" 
+                id="username-input" 
+                placeholder="e.g. nmeera2024" 
+                autocomplete="off" 
+                spellcheck="false"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Quick user chips -->
+          <div class="recent-users-section">
+            <span class="recent-label">Tracked:</span>
+            <div id="user-chips-container" class="chips-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="button-row">
+            <button type="submit" id="fetch-btn" class="btn btn-primary">
+              <span class="btn-icon">⚡</span>
+              <span class="btn-label">Fetch Solutions</span>
+            </button>
+            <button type="button" id="cancel-btn" class="btn btn-secondary hidden">
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        <!-- Progress Indicator (Hidden by default) -->
+        <div id="progress-section" class="progress-section hidden">
+          <div class="progress-info">
+            <span id="progress-status-text" class="progress-status">Starting download...</span>
+            <span id="progress-percent" class="progress-percent">0%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-stats">
+            <span class="stat-badge stat-solved"><strong id="stat-solved-count">0</strong> Solved</span>
+            <span class="stat-badge stat-skipped"><strong id="stat-skipped-count">0</strong> Skipped</span>
+            <span class="stat-badge stat-total"><strong id="stat-current-index">0</strong>/<span id="stat-total-count">0</span></span>
+          </div>
+          <div id="current-challenge-label" class="current-challenge">Checking: ...</div>
+        </div>
+
+        <!-- Success/Error Alert (Hidden by default) -->
+        <div id="fetch-alert" class="alert hidden">
+          <span class="alert-icon"></span>
+          <span id="alert-message" class="alert-text"></span>
+        </div>
+      </section>
+
+      <!-- Database Summary Card -->
+      <section class="card stats-card">
+        <div class="card-header">
+          <h2>Storage Database</h2>
+          <span id="db-status-label" class="card-hint">Loaded from local storage</span>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-box">
+            <span id="metric-total-problems" class="metric-value">442</span>
+            <span class="metric-label">Problems</span>
+          </div>
+          <div class="metric-box">
+            <span id="metric-total-solutions" class="metric-value">404</span>
+            <span class="metric-label">Solutions</span>
+          </div>
+          <div class="metric-box">
+            <span id="metric-total-users" class="metric-value">6</span>
+            <span class="metric-label">Users</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Action -->
+    <footer class="popup-footer">
+      <button id="open-dashboard-btn" class="btn btn-full btn-accent">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
+        </svg>
+        <span>Open Full Solutions Dashboard</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../data/seed-data.js"></script>
+  <script src="../data/problems-list.js"></script>
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/api.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

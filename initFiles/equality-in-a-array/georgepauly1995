@@ -1,0 +1,45 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'equalizeArray' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY arr as parameter.
+#
+
+def equalizeArray(arr):
+    # Write your code here
+    count_arr = [(x,arr.count(x)) for x in arr if arr.count(x) > 1]
+    print(count_arr)
+    counts_arr_unique = list(set(count_arr))
+    print(counts_arr_unique)
+    counts = [x[1] for x in counts_arr_unique]
+    print(counts)
+    
+    # no element repeats
+    if len(count_arr) == 0:
+        return len(arr) - 1 
+    #all elements repeat    
+    else:
+        return len(arr)-max(counts)
+
+        
+        
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    arr = list(map(int, input().rstrip().split()))
+
+    result = equalizeArray(arr)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

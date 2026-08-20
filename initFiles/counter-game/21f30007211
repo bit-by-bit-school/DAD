@@ -1,0 +1,49 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'counterGame' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts LONG_INTEGER n as parameter.
+#
+
+def counterGame(n):
+    flag=-1#Louise 0->Richard
+    while(n>1):
+        #print(flag)
+        if n==2**len(bin(n)):
+            n=n/2
+            flag=~flag
+            if n==1:
+                break
+        else:
+            n=(n-2**len(bin(n)))
+            flag=~flag
+            #print(flag)
+            if n==1:
+                break
+    if flag==-1:
+        return "Louise"
+    else:
+        return "Richard"
+        
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    t = int(input().strip())
+
+    for t_itr in range(t):
+        n = int(input().strip())
+
+        result = counterGame(n)
+
+        fptr.write(result + '\n')
+
+    fptr.close()

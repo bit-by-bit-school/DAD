@@ -1,0 +1,65 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'weightedUniformStrings' function below.
+#
+# The function is expected to return a STRING_ARRAY.
+# The function accepts following parameters:
+#  1. STRING s
+#  2. INTEGER_ARRAY queries
+#
+def stringCounter(s):
+    dic={}
+    for value in s:
+        dic[value]=s.count(value)
+    return (dic.items()) 
+
+def multiple(n,cost):
+    checkSet=set()
+    for value in range(1,n+1):
+        checkSet.add(value*cost)
+    return checkSet    
+        
+
+def weightedUniformStrings(s, queries):
+    check=set()
+    print_list=[]
+    alpha_order=["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+    s=stringCounter(s)
+    for value in s:
+        print(value[1],value[0])
+        check.update(multiple(value[1],(alpha_order.index(value[0])+1)))
+
+    for values in queries:
+        if values in check:
+            print_list.append("Yes")
+        else:
+            print_list.append("No")
+        
+    return print_list
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    s = input()
+
+    queries_count = int(input().strip())
+
+    queries = []
+
+    for _ in range(queries_count):
+        queries_item = int(input().strip())
+        queries.append(queries_item)
+
+    result = weightedUniformStrings(s, queries)
+
+    fptr.write('\n'.join(result))
+    fptr.write('\n')
+
+    fptr.close()

@@ -1,0 +1,79 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'getTotalX' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts following parameters:
+#  1. INTEGER_ARRAY a
+#  2. INTEGER_ARRAY b
+
+def factorial(n):
+    fact=set()
+    for number in  range(1,n//2+2,1):
+        if n%number==0:
+            fact.add(number)
+    fact.add(n)        
+    return fact
+
+
+def HCF(arr):
+    fact=factorial(arr[0])
+    for value in arr[1:]:
+        fact=fact.intersection(factorial(value))
+    return max(fact)
+
+#def LCM(a,b):
+ #   if max(a,b)%min(a,b)==0:
+#      return max(a,b)
+#   else:
+#       return a*b
+
+def LCM(a, b):
+    return a * b // math.gcd(a, b)
+
+    
+def LCMArr(arr):
+    lcm=arr[0]
+    for value in arr[1:]:
+        lcm=LCM(lcm,value)
+    return lcm
+def getTotalX(a, b):
+    a1=LCMArr(a)
+    b1=HCF(b)
+    #print(a1,b1)
+    count=0
+    
+    for value in range(a1,b1+1,1):
+        #print(value)
+        if value%a1==0 and b1%value==0:
+            #print(value)
+            count=count+1
+    
+    return count    
+           
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    m = int(first_multiple_input[1])
+
+    arr = list(map(int, input().rstrip().split()))
+
+    brr = list(map(int, input().rstrip().split()))
+
+    total = getTotalX(arr, brr)
+
+    fptr.write(str(total) + '\n')
+
+    fptr.close()

@@ -1,0 +1,58 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'acmTeam' function below.
+#
+# The function is expected to return an INTEGER_ARRAY.
+# The function accepts STRING_ARRAY topic as parameter.
+#
+def combination(n):
+    combine = []
+    for index in range(n):
+        for index1 in range(index + 1, n):
+            combine.append((index, index1))
+    return combine
+
+
+def ORScore(Lindex, Rindex, arr):
+    check = bin((int(arr[Lindex],2)) | (int(arr[Rindex],2)))
+    
+    if check:
+        return (check).count("1")
+
+
+def acmTeam(topic):
+    check_list = []
+    combine = combination(len(topic))
+    for value in combine:
+        check_list.append(ORScore(value[0], value[1], topic))
+    print(check_list)
+    return [max(check_list), check_list.count(max(check_list))]
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    m = int(first_multiple_input[1])
+
+    topic = []
+
+    for _ in range(n):
+        topic_item = input()
+        topic.append(topic_item)
+
+    result = acmTeam(topic)
+
+    fptr.write('\n'.join(map(str, result)))
+    fptr.write('\n')
+
+    fptr.close()

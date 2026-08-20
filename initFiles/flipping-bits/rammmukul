@@ -1,0 +1,27 @@
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <limits.h>
+#include <stdbool.h>
+
+long int flippingBits(long int N) {
+    // Complete this function
+    unsigned int max=0, number=(unsigned int)N;
+    max-=1;
+    //printf("%lu - %lu",max,number);
+    return (unsigned int)number^max;
+}
+
+int main() {
+    int T; 
+    scanf("%i", &T);
+    for(int a0 = 0; a0 < T; a0++){
+        long int N; 
+        scanf("%li", &N);
+        long int result = flippingBits(N);
+        printf("%lu\n", result);
+    }
+    return 0;
+}

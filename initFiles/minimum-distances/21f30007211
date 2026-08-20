@@ -1,0 +1,53 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'minimumDistances' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY a as parameter.
+#
+
+def SameValuePosition(value,arr):
+    indeces=[]
+    shortIndex=0
+    diffrenceList=[]
+    if arr.count(value)>1:
+        for index in range(len(arr)):
+            if arr[index]==value:
+                indeces.append(index)
+                
+        while(len(indeces)-1>shortIndex):
+            diffrenceList.append(indeces[shortIndex+1]-indeces[shortIndex])
+            shortIndex=shortIndex+1
+    else:
+        return 99999999
+    return min(diffrenceList)        
+            
+
+def minimumDistances(a):
+    diffrenceList=[]
+    for value in a:
+        diffrenceList.append(SameValuePosition(value,a))
+    if min(diffrenceList)==99999999:
+        return -1
+    else:
+        return min(diffrenceList)
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    a = list(map(int, input().rstrip().split()))
+
+    result = minimumDistances(a)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

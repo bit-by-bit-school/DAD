@@ -1,0 +1,45 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'separateNumbers' function below.
+#
+# The function accepts STRING s as parameter.
+#
+
+def separateNumbers(s):
+    # Write your code here
+    n = len(s)
+    if n % 2 == 0:
+        for i in range(1,int(n/2)+1):
+            first_num = int(s[0:i])
+            final_number = str(first_num)
+            while len(final_number) < len(s):
+                first_num += 1
+                final_number += str(first_num)
+            if final_number == s:
+                return print(f"YES {final_number[0:i]}")
+        return print("NO")        
+    else:
+        for i in range(1,int((n-1)/2) +1):
+            first_num = int(s[0:i])
+            final_number = str(first_num)
+            while len(final_number) < len(s):
+                first_num += 1
+                final_number += str(first_num)
+            if final_number == s:
+                return print(f"YES {final_number[0:i]}")
+        return print("NO")                
+
+if __name__ == '__main__':
+    q = int(input().strip())
+
+    for q_itr in range(q):
+        s = input()
+
+        separateNumbers(s)

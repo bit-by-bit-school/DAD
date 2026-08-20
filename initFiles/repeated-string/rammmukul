@@ -1,0 +1,46 @@
+process.stdin.resume();
+process.stdin.setEncoding('ascii');
+
+var input_stdin = "";
+var input_stdin_array = "";
+var input_currentline = 0;
+
+process.stdin.on('data', function (data) {
+    input_stdin += data;
+});
+
+process.stdin.on('end', function () {
+    input_stdin_array = input_stdin.split("\n");
+    main();    
+});
+
+function readLine() {
+    return input_stdin_array[input_currentline++];
+}
+
+/////////////// ignore above this line ////////////////////
+
+function repeatedString(s, n) {
+    // Complete this function
+    s=s.split('')
+        .map((x)=> x=='a'? 1 : 0)
+    
+    aCount=s.filter((x)=>x).length
+    
+    complete=n-n%s.length
+    
+    partial=0
+    
+    for(i=complete;i<n;i++){
+        partial+=s[i%s.length]
+    }
+    return (complete/s.length)*aCount + partial
+}
+
+function main() {
+    var s = readLine();
+    var n = parseInt(readLine());
+    var result = repeatedString(s, n);
+    process.stdout.write("" + result + "\n");
+
+}

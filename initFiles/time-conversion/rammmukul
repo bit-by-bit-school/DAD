@@ -1,0 +1,21 @@
+#!/bin/python3
+
+import sys
+
+def timeConversion(s):
+    # Complete this function
+    half=s[-2:]
+    s=s[:-2]
+    if half=='PM':
+        hour=s[:2]
+        s=s.replace(str(hour),str(int(hour)+12),1)
+        if s[:2]=='24':
+            s=s.replace(s[:2],'12',1)
+        return s
+    if s[:2]=='12':
+        s=s.replace(s[:2],'00',1)
+    return s
+
+s = input().strip()
+result = timeConversion(s)
+print(result)

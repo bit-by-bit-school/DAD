@@ -1,0 +1,67 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'anagram' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts STRING s as parameter.
+#
+
+def Is_Pos_Anagram(s):
+    n = len(s)
+    if n % 2 == 0:
+        return n // 2
+    return -1
+
+def dic_string(s):
+    count = {}
+    for value in s:
+        if value in count:
+            count[value] += 1
+        else:
+            count[value] = 1
+    return count
+
+def anagram(s):
+    n = Is_Pos_Anagram(s)
+    if n == -1:
+        return n
+
+    a1 = s[:n]
+    a2 = s[n:]
+
+    # Count the frequency of each character in both halves
+    s1 = dic_string(a1)
+    s2 = dic_string(a2)
+
+    # Calculate the number of changes required
+    changes = 0
+    for char in s1:
+        if char in s2:
+            if s1[char] > s2[char]:
+                changes += s1[char] - s2[char]
+        else:
+            changes += s1[char]
+    
+    return changes
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    q = int(input().strip())
+
+    for q_itr in range(q):
+        s = input()
+
+        result = anagram(s)
+
+        fptr.write(str(result) + '\n')
+
+    fptr.close()

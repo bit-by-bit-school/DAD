@@ -1,0 +1,50 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'pickingNumbers' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY a as parameter.
+#
+
+def pickingNumbers(a):
+    count_list=[]
+    a=sorted(a)
+    #print(a)
+    count=0
+    base=a[0]
+    a.remove(a[0])
+    #print(a)
+    for value in a:
+        #print(count_list)
+        if base+1==value or base==value:
+            count=count+1
+            base=value
+            #print("A")
+        else:
+            count_list.append(count)
+            count=0
+            base=value
+            #print("B")
+    count_list.append(count)        
+    return max(count_list)        
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    a = list(map(int, input().rstrip().split()))
+
+    result = pickingNumbers(a)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

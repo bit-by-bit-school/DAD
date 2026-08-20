@@ -1,0 +1,77 @@
+process.stdin.resume();
+process.stdin.setEncoding('ascii');
+
+var input_stdin = "";
+var input_stdin_array = "";
+var input_currentline = 0;
+
+process.stdin.on('data', function (data) {
+    input_stdin += data;
+});
+
+process.stdin.on('end', function () {
+    input_stdin_array = input_stdin.split("\n");
+    main();    
+});
+
+function readLine() {
+    return input_stdin_array[input_currentline++];
+}
+
+/////////////// ignore above this line ////////////////////
+
+function gridSearch(G, P) {
+    // Complete this function
+    G=G.map(x=>x.split(''))
+    P=P.map(x=>x.split(''))
+    gX= G[0].length
+    gY= G.length
+    
+    pX= P[0].length
+    pY= P.length
+    
+    
+    found=true
+    for(x=0;x<=gX-pX;x++){
+        for(y=0;y<=gY-pY;y++){
+            
+            found=true
+            for(i=0;i<pX;i++){
+                for(j=0;j<pY;j++){
+                    if(P[j][i] != G[j+y][i+x]){
+                        found=false
+                    }
+                    if(!found){ break }
+                }
+                if(!found){ break }
+            }
+            if(found){ return 'YES'}
+            
+        }
+    }
+    
+    return 'NO'
+}
+
+function main() {
+    var t = parseInt(readLine());
+    for(var a0 = 0; a0 < t; a0++){
+        var R_temp = readLine().split(' ');
+        var R = parseInt(R_temp[0]);
+        var C = parseInt(R_temp[1]);
+        var G = [];
+        for(var G_i = 0; G_i < R; G_i++){
+           G[G_i] = readLine();
+        }
+        var r_temp = readLine().split(' ');
+        var r = parseInt(r_temp[0]);
+        var c = parseInt(r_temp[1]);
+        var P = [];
+        for(var P_i = 0; P_i < r; P_i++){
+           P[P_i] = readLine();
+        }
+        var result = gridSearch(G, P);
+        process.stdout.write("" + result + "\n");
+    }
+
+}

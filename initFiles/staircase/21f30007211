@@ -1,0 +1,33 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'staircase' function below.
+#
+# The function accepts INTEGER n as parameter.
+#
+
+def staircase(n):
+
+    stair=n-1
+    
+    for i in range(n):
+        for j in range(n):
+            #print(j,stair)
+            if j>=stair:
+                print("#",end="")
+        
+            else:
+                print(" ",end="")
+        stair=stair-1        
+        print("\n",end="")        
+
+if __name__ == '__main__':
+    n = int(input().strip())
+
+    staircase(n)

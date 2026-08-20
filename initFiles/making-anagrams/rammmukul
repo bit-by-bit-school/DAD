@@ -1,0 +1,17 @@
+#!/bin/python3
+
+import sys
+
+def makingAnagrams(s1, s2):
+    # Complete this function
+    s3=list(s2)
+    for i in s1:
+        if i in s3:
+            s3.remove(i)
+    no_common=len(s2)-len(s3)
+    return len(s1)+len(s2)-2*no_common
+
+s1 = input().strip()
+s2 = input().strip()
+result = makingAnagrams(s1, s2)
+print(result)

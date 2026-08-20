@@ -1,0 +1,15 @@
+#!/bin/python3
+
+import sys
+
+def counterGame(n):
+    # Complete this function
+    ones=[i for i in bin(n-1)[2:]].count('1')
+    return 'Louise' if ones&1 else 'Richard'
+
+if __name__ == "__main__":
+    t = int(input().strip())
+    for a0 in range(t):
+        n = int(input().strip())
+        result = counterGame(n)
+        print(result)

@@ -1,0 +1,49 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'beautifulBinaryString' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts STRING b as parameter.
+#
+
+def diffrenceTwo(arr):
+    count=0
+    for index in range(1,len(arr)):
+        #print(arr[index]-arr[index-1])
+        if arr[index]-arr[index-1]==2:
+            #print(arr[index]-arr[index-1])
+            count=count+1
+    if count:
+        return count-1
+    return count
+        
+def beautifulBinaryString(b):
+    count = 0
+    bit = "010"
+    indexlist=[]
+    for index in range(0, len(b) - 2, 1):
+        if b[index : index + 3] == bit:
+            indexlist.append(index)
+            count = count + 1
+    #print(indexlist)
+    return count-diffrenceTwo(indexlist)
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    b = input()
+
+    result = beautifulBinaryString(b)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

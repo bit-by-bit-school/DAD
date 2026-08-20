@@ -1,0 +1,24 @@
+
+import sys
+
+def separateNumbers(s):
+    # Complete this function
+    if s[0] == s:
+        print('NO')
+        return
+    for i in range(1, len(s)):
+        myStack = []
+        myStack.append(s[:i])
+        while len(''.join(myStack)) < len(s):
+            myStack.append(str(int(myStack[-1]) + 1))
+        if ''.join(myStack) == s:
+            print('YES', myStack[0])
+            break
+        if i == len(s) - 1:
+            print('NO')
+
+if __name__ == "__main__":
+    q = int(input().strip())
+    for a0 in range(q):
+        s = input().strip()
+        separateNumbers(s)

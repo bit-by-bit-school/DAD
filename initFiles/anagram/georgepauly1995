@@ -1,0 +1,51 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'anagram' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts STRING s as parameter.
+#
+
+def anagram(s):
+    # Write your code here
+    if len(s) % 2 == 1:
+        return -1
+    else:
+        n = len(s)
+        input_1 = s[0:int(n/2)]
+
+        input_2 = s[int(n/2):]
+
+
+        list_input_1 = sorted(list(input_1))
+        list_input_2 = sorted(list(input_2))
+        print("This is the 1st half: ", list_input_1)
+        print("This is the 2nd half: ", list_input_2)
+        anagram_count = 0
+        for x in list_input_1:
+            if x not in list_input_2:
+                anagram_count +=1
+            else:
+                list_input_2.remove(x)
+        return anagram_count           
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    q = int(input().strip())
+
+    for q_itr in range(q):
+        s = input()
+
+        result = anagram(s)
+
+        fptr.write(str(result) + '\n')
+
+    fptr.close()

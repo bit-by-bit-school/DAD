@@ -1,0 +1,22 @@
+#!/bin/python3
+
+import sys
+def superDigit(p):
+    if len(p)==1:
+        return p
+    sum=0
+    for i in p:
+        sum+=int(i)
+    return superDigit(str(sum))
+    
+    
+def digitSum(n, k):
+    # Complete this function
+    p=str(n)*k
+    return superDigit(p)
+
+if __name__ == "__main__":
+    n, k = input().strip().split(' ')
+    n, k = [str(n), int(k)]
+    result = digitSum(n, k)
+    print(result)

@@ -1,0 +1,13 @@
+#!/bin/python3
+
+import sys
+
+def birthdayCakeCandles(n, arr):
+    # Complete this function
+    maxHight=max(arr)
+    return arr.count(maxHight)
+
+n = int(input().strip())
+ar = list(map(int, input().strip().split(' ')))
+result = birthdayCakeCandles(n, ar)
+print(result)

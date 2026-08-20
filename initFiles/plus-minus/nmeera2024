@@ -1,0 +1,40 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'plusMinus' function below.
+#
+# The function accepts INTEGER_ARRAY arr as parameter.
+#
+
+def plusMinus(arr):
+    # Write your code here
+    negel, zeroel, posel = 0,0,0
+    for element in arr:
+        if element<0:
+            negel+=1
+        elif element==0:
+            zeroel+=1
+        else:
+            posel+=1
+    
+    negel = negel/len(arr)
+    zeroel = zeroel/len(arr)
+    posel = posel/len(arr)
+    
+    print(f"{posel:.6f}")
+    print(f"{negel:.6f}")
+    print(f"{zeroel:.6f}")
+            
+
+if __name__ == '__main__':
+    n = int(input().strip())
+
+    arr = list(map(int, input().rstrip().split()))
+
+    plusMinus(arr)

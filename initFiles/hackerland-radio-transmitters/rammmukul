@@ -1,0 +1,28 @@
+#!/bin/python3
+
+import sys
+
+def hackerlandRadioTransmitters(x, k):
+    count_trans = 0
+    last = x[0]
+    i = 0
+    x=sorted(x)
+    while(i < n):
+        count_trans = count_trans + 1
+        next_point = x[i] + k
+        while(i < n and x[i] <= next_point):
+            i = i + 1
+        next_point = x[i-1] + k
+        while(i < n and x[i] <= next_point):
+            i = i + 1
+
+    return count_trans
+    
+    
+
+if __name__ == "__main__":
+    n, k = input().strip().split(' ')
+    n, k = [int(n), int(k)]
+    x = list(map(int, input().strip().split(' ')))
+    result = hackerlandRadioTransmitters(x, k)
+    print(result)

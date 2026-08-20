@@ -1,0 +1,23 @@
+#!/bin/python3
+
+import sys
+
+def diagonalDifference(a):
+    priDiag=0
+    secDiag=0
+    j=len(a)-1
+    for i in range(len(a)):
+        priDiag+=a[i][i]
+        secDiag+=a[i][j]
+        j-=1
+    return abs(priDiag - secDiag)
+    # Complete this function
+
+if __name__ == "__main__":
+    n = int(input().strip())
+    a = []
+    for a_i in range(n):
+       a_t = [int(a_temp) for a_temp in input().strip().split(' ')]
+       a.append(a_t)
+    result = diagonalDifference(a)
+    print(result)

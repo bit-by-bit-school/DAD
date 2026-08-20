@@ -1,0 +1,45 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'timeConversion' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts STRING s as parameter.
+#
+
+def timeConversion(time1):
+    # Write your code here
+    length = len(time1)
+    time2 = time1[0:length-2]
+    hourtime = time1[0:2]
+    remainingtime = time2[3:8]
+    time_period = time1[8:9]
+    int_hourtime = int(hourtime)
+
+    if(time_period=='A' and int_hourtime==12):
+        int_hourtime=00
+    elif(time_period=='P' and 1<=int_hourtime<=11):
+        int_hourtime+=12
+    
+    hourtime = str(int_hourtime).zfill(2)
+    print(time1, time2, hourtime, remainingtime, time_period, int_hourtime)
+    return(hourtime+':'+remainingtime)
+
+timeConversion('10:20:10AM')
+
+# if __name__ == '__main__':
+#     fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+#     s = input()
+
+#     result = timeConversion(s)
+
+#     fptr.write(result + '\n')
+
+#     fptr.close()

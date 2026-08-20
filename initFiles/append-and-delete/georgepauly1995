@@ -1,0 +1,73 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'appendAndDelete' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts following parameters:
+#  1. STRING s
+#  2. STRING t
+#  3. INTEGER k
+#
+
+def appendAndDelete(s, t, k):
+    # Write your code here
+    n = len(s)
+    m = len(t)
+
+    if n+m <= k:
+        return "Yes"
+    elif s == t and k%2==0:
+        return "Yes"
+    elif s[0:n] == t[0:n]:
+        if (m-n) % 2 == 0:
+            return "Yes"
+        else:
+            return "No"   
+            
+    else:
+        matched_letters = []
+        for i in range(0,min(n,m)):
+            if s[i] == t[i]:
+                matched_letters.append(i)
+            else:
+                break
+        if matched_letters == []:
+            return "No"            
+        max_index = max(matched_letters)
+        print(max_index)
+        letters_to_be_deleted = n-(max_index+1)
+        letters_to_be_appended = m-(max_index+1)
+        if letters_to_be_deleted+letters_to_be_appended > k:
+            return "No"
+        else:
+            if letters_to_be_deleted == 0:
+                if letters_to_be_appended < k:
+                    return "No"
+                else:
+                    return "Yes"    
+            else:    
+                return "Yes" 
+                     
+                
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    s = input()
+
+    t = input()
+
+    k = int(input().strip())
+
+    result = appendAndDelete(s, t, k)
+
+    fptr.write(result + '\n')
+
+    fptr.close()

@@ -1,0 +1,45 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'kaprekarNumbers' function below.
+#
+# The function accepts following parameters:
+#  1. INTEGER p
+#  2. INTEGER q
+#
+
+def kaprekarNumbers(p, q):
+
+    # Write your code here
+    kap_nos = []
+
+    for x in range(p, q + 1):
+        d = len(str(x))
+        e = len(str(x ** 2))
+
+        if x == 1 or x == 2 or x == 3:
+            if x == 1:
+                kap_nos.append(1)
+        else:
+            r = str(x**2)[e - d:e]
+            l = str(x**2).removesuffix(r)
+            if int(l) + int(r) == x:
+                kap_nos.append(x)
+    if kap_nos == []:
+        print("INVALID RANGE")
+    else:    
+        print(*kap_nos)
+
+
+if __name__ == '__main__':
+    p = int(input().strip())
+
+    q = int(input().strip())
+
+    kaprekarNumbers(p, q)

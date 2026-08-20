@@ -1,0 +1,43 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+# Complete the catAndMouse function below.
+def mod(x,y):
+    if(x-y)<0:
+        return (-1)*(x-y)
+    else:
+        return(x-y)
+def catAndMouse(x, y, z):
+    
+    if mod(x,z)<mod(y,z):
+        return("Cat A")
+    elif mod(x,z)>mod(y,z):
+        return("Cat B")
+    else:
+        return("Mouse C")
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    q = int(input())
+
+    for q_itr in range(q):
+        xyz = input().split()
+
+        x = int(xyz[0])
+
+        y = int(xyz[1])
+
+        z = int(xyz[2])
+
+        result = catAndMouse(x, y, z)
+
+        fptr.write(result + '\n')
+
+    fptr.close()

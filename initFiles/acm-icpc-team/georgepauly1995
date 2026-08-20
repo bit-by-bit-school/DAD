@@ -1,0 +1,58 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'acmTeam' function below.
+#
+# The function is expected to return an INTEGER_ARRAY.
+# The function accepts STRING_ARRAY topic as parameter.
+#
+
+def acmTeam(topic):
+    # Write your code here
+    
+    n = len(topic)
+    teams = [(topic[i],topic[j]) for i in range(n) for j in range(i+1,n) if i != j]
+    def bin_add(n,m):
+        s = ""
+        for i in range(0,len(n)):
+            if n[i] == "1" and m[i] == "1":
+                s += "1"
+            elif n[i] == "1" and m[i] == "0":
+                s += "1"
+            elif n[i] == "0" and m[i] == "1":
+                s += "1"
+            else:
+                s += "0"
+        return s
+    teams_score = [bin_add(x[0],x[1]) for x in teams]
+    one_score = [x.count('1') for x in teams_score]
+    return [max(one_score), one_score.count(max(one_score))]
+        
+    
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    m = int(first_multiple_input[1])
+
+    topic = []
+
+    for _ in range(n):
+        topic_item = input()
+        topic.append(topic_item)
+
+    result = acmTeam(topic)
+
+    fptr.write('\n'.join(map(str, result)))
+    fptr.write('\n')
+
+    fptr.close()

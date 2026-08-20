@@ -1,0 +1,51 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'pairs' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts following parameters:
+#  1. INTEGER k
+#  2. INTEGER_ARRAY arr
+#
+
+def contiousPair(element, arr, jump):
+    
+    if (element + jump) in (arr):
+        return (element, element + jump)
+    return -1   
+
+
+
+def pairs(k, arr):
+    arr=set(arr)
+    check_set =set()
+    for element in arr:
+        if contiousPair:
+            check_set.add(contiousPair(element, arr, k))
+    check_set.discard(-1) # magic number       
+    return len(check_set)
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    k = int(first_multiple_input[1])
+
+    arr = list(map(int, input().rstrip().split()))
+
+    result = pairs(k, arr)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

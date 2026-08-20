@@ -1,0 +1,39 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'beautifulBinaryString' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts STRING b as parameter.
+#
+
+def beautifulBinaryString(b):
+    # Write your code here
+    larr = list(b)
+    counter = 0
+    for i in range(0,len(larr)-2):
+        x = larr[i] == "0" and larr[i+1] == "1" and larr[i+2] == "0"
+        if x:
+            larr[i+2] = "1"
+            i = 0
+            counter+=1
+    return (counter)
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    b = input()
+
+    result = beautifulBinaryString(b)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

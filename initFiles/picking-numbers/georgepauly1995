@@ -1,0 +1,42 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'pickingNumbers' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY a as parameter.
+#
+
+def pickingNumbers(a):
+    b = list(set(a))
+    c = [a.count(x) for x in b]
+    if len(b) == 1:
+        return c[0]
+    sums = []
+    for i in range(0,len(b)-1):
+        if b[i+1]-b[i] == 1:
+            sums.append(c[i]+c[i+1])   
+    if max(c) > max(sums):
+        return max(c)
+    else:
+        return max(sums)            
+                
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    a = list(map(int, input().rstrip().split()))
+
+    result = pickingNumbers(a)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

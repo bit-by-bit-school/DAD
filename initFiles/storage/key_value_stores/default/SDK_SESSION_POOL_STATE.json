@@ -1,0 +1,411 @@
+{
+  "usableSessionsCount": 5,
+  "retiredSessionsCount": 1,
+  "sessions": [
+    {
+      "id": "session_VuK5HgZHay",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-02-02T01:31:47.902Z",
+      "createdAt": "2025-02-02T00:41:47.902Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_2S0Mf3OhME",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "referrer",
+            "value": "direct",
+            "expires": "2026-02-02T00:42:05.000Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.320Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_fcdscst",
+            "value": "MTczODQ1NjkyNjY2MA==",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.321Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_gcl_au",
+            "value": "1.1.2133282530.1738456927",
+            "expires": "2025-05-03T00:42:07.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.325Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "cebs",
+            "value": "1",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.327Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_fcdscv",
+            "value": "eyJDdXN0b21lcklkIjoiOWUyMDZiMGQtMDAxNC00MmI5LThkMzktYzJiOTA5NGEyNzMxIiwiVmlzaXRvciI6eyJFbWFpbCI6bnVsbCwiRXh0ZXJuYWxWaXNpdG9ySWQiOiIyNzRlYzBhMi1hMWE0LTQ1NGQtYjUxMy1kZWM4YWRmNDNmMTMifSwiVmlzaXRzIjpbXSwiQWN0aXZpdGllcyI6W10sIkRpYWdub3N0aWNNZXNzYWdlIjpudWxsfQ==",
+            "expires": "2026-03-09T00:42:07.947Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.327Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_zitok",
+            "value": "67e00762ca3c0b00528c1738456996",
+            "expires": "2026-02-02T00:42:09.000Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_mkto_trk",
+            "value": "id:487-WAY-049&token:_mch-hackerrank.com-f11a64b3dd5e1d37ac5e350612cb771",
+            "expires": "2026-03-09T00:42:09.123Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "homepage_variant",
+            "value": "https://www.hackerrank.com/access-account/",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_uetsid",
+            "value": "87614820e0fe11ef87efb968c3ecccb2",
+            "expires": "2025-02-03T00:42:10.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_uetvid",
+            "value": "8761b890e0fe11ef99075b889f4ccb22",
+            "expires": "2026-02-27T00:42:10.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ce.clock_data",
+            "value": "-68427%2C106.219.171.189%2C1%2Cf51bb482c660d0eeadd1f058058a2b35%2CChrome%2CIN",
+            "expires": "2025-02-03T00:42:10.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "cebsp_",
+            "value": "1",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ga_BCP376TP8D",
+            "value": "GS1.1.1738456926.1.1.1738456933.0.0.0",
+            "expires": "2026-03-09T00:42:13.045Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ga_X2HP4BPSD7",
+            "value": "GS1.1.1738456926.1.1.1738456933.0.0.0",
+            "expires": "2026-03-09T00:42:13.048Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ga_0QME21KCCM",
+            "value": "GS1.1.1738456926.1.1.1738456933.53.0.0",
+            "expires": "2026-03-09T00:42:13.054Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ga_R0S46VQSNQ",
+            "value": "GS1.1.1738456926.1.1.1738456933.53.0.0",
+            "expires": "2026-03-09T00:42:13.058Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ce.s",
+            "value": "v~573caeb6cb6f8bd991f76db0d4ec2b378fb5daba~lcw~1738456932915~vir~new~lva~1738456930145~vpv~0~v11.cs~411501~v11.s~89a176b0-e0fe-11ef-9b0f-e54dd548278d~v11.sla~1738456933061~gtrk.ngv~%7B%7D~gtrk.cnv~wnq~gtrk.la~m6mwde8i~v11.send~1738456931509~lcw~1738456933061",
+            "expires": "2026-02-02T00:42:13.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "user_type",
+            "value": "hacker",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.2.986801078.1738456927",
+            "expires": "2026-03-09T00:44:03.527Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_gid",
+            "value": "GA1.2.341056.1738456934",
+            "expires": "2025-02-03T00:44:03.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.328Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "remember_hacker_token",
+            "value": "eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaGJDRnNHYVFOcmtoZEpJaUlrTW1Fa01UQWthbEJRTURkNlYyWnViV2M0YjFBNWFtNUJRV2RaVHdZNkJrVlVTU0lYTVRjek9EUTFOekF4Tnk0ME1UUTNOamsyQmpzQVJnPT0iLCJleHAiOiIyMDI1LTAyLTE2VDAwOjQzOjM3LjQxNFoiLCJwdXIiOm51bGx9fQ%3D%3D--b4b2b1abb6a65e9dd5300e31a4f1ec525fa1b764",
+            "expires": "2025-02-16T00:42:29.198Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "hackerrank_mixpanel_token",
+            "value": "f08c2a9f-0047-4ff8-a583-5961d54d4ca9",
+            "expires": "2026-02-02T00:42:29.199Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "hrc_l_i",
+            "value": "T",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "metrics_user_identifier",
+            "value": "17926b-7f7e36d3a079f691e35a5da79ad163f800474d0f",
+            "expires": "2025-02-03T00:42:29.199Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "_hrank_session",
+            "value": "13634c06596fb47e06d30f80b3cc05b4",
+            "expires": "2025-02-02T01:32:40.318Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.573Z"
+          },
+          {
+            "key": "react_var",
+            "value": "false__cnt6",
+            "expires": "2025-02-09T00:42:28.595Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.574Z"
+          },
+          {
+            "key": "react_var2",
+            "value": "false__cnt6",
+            "expires": "2025-02-09T00:42:28.595Z",
+            "domain": "www.hackerrank.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-02-02T00:42:40.329Z",
+            "lastAccessed": "2025-02-02T00:44:21.574Z"
+          },
+          {
+            "key": "_gat_UA-45092266-26",
+            "value": "1",
+            "expires": "2025-02-02T00:45:03.000Z",
+            "domain": "hackerrank.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-02-02T00:44:21.574Z",
+            "lastAccessed": "2025-02-02T00:44:21.574Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-02-02T01:31:47.905Z",
+      "createdAt": "2025-02-02T00:41:47.905Z",
+      "usageCount": 4,
+      "maxUsageCount": 50,
+      "errorScore": 6
+    },
+    {
+      "id": "session_HSRO9sgJ5B",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-02-02T01:32:40.373Z",
+      "createdAt": "2025-02-02T00:42:40.373Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_M89mhpKctD",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-02-02T01:33:31.027Z",
+      "createdAt": "2025-02-02T00:43:31.027Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_dtVYyCKnar",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-02-02T01:34:21.606Z",
+      "createdAt": "2025-02-02T00:44:21.606Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_6EOY2aMgsU",
+      "cookieJar": {
+        "version": "tough-cookie@5.1.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-02-02T01:34:21.609Z",
+      "createdAt": "2025-02-02T00:44:21.609Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    }
+  ]
+}

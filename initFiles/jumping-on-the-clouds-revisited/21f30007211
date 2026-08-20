@@ -1,0 +1,42 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+def jump(position, k, lenght):
+    return (position + k) % lenght
+
+
+def jumpingOnClouds(c, k):
+    lenght = len(c)
+    position=k
+    if c[position]==1:
+        power=100-3
+    else:
+        power=99
+    while(position!=0):
+        position=jump(position,k,lenght)
+        if c[position]==1:
+            power=power-3
+        else:
+            power=power-1
+    return power                    
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    nk = input().split()
+
+    n = int(nk[0])
+
+    k = int(nk[1])
+
+    c = list(map(int, input().rstrip().split()))
+
+    result = jumpingOnClouds(c, k)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

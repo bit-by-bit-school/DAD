@@ -1,0 +1,61 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'hackerlandRadioTransmitters' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts following parameters:
+#  1. INTEGER_ARRAY x
+#  2. INTEGER k
+#
+
+def forwardpropogation(tpoint, step, pointSet):
+    while (tpoint + step + 1) not in pointSet and (tpoint + step + 1)<max(pointSet) :
+        print(tpoint + step + 1)
+        step = step + 1
+    return tpoint + step+1
+
+
+def backpropogation(Spoint, step, pointSet):  # ->int
+    while (Spoint + step) not in pointSet:
+        step = step - 1
+    return Spoint + step
+
+
+def hackerlandRadioTransmitters(arr, k):
+    last_house = max(arr)
+    first_house = min(arr)
+    count = 0
+    arr = set(arr)
+    tpoint = 0
+    while tpoint < last_house:
+        
+        tpoint = backpropogation(first_house, k, arr)
+        print(tpoint)
+        count = count + 1
+        first_house = forwardpropogation(tpoint, k, arr)
+    return count
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    k = int(first_multiple_input[1])
+
+    x = list(map(int, input().rstrip().split()))
+
+    result = hackerlandRadioTransmitters(x, k)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

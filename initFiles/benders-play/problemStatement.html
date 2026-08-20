@@ -1,0 +1,117 @@
+<div class="challenge_problem_statement"><div class="msB challenge_problem_statement_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+.MathJax_SVG_LineBox {display: table!important}
+.MathJax_SVG_LineBox span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>General Iroh and Commandant Bumi are heading to the Republic City to stop a rebellion. But it&apos;s quite a long travel, so in the meantime they have started discussing about possible attacking plans. Right now, they&apos;re arguing about best ways for moving soldiers during the battle. Tired of not getting a final and concise strategy, Iroh proposed a particularly original idea.</p>
+
+<p>Iroh:</p>
+
+<pre><code>Bumi, look at this map: here we have all possible locations in the battle field soldiers can occupy. I know a game which can give us some ideas.
+</code></pre>
+
+<p>Bumi:</p>
+
+<pre><code>A game? How will a game help us here?
+</code></pre>
+
+<p>Iroh:</p>
+
+<pre><code>It&apos;s pretty simple, we know which location is connected to each one, and also, that all those paths between locations are one-way (it&apos;s too dangerous to have two ways paths), so we place some soldiers at random initial locations, take turns, and in each turn, we try to make a valid move with one soldier from one location to another. Eventually, we won&apos;t be able to move any man so, the first one which is not able to perform any valid move, loses. One important thing is, at some moment, we may have some men at the same field location.
+</code></pre>
+
+<p>Bumi:</p>
+
+<pre><code>Are you sure we are gonna end this? We have so many locations and paths... don&apos;t know, soldiers could be moving in circles for ever.
+</code></pre>
+
+<p>Iroh:</p>
+
+<pre><code>Take it easy man, those paths were built by the best architects I&apos;ve ever known, so there is no way that could happen.
+</code></pre>
+
+<p>Bumi:</p>
+
+<pre><code>Well, I still don&apos;t get how does this help us.
+</code></pre>
+
+<p>Iroh:</p>
+
+<pre><code>Me neither, but greatest generals from the Earth Kingdom created their strategies from this game, so, who knows?
+</code></pre>
+
+<p>Bumi:</p>
+
+<pre><code>Ok, I&apos;m in. Who plays first?
+</code></pre>
+
+<p>Iroh:</p>
+
+<pre><code>You go first my friend. Just make sure you always do your best, because I will show no mercy to you :).
+</code></pre></div></div></div><div class="challenge_input_format"><div class="msB challenge_input_format_title"><p><strong>Input Format</strong></p></div><div class="msB challenge_input_format_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>First line in the input contains two integers <strong>N</strong> and <strong>M</strong>, describing the number of locations and paths between them, respectively. M lines follow, each one with two integers <strong>u</strong> and <strong>v</strong>, <strong>denoting a one-way path from u to v</strong>. <br>
+Then comes a line with a single integer <strong>Q</strong>, denoting how many times Bumi and Iroh played the game over the given field. Q queries follow each one with two lines, first one with a single integer <strong>K</strong>, the number of soldiers in the field; and second one with K integers b_i separated by space, each one denoting the initial location of some soldier.</p></div></div></div><div class="challenge_constraints"><div class="msB challenge_constraints_title"><p><strong>Constraints</strong></p></div><div class="msB challenge_constraints_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>1 &lt; N &lt;= 10<sup>5</sup> <br>
+1 &lt;= M &lt;= 10<sup>6</sup> <br>
+1 &lt;= u, v, b_i &lt;= N <br>
+1 &lt;= K &lt;= 10<sup>2</sup> <br>
+1 &lt;= Q &lt;= 10<sup>5</sup>  </p></div></div></div><div class="challenge_output_format"><div class="msB challenge_output_format_title"><p><strong>Output Format</strong></p></div><div class="msB challenge_output_format_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>Output Q lines, each one saying <strong>Bumi</strong> if Bumi should be the winner of the corresponding game or <strong>Iroh</strong> otherwise. <br>
+Remember that, being both top strategy masters, they will always perform the best possible move each turn.</p></div></div></div><div class="challenge_sample_input"><div class="msB challenge_sample_input_title"><p><strong>Sample Input</strong></p></div><div class="msB challenge_sample_input_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><pre><code>10 10
+1 10
+3 10
+7 8
+6 8
+7 4
+9 4
+7 6
+5 8
+1 8
+2 8
+5
+4
+10 7 6 4
+3
+1 9 4
+3
+8 3 5
+3
+4 9 7
+3
+7 9 10
+</code></pre></div></div></div><div class="challenge_sample_output"><div class="msB challenge_sample_output_title"><p><strong>Sample Output</strong></p></div><div class="msB challenge_sample_output_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><pre><code>Bumi
+Iroh
+Iroh
+Bumi
+Bumi
+</code></pre></div></div></div>

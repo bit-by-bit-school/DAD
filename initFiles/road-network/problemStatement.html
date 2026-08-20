@@ -1,0 +1,54 @@
+<div class="challenge_problem_statement"><div class="msB challenge_problem_statement_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p><a href="https://s3.amazonaws.com/uploads.hipchat.com/55626/386540/aUlxVIZ4oLxZH9J/Roadnetwork.md"> Chinese </a> <br></p>
+
+<p>Fedor is a research scientist, who has recently found a road map of Ancient Berland.</p>
+
+<p>Ancient Berland consisted of <em>N</em> cities that were connected by <em>M</em> bidirectional roads. The road builders weren&apos;t knowledgable. Hence, the start city and the end city for each road were always chosen <em>randomly and independently</em>. As a result, there were more than one road between some pairs of cities. Nevertheless, by luck, the country remained connected (i.e. you were able to get from one city to another via these <em>M</em> roads). And for any road, the start and the end city were not the same.</p>
+
+<p>Moreover, each road had it&apos;s own <em>value of importance</em>. This value was assigned by the Road Minister of Ancient Berland. The Road Minister also was not knowledgable, so these numbers were assigned to the roads <em>randomly and independently</em> from the other roads.</p>
+
+<p>When there was a war with the neighboring countries (usually it was with Ancient Herland), it was important to estimate <em>separation number</em> for some pairs of cities.</p>
+
+<p>The separation number for a pair of cities - let&apos;s call these cities <em>A</em> and <em>B</em> - is explained below: </p>
+
+<p>Consider a set of roads that were built. The subset of this set is <em>good</em>, if after removing all roads from this set, there&apos;s no longer a way from A to B. The minimal possible sum of roads&apos; <em>value of importance</em> of any good subset is a <em>separation number</em> for the pair of cities (<em>A</em>, <em>B</em>).</p>
+
+<p>For a research, Fedor would like to know the product of <em>separation values</em> over all unordered pairs of cities. Please, find this number. It can be huge, so we ask you to output its product modulo 10<sup>9</sup>+7.</p></div></div></div><div class="challenge_input_format"><div class="msB challenge_input_format_title"><p><strong>Input Format</strong></p></div><div class="msB challenge_input_format_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>The first line of input consist of two integers <em>N</em> and <em>M</em>, separated by a single space. <br>
+Then, <em>M</em> lines follow. Each of these lines consist of three integers <em>X</em><sub>i</sub>, <em>Y</em><sub>i</sub>, <em>Z</em><sub>i</sub> separated by a single space. <br>
+It means that there was a road between the city <em>X</em><sub>i</sub> and the city <em>Y</em><sub>i</sub> with a value of importance equal to <em>Z</em><sub>i</sub>.</p></div></div></div><div class="challenge_constraints"><div class="msB challenge_constraints_title"><p><strong>Constraints</strong></p></div><div class="msB challenge_constraints_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+.MathJax_SVG_LineBox {display: table!important}
+.MathJax_SVG_LineBox span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>3 &#x2264; <em>N</em> &#x2264; 500 <br>
+3 &#x2264; <em>M</em> &#x2264; 10<sup>4</sup> <br>
+1 &#x2264; <em>value of importance</em> &#x2264; 10<sup>5</sup> <br>
+The cities are indexed from 1 to <em>N</em>.</p>
+
+<p><strong>Scoring</strong></p>
+
+<p>In the 25% of the test data <em>N</em> = 50 and <em>M</em> = 300.</p>
+
+<p>In another 25% of the test data <em>N</em> = 200 and <em>M</em> = 10000</p>
+
+<p>In the rest of the test data <em>N</em> = 500 and <em>M</em> = 10000  </p></div></div></div><div class="challenge_output_format"><div class="msB challenge_output_format_title"><p><strong>Output Format</strong></p></div><div class="msB challenge_output_format_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>An integer that represents the value, Fedor needs, modulo 10<sup>9</sup>+7.</p></div></div></div>

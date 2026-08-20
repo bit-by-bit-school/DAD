@@ -1,0 +1,59 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'cutTheSticks' function below.
+#
+# The function is expected to return an INTEGER_ARRAY.
+# The function accepts INTEGER_ARRAY arr as parameter.
+#
+
+def IsnullArray(arr):
+    for element in arr:
+        if element!=0:
+            return False
+    return True    
+             
+def cutTheSticks(arr):
+    arr=sorted(arr)
+    count_list=[]
+    while(IsnullArray(arr)==False):
+        start=0
+        count=0
+        for index in range(len(arr)):
+            if arr[index]==0:
+                pass
+            else:
+                start=index
+                break
+        mini=arr[start]    
+        
+        for index1 in range(start,len(arr),1):
+            arr[index1]=arr[index1]-mini
+            count=count+1
+        count_list.append(count)     
+               
+                
+          
+    return count_list       
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    arr = list(map(int, input().rstrip().split()))
+
+    result = cutTheSticks(arr)
+
+    fptr.write('\n'.join(map(str, result)))
+    fptr.write('\n')
+
+    fptr.close()
+

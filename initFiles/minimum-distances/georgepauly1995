@@ -1,0 +1,37 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'minimumDistances' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY a as parameter.
+#
+
+def minimumDistances(a):
+    # Write your code here
+    n = len(a)
+    pairs = [(i,j) for i in range(n) for j in range(i+1,n) if a[i] == a[j]]
+    distance_pairs = [abs(x[0]-x[1]) for x in pairs]
+    if pairs == []:
+        return -1
+    else:    
+        return min(distance_pairs)
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    a = list(map(int, input().rstrip().split()))
+
+    result = minimumDistances(a)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

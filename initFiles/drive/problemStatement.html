@@ -1,0 +1,88 @@
+<div class="challenge_problem_statement"><div class="msB challenge_problem_statement_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>HackerRank is starting a bus service in <a href="https://maps.google.com/maps?q=152+E+Dana+St,+Mountain+View,+CA&amp;hl=en&amp;ll=37.386646,-122.06583&amp;spn=0.005336,0.009645&amp;sll=37.387156,-122.066474&amp;layer=c&amp;cbp=13,353.31,,0,12.73&amp;cbll=37.387138,-122.066472&amp;hnear=152+E+Dana+St,+Mountain+View,+California+94041&amp;t=m&amp;z=17&amp;iwloc=A&amp;panoid=JqZF-MbOw32l_4cdg7gnXA">MountainView, California</a>. The bus starts at time T = 0 at <em>station<sub>1</sub></em> and goes through <em>station<sub>2</sub></em>, <em>station<sub>3</sub></em>, <em>station<sub>4</sub></em> in that order and reaches the headquarters located at <em>station<sub>n</sub></em>. At every station, the bus waits for various commuters to arrive before it departs to the next station. Ignoring the acceleration, the bus moves at 1 meter / second. i.e., if <em>station<sub>i</sub></em> and <em>station<sub>j</sub></em> are 1000 meters apart, the bus takes 1000 seconds to travel from <em>station<sub>i</sub></em> to <em>station<sub>j</sub></em>. </p>
+
+<p>The bus is equipped with <strong>K</strong> units of Nitro (N<sub>2</sub>O). If going from <em>station<sub>i</sub></em> to <em>station<sub>j</sub></em> takes <em>x</em> seconds, then using <em>t</em> units of nitro can decrease the time taken to max(x-t, 0) seconds where max(a,b) denotes the greater of the two values between a &amp; b. The Nitro can be used all at once or in multiples of 1 unit. </p>
+
+<p>If the bus driver travels optimally, what is the minimum sum of travelling time for all commuters? The travelling time equals to the time he/she arrived at the destination minus the time he/she arrived the start station. </p>
+
+<p>Please remember that the driver must take all passengers to their destination.  </p></div></div></div><div class="challenge_input_format"><div class="msB challenge_input_format_title"><p><strong>Input Format</strong></p></div><div class="msB challenge_input_format_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>The first line contains 3 space separated integers n, m and K which indicate the number of stations, total number of people who board the bus at various stations and the total units of Nitro (N<sub>2</sub>O) present in the bus.  </p>
+
+<p>The second line contains n-1 space separated integers where the i<sup>th</sup> integer indicates the distance between <em>station<sub>(i-1)</sub></em> to <em>station<sub>i</sub></em>.  </p>
+
+<p>m lines follow each containing 3 space separated integers. The i<sup>th</sup> line contains t<sub>i</sub>, s<sub>i</sub> and e<sub>i</sub> in that order indicating the arrival time of the commuter at s<sub>i</sub> at time t<sub>i</sub> with his destination being e<sub>i</sub>. </p>
+
+<pre><code>n m K  
+d1 d2 ... dn-1   // di: the distance between station_i to station_(i+1).
+t1 s1 e1         // commuter 1 arrives at his boarding point at s1 and his destination is e1
+t2 s2 e2
+...
+tm sm em
+</code></pre></div></div></div><div class="challenge_constraints"><div class="msB challenge_constraints_title"><p><strong>Constraints</strong></p></div><div class="msB challenge_constraints_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>0 &lt; n &lt;= 100000 <br>
+0 &lt; m &lt;= 100000 <br>
+0 &lt;= K &lt;= 10000000 <br>
+0 &lt; d<sub>i</sub> &lt;= 100 <br>
+0 &lt;= t<sub>i</sub> &lt;= 10000000 <br>
+1 &lt;= s<sub>i</sub> &lt; e<sub>i</sub> &lt;= n  </p></div></div></div><div class="challenge_output_format"><div class="msB challenge_output_format_title"><p><strong>Output Format</strong></p></div><div class="msB challenge_output_format_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>The minimal total travel time. </p></div></div></div><div class="challenge_sample_input"><div class="msB challenge_sample_input_title"><p><strong>Sample Input</strong></p></div><div class="msB challenge_sample_input_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><pre><code>3 3 2
+1 4
+1 1 3
+2 1 2
+5 2 3
+</code></pre></div></div></div><div class="challenge_sample_output"><div class="msB challenge_sample_output_title"><p><strong>Sample Output</strong></p></div><div class="msB challenge_sample_output_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><pre><code>9
+</code></pre></div></div></div><div class="challenge_explanation"><div class="msB challenge_explanation_title"><p><strong>Explanation</strong></p></div><div class="msB challenge_explanation_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>The bus waits for the 1<sup>st</sup> and the 2<sup>nd</sup> commuter to arrive at station<sub>1</sub> and travels to station<sub>2</sub> carrying 2 passengers. The travel time from station<sub>1</sub> to station<sub>2</sub> is 1 second. It then waits for the 3<sup>rd</sup> commuter to board the bus at time = 5, 2<sup>nd</sup> commuter deboards the bus. The 3<sup>rd</sup> commuter boards the bus at t = 5. The bus now uses 2 units of nitro, this reduces the commute time to travel to station<sub>3</sub> from 4 to 2. </p>
+
+<p>Hence, the total time spent by each of the passengers on the bus is </p>
+
+<ol>
+<li>1 (time spent waiting for commuter 2) + 1 (travel time from station<sub>1</sub> to station<sub>2</sub>) + 2 (time spent waiting for commuter 3) + 2 (travel time from station<sub>2</sub> to station<sub>3</sub>) = 6</li>
+<li>1 (travel time from station<sub>1</sub> to station<sub>2</sub>)</li>
+<li><p>2 (travel time from station<sub>2</sub> to station<sub>3</sub>)</p>
+
+<p>6+1+2 = 9</p></li>
+</ol>
+
+<p>hence the answer. </p>
+
+<p><strong>Timelimits</strong></p>
+
+<p>Timelimits for this challenge can be seen <a href="https://www.hackerrank.com/environment">here</a></p></div></div></div>

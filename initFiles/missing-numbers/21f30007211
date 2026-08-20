@@ -1,0 +1,71 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'missingNumbers' function below.
+#
+# The function is expected to return an INTEGER_ARRAY.
+# The function accepts following parameters:
+#  1. INTEGER_ARRAY arr
+#  2. INTEGER_ARRAY brr
+#
+def Minimumcounting(arr, brr):
+    return min(min(arr), min(brr))
+
+
+def diffrence_list(mini, arr):
+    for index in range(len(arr)):
+        arr[index] = arr[index] - mini
+    return arr
+
+
+def hurendZeroes():
+    zero_list = []
+    for index in range(100):
+        zero_list.append(0)
+    return zero_list
+
+
+def frequency_list(arr):
+    frequency = hurendZeroes()
+    for element in arr:
+        frequency[element] = frequency[element] + 1
+    return frequency
+
+
+def missingNumbers(arr, brr):
+    mini = Minimumcounting(arr, brr)
+    dif_arr = diffrence_list(mini, arr)
+    dif_brr = diffrence_list(mini, brr)
+    freq_arr = frequency_list(dif_arr)
+    #print(freq_arr)
+    freq_brr = frequency_list(dif_brr)
+    #print(freq_brr)
+
+    missing_list = []
+    for index in range(len(freq_arr)):
+        if freq_arr[index] != freq_brr[index]:
+            missing_list.append(index + mini)
+    return missing_list
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    arr = list(map(int, input().rstrip().split()))
+
+    m = int(input().strip())
+
+    brr = list(map(int, input().rstrip().split()))
+
+    result = missingNumbers(arr, brr)
+
+    fptr.write(' '.join(map(str, result)))
+    fptr.write('\n')
+
+    fptr.close()

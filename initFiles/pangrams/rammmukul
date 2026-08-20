@@ -1,0 +1,9 @@
+# Enter your code here. Read input from STDIN. Print output to STDOUT
+import re
+s=input()
+for i in 'abcdefghijklmnopqrstuvwxyz':
+    reg=re.compile(i,re.IGNORECASE)
+    if(not reg.search(s)):
+        print('not pangram')
+        exit()
+print('pangram')

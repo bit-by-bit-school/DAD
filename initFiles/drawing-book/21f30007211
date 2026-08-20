@@ -1,0 +1,53 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'pageCount' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts following parameters:
+#  1. INTEGER n
+#  2. INTEGER p
+#
+
+def pageCount(n, p):
+    f_turn=0
+    page=1
+    while(page<p):
+        f_turn=f_turn+1
+        page=page+2
+    b_turn=0
+    b_page=n
+    if n%2==0:
+        b_page=n-1
+    
+        while(b_page>=p):
+            b_page=b_page-2
+            b_turn=b_turn+1
+    else:
+        b_page=n-2
+        while(b_page>=p):
+            b_page=b_page-2
+            b_turn=b_turn+1
+            
+    return min(b_turn,f_turn)   
+         
+        
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    p = int(input().strip())
+
+    result = pageCount(n, p)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

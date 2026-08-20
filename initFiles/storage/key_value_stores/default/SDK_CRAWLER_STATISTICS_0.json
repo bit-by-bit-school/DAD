@@ -1,0 +1,38 @@
+{
+  "requestsFinished": 0,
+  "requestsFailed": 0,
+  "requestsRetries": 0,
+  "requestsFailedPerMinute": 0,
+  "requestsFinishedPerMinute": 0,
+  "requestMinDurationMillis": null,
+  "requestMaxDurationMillis": 0,
+  "requestTotalFailedDurationMillis": 0,
+  "requestTotalFinishedDurationMillis": 0,
+  "crawlerStartedAt": "2025-02-02T00:41:47.534Z",
+  "crawlerFinishedAt": null,
+  "statsPersistedAt": "2025-02-02T00:44:47.537Z",
+  "crawlerRuntimeMillis": 180292,
+  "crawlerLastStartTimestamp": 1738456907245,
+  "requestRetryHistogram": [],
+  "statsId": 0,
+  "requestAvgFailedDurationMillis": null,
+  "requestAvgFinishedDurationMillis": null,
+  "requestTotalDurationMillis": 0,
+  "requestsTotal": 0,
+  "requestsWithStatusCode": {
+    "404": 2,
+    "405": 1
+  },
+  "errors": {},
+  "retryErrors": {
+    "file:///C:/Users/rammm/Desktop/code/HackerRank/index.js:53:11": {
+      "ERR_INVALID_ARG_TYPE": {
+        "TypeError": {
+          "The \"data\" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received undefined": {
+            "count": 3
+          }
+        }
+      }
+    }
+  }
+}

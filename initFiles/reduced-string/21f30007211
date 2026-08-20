@@ -1,0 +1,49 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'superReducedString' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts STRING s as parameter.
+#
+
+def superReducedString(s):
+    stack=[]
+    while(len(s)>0):
+        print(stack,s)
+        if stack:
+            if stack[-1]==s[0]:
+                s=s[1:]
+                removed_element=stack.pop()
+            else:
+                stack.append(s[0])
+                s=s[1:] 
+        else:
+            stack.append(s[0])
+            s=s[1:]        
+    if "".join(stack)=="":
+        return "Empty String"
+    else:
+        return "".join(stack)
+
+        
+        
+    
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    s = input()
+
+    result = superReducedString(s)
+
+    fptr.write(result + '\n')
+
+    fptr.close()

@@ -1,0 +1,49 @@
+process.stdin.resume();
+process.stdin.setEncoding('ascii');
+
+var input_stdin = "";
+var input_stdin_array = "";
+var input_currentline = 0;
+
+process.stdin.on('data', function (data) {
+    input_stdin += data;
+});
+
+process.stdin.on('end', function () {
+    input_stdin_array = input_stdin.split("\n");
+    main();    
+});
+
+function readLine() {
+    return input_stdin_array[input_currentline++];
+}
+
+/////////////// ignore above this line ////////////////////
+
+function jimOrders(orders) {
+    // Complete this function
+    let del = {}
+    for( let i in orders) {
+        del[orders[i][0]+orders[i][1]]=parseInt(i)+1
+    }
+    let delivery = Object.keys(del).sort((a,b)=>a-b)
+    let som = []
+    for (i of delivery){
+        som.push(del[i])
+    }
+    return som
+}
+
+function main() {
+    var n = parseInt(readLine());
+    var orders = [];
+    for(orders_i = 0; orders_i < n; orders_i++){
+       orders[orders_i] = readLine().split(' ');
+       orders[orders_i] = orders[orders_i].map(Number);
+    }
+    var result = jimOrders(orders);
+    console.log(result.join(" "));
+
+
+
+}

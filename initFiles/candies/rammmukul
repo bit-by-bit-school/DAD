@@ -1,0 +1,26 @@
+#!/bin/python3
+
+import sys
+
+def candies(n, arr):
+    # Complete this function
+    num=[]
+    for i in range(n):
+        num.append(1)
+    for i in range(n-1):
+        if arr[i]<arr[i+1]:
+            num[i+1]=1+num[i]
+    for i in range(n-1,0,-1):
+        if arr[i]<arr[i-1] and num[i]>=num[i-1]:
+            num[i-1]=1+num[i]
+    return sum(num)
+
+if __name__ == "__main__":
+    n = int(input().strip())
+    arr = []
+    arr_i = 0
+    for arr_i in range(n):
+       arr_t = int(input().strip())
+       arr.append(arr_t)
+    result = candies(n, arr)
+    print(result)

@@ -1,0 +1,65 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'flippingBits' function below.
+#
+# The function is expected to return a LONG_INTEGER.
+# The function accepts LONG_INTEGER n as parameter.
+#
+
+def binary(n):
+    string=""
+    while(n>0):
+        reminder=n%2
+        string=str(reminder)+string
+        n=n//2
+    return string   
+
+def Padding32(Bin1):
+    padding=32-len(Bin1)
+    Bin1="0"*padding+Bin1
+    return Bin1
+
+def Bin2Deci(string):
+    index=0
+    decimal=0
+    for value in range(-1,-len(string)-1,-1):
+        decimal=decimal+int(string[value])*2**index
+        index=index+1
+    return decimal   
+
+
+def flippingBits(n):
+    n=Padding32(binary(n))
+    filpping=""
+    for value in n:
+        #print(value)
+        if int(value)==1:
+            filpping=filpping+"0"
+        else:
+            filpping=filpping+"1"
+    return Bin2Deci(filpping)        
+            
+    
+    
+
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    q = int(input().strip())
+
+    for q_itr in range(q):
+        n = int(input().strip())
+
+        result = flippingBits(n)
+
+        fptr.write(str(result) + '\n')
+
+    fptr.close()

@@ -1,0 +1,48 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'kaprekarNumbers' function below.
+#
+# The function accepts following parameters:
+#  1. INTEGER p
+#  2. INTEGER q
+#
+def numberSlicing(num):
+    try:
+        s_num = str(num * num)
+        length = len(str(num))
+        # Split the squared number into two parts
+        left = s_num[:-length] if s_num[:-length] else '0'  # Left part, treat empty as '0'
+        right = s_num[-length:]  # Right part
+        return int(left), int(right)
+    except ValueError:
+        return int(s_num[:length]), 0
+def IsKepplar(num):
+    a, b = numberSlicing(num)
+    #print(a, b)
+    if num == (a + b):
+        return True
+
+
+def kaprekarNumbers(p, q):
+    keprekar = []
+    for num in range(p, q+1, 1):
+        if IsKepplar(num):
+            keprekar.append(str(num))
+    if keprekar:
+         print(" ".join(map(str, keprekar)))
+    else:
+         print("INVALID RANGE")
+
+if __name__ == '__main__':
+    p = int(input().strip())
+
+    q = int(input().strip())
+
+    kaprekarNumbers(p, q)

@@ -1,0 +1,50 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'miniMaxSum' function below.
+#
+# The function accepts INTEGER_ARRAY arr as parameter.
+#
+
+def maxi(arr):
+    max=0
+    for i in arr:
+        if max<=i:
+            max=i
+    return max
+
+def desending_sort(arr):
+    sort=[]
+    while len(arr)!=1:
+        sort.append(maxi(arr))
+        arr.remove(maxi(arr))
+    sort.append(maxi(arr))
+    return sort
+
+def miniMaxSum(arr):
+    arr=desending_sort(arr)
+    maxx=arr[0]
+    minn=arr[-1]
+    
+    for i in range(1,len(arr)-1):
+        if i==0:
+            maxx=maxx+arr[i]
+        elif i==arr.index(arr[-1]):
+            minn=minn+arr[i]
+        else:
+            maxx=maxx+arr[i]
+            minn=minn+arr[i]
+    print(minn,maxx,sep=" ")        
+    
+
+if __name__ == '__main__':
+
+    arr = list(map(int, input().rstrip().split()))
+
+    miniMaxSum(arr)

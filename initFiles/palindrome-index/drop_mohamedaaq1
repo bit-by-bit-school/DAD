@@ -1,0 +1,86 @@
+'use strict';
+
+const fs = require('fs');
+
+process.stdin.resume();
+process.stdin.setEncoding('utf-8');
+
+let inputString = '';
+let currentLine = 0;
+
+process.stdin.on('data', function(inputStdin) {
+    inputString += inputStdin;
+});
+
+process.stdin.on('end', function() {
+    inputString = inputString.split('\n');
+
+    main();
+});
+
+function readLine() {
+    return inputString[currentLine++];
+}
+
+/*
+ * Complete the 'palindromeIndex' function below.
+ *
+ * The function is expected to return an INTEGER.
+ * The function accepts STRING s as parameter.
+ */
+
+
+function palindromeIndex(s) {
+  const len = s.length;
+
+  for (let i = 0; i < Math.floor(len / 2); i++) {
+    if (s[i] !== s[len - 1 - i]) {
+      let left = i + 1;
+      let right = len - 1 - i;
+      let isLeftPalindrome = true;
+      
+      while (left < right) {
+        if (s[left] !== s[right]) {
+          isLeftPalindrome = false;
+          break;
+        }
+        left++;
+        right--;
+      }
+
+      if (isLeftPalindrome) return i;
+
+      left = i;
+      right = len - 2 - i;
+      while (left < right) {
+        if (s[left] !== s[right]) {
+          return -1;
+        }
+        left++;
+        right--;
+      }
+
+      return len - 1 - i;
+    }
+  }
+
+  return -1; 
+}
+
+
+
+function main() {
+    const ws = fs.createWriteStream(process.env.OUTPUT_PATH);
+
+    const q = parseInt(readLine().trim(), 10);
+
+    for (let qItr = 0; qItr < q; qItr++) {
+        const s = readLine();
+
+        const result = palindromeIndex(s);
+
+        ws.write(result + '\n');
+    }
+
+    ws.end();
+}

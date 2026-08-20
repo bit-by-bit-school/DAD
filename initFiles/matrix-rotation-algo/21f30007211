@@ -1,0 +1,111 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'matrixRotation' function below.
+#
+# The function accepts following parameters:
+#  1. 2D_INTEGER_ARRAY matrix
+#  2. INTEGER r
+#
+
+def matrixRotation(matrix, r):
+    len_row = len(matrix)
+    len_col = len(matrix[0])
+    len_layer = min((len_row, len_col))//2
+    layers = []
+    
+    # seprate in layers
+    for layer_index in range(len_layer):
+        layer = []
+        # first loop
+        stop_row = len_row - layer_index - 1
+        row = layer_index
+        col = layer_index
+        while row <= stop_row:
+            layer.append(matrix[row][col])
+            row += 1
+        row -= 1
+        col += 1
+        # second loop
+        stop_col = len_col - layer_index - 1
+        while col <= stop_col:
+            layer.append(matrix[row][col])
+            col += 1
+        col -= 1
+        row -= 1
+        # third loop
+        stop_row = layer_index
+        while row >= stop_row:
+            layer.append(matrix[row][col])
+            row -= 1
+        row += 1
+        col -= 1
+        # fourth loop
+        stop_col = layer_index + 1
+        while col >= stop_col:
+            layer.append(matrix[row][col])
+            col -= 1
+        layers.append(layer)
+    
+    # fill it back
+    for layer_index in range(len_layer):
+        layer = layers[layer_index]
+        layer_len = len(layer)
+        index = layer_len - r
+        # first loop
+        stop_row = len_row - layer_index - 1
+        row = layer_index
+        col = layer_index
+        
+        while row <= stop_row:
+            matrix[row][col] = layers[layer_index][index%layer_len]
+            index += 1
+            row += 1
+        row -= 1
+        col += 1
+        # second loop
+        stop_col = len_col - layer_index - 1
+        while col <= stop_col:
+            matrix[row][col] = layers[layer_index][index%layer_len]
+            index += 1
+            col += 1
+        col -= 1
+        row -= 1
+        # third loop
+        stop_row = layer_index
+        while row >= stop_row:
+            matrix[row][col] = layers[layer_index][index%layer_len]
+            index += 1
+            row -= 1
+        row += 1
+        col -= 1
+        # fourth loop
+        stop_col = layer_index + 1
+        while col >= stop_col:
+            matrix[row][col] = layers[layer_index][index%layer_len]
+            index += 1
+            col -= 1
+    for row in matrix:
+        print(*row)
+
+if __name__ == '__main__':
+    first_multiple_input = input().rstrip().split()
+
+    m = int(first_multiple_input[0])
+
+    n = int(first_multiple_input[1])
+
+    r = int(first_multiple_input[2])
+
+    matrix = []
+
+    for _ in range(m):
+        matrix.append(list(map(int, input().rstrip().split())))
+
+    matrixRotation(matrix, r)

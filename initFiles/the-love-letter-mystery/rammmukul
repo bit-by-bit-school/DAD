@@ -1,0 +1,16 @@
+#!/bin/python3
+
+import sys
+
+def theLoveLetterMystery(s):
+    # Complete this function
+    result = 0
+    for i in range(len(s) // 2):
+        result += abs(ord(s[i]) - ord(s[len(s) - i - 1]))
+    return result
+
+q = int(input().strip())
+for a0 in range(q):
+    s = input().strip()
+    result = theLoveLetterMystery(s)
+    print(result)

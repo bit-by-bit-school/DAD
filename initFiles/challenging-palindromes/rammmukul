@@ -1,0 +1,60 @@
+#check if palindrome
+def checkPalindrome(s):
+    list1 = list(s)
+    list1.reverse()
+    s2 = "".join(list1)
+
+    if s == s2:
+        return True
+    else:
+        return False
+
+
+def swap(res, a, b):
+    temp = res[a]
+    res[a] = res[b]
+    res[b] = temp
+
+
+def generateSubstring(str):
+    res = []
+    for i in range(len(str)):
+        for j in range(i + 1, len(str) + 1):
+            res.append(str[i:j])
+
+    # sort by descending order of length
+    for i in range(len(res) - 1):
+        for j in range(i + 1):
+            if len(res[j]) < len(res[j + 1]):
+                swap(res, j, j + 1)
+    return res
+
+
+def buildPalindrome(str1, str2):
+    sub1 = generateSubstring(str1)
+    sub2 = generateSubstring(str2)
+
+    res = []
+    maxlen = 0
+    for str1 in sub1:
+        for str2 in sub2:
+            if str1[0] != str2[-1]:
+                pass
+            else:
+                check = str1 + str2
+                if checkPalindrome(check) == True and len(check) >= maxlen:
+                    maxlen = len(check)
+                    res.append(check)
+
+    if len(res) == 0:
+        print("-1")
+    else:
+        res.sort()
+        print(res[0])
+
+
+n = int(input())
+for i in range(n):
+    a = input()
+    b = input()
+    buildPalindrome(a, b)

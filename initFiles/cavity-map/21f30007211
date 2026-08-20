@@ -1,0 +1,47 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'cavityMap' function below.
+#
+# The function is expected to return a STRING_ARRAY.
+# The function accepts STRING_ARRAY grid as parameter.
+#
+
+def stringCavity(string):
+    start=string[0]
+    end=string[-1]
+    if len(string[1:len(string)-1:1])==0:
+        return string
+    if max(string[1:len(string)-1:1])>start and max(string[1:len(string)-1:1])> end:
+        string=string.replace(max(string[1:len(string)-1:1]),"X")
+    return(string)
+        
+def cavityMap(grid):
+    new_grid=[]
+    for values in grid:
+        new_grid.append(stringCavity(values))
+    return new_grid    
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    grid = []
+
+    for _ in range(n):
+        grid_item = input()
+        grid.append(grid_item)
+
+    result = cavityMap(grid)
+
+    fptr.write('\n'.join(result))
+    fptr.write('\n')
+
+    fptr.close()

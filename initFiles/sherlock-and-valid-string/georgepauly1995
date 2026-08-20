@@ -1,0 +1,47 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'isValid' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts STRING s as parameter.
+#
+
+def isValid(s):
+    # Write your code here
+    set_s = set(s)
+    list_s = list(s)
+
+    counts = {x:list_s.count(x) for x in set_s}
+    print(counts)
+
+    check_list = list(counts.values())
+    print(check_list)
+
+    check_unique_list = list(set(counts.values()))
+    print(check_unique_list)
+
+    if len(check_unique_list) == 1:
+        return ("YES")
+
+    elif len(check_unique_list) == 2 and abs(check_unique_list[1]-check_unique_list[0]) == 1 and check_list.count(check_unique_list[1])==1:
+        return ("YES")
+    else:
+        return ("NO")
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    s = input()
+
+    result = isValid(s)
+
+    fptr.write(result + '\n')
+
+    fptr.close()

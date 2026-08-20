@@ -1,0 +1,38 @@
+from collections import Counter
+
+n = int(input())
+st = input()
+
+# initialize counter : overtaken gene number
+gene_c = Counter(st)
+gene_group = ['A', 'C', 'T', 'G']
+for gene in gene_group:
+    if gene_c[gene] > int(n/4):
+        gene_c[gene] -= int(n/4)
+    else:
+        gene_c[gene] = 0
+
+# initial scan condition : counter / start / end / min_len        
+substring_count = {'A':0,'T':0,'G':0,'C':0}
+start = 0
+end = 0
+min_len = len(st)
+len_st = len(st)
+
+# scan : 
+#1)increase scan window size(end += 1) while updating counter
+#2)optimize size (start+=1) while updating counter
+#3)repeat 1) and 2) until end point reaches(end >= total size)
+
+while end < len_st:
+    if all([substring_count[gene]>=gene_c[gene] for gene in gene_group]):
+        curr = end-start
+        if curr < min_len:
+            min_len = curr
+        substring_count[st[start]] -= 1
+        start+=1
+    else:
+        substring_count[st[end]] += 1
+        end+=1
+        
+print(min_len)

@@ -1,0 +1,16 @@
+n=int(input())
+for n in range(n):
+    s=list(input())
+    if list(reversed(s))==s:
+        print(-1)
+    else:
+        for i in range(1,(len(s)//2)+1):
+            if s[i-1]!= s[-i]:
+                break
+        s1=s[:]
+        del s[i-1]
+        del s1[-i]
+        if list(reversed(s))==s:
+            print(i-1)
+        else:
+            print(len(s)+1-i)

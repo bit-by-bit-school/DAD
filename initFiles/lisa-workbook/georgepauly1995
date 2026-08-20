@@ -1,0 +1,62 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'workbook' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts following parameters:
+#  1. INTEGER n
+#  2. INTEGER k
+#  3. INTEGER_ARRAY arr
+#
+
+def workbook(n, k, arr):
+    # Write your code here
+    b = []
+    for x in arr:
+        if x < k:
+            b.append(list(range(1,x+1)))
+        else:
+            c = 1
+            while c <= x:
+                a = []
+                if k+c <= x+1:
+                    for i in range(c,k+c):
+                        a.append(i)
+                        c = c + 1
+                    b.append(a)
+                else:
+                    for i in range(c,c+x%k):
+                        a.append(i)
+                        c = c+1
+                    b.append(a)
+                    break
+    n = 0
+    for i in range(len(b)):
+        for j in range(len(b[i])):
+            if b[i][j] == i+1:
+                n+=1
+    return n
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    k = int(first_multiple_input[1])
+
+    arr = list(map(int, input().rstrip().split()))
+
+    result = workbook(n, k, arr)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

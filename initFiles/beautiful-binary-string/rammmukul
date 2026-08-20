@@ -1,0 +1,15 @@
+#!/bin/python3
+
+import sys,re
+
+def beautifulBinaryString(b):
+    # Complete this function
+    regex = r"010"
+    return len(re.findall(regex, b))
+    
+
+if __name__ == "__main__":
+    n = int(input().strip())
+    b = input().strip()
+    result = beautifulBinaryString(b)
+    print(result)

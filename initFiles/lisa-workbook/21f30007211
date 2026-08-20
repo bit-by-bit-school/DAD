@@ -1,0 +1,64 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'workbook' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts following parameters:
+#  1. INTEGER n
+#  2. INTEGER k
+#  3. INTEGER_ARRAY arr
+#
+
+def whole_divison(Number, k):
+    if Number % k == 0:
+        return int(Number / k)
+    else:
+        return int((Number / k) + 1)
+
+
+def page(problems, k):
+    queList = list(range(1, problems + 1))
+    pages = []
+    for index in range(0, problems, k):
+        pages.append(queList[index : index + k])
+    return pages
+
+
+def workbook_list(arr, k):
+    workbook = []
+    for element in arr:
+        workbook = workbook + page(element, k)
+    return workbook
+
+
+def workbook(n, k, arr):
+    count = 0
+    workbook_lis = workbook_list(arr, k)
+    for index in range(len(workbook_lis)):
+        if index + 1 in workbook_lis[index]:
+            count = count + 1
+    return count
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+
+    n = int(first_multiple_input[0])
+
+    k = int(first_multiple_input[1])
+
+    arr = list(map(int, input().rstrip().split()))
+
+    result = workbook(n, k, arr)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

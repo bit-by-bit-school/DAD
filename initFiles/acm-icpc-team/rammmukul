@@ -1,0 +1,65 @@
+process.stdin.resume();
+process.stdin.setEncoding('ascii');
+
+var input_stdin = "";
+var input_stdin_array = "";
+var input_currentline = 0;
+
+process.stdin.on('data', function (data) {
+    input_stdin += data;
+});
+
+process.stdin.on('end', function () {
+    input_stdin_array = input_stdin.split("\n");
+    main();    
+});
+
+function readLine() {
+    return input_stdin_array[input_currentline++];
+}
+
+/////////////// ignore above this line ////////////////////
+
+function acmTeam(topic) {
+    // Complete this function
+    topic=topic.map(x=>x.split(''))
+    
+    max=0
+    teams=0
+    
+    for(i=0;i<topic.length;i++){
+        for(j=i;j<topic.length;j++){
+            know=0
+            for(x=0;x<topic[i].length;x++){
+                if(topic[i][x]=='1' || topic[j][x]=='1'){
+                    know++
+                }
+                if(know>max){
+                    max=know
+                    teams=0
+                }
+                if(know==max){
+                    teams++
+                }
+                
+            }
+        }
+    }
+    
+    console.log(max)
+    console.log(teams)
+}
+
+function main() {
+    var n_temp = readLine().split(' ');
+    var n = parseInt(n_temp[0]);
+    var m = parseInt(n_temp[1]);
+    var topic = [];
+    for(var topic_i = 0; topic_i < n; topic_i++){
+       topic[topic_i] = readLine();
+    }
+    acmTeam(topic);
+
+
+
+}

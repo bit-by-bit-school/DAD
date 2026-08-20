@@ -1,0 +1,41 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'superReducedString' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts STRING s as parameter.
+#
+
+def superReducedString(s):
+    ip_list = list(s)
+    i = 0
+    while i < len(ip_list)-1:
+        if ip_list[i] == ip_list[i+1]:
+            del ip_list[i]
+            del ip_list[i]
+            i = 0
+            if len(ip_list) == 0:
+                return "Empty String"
+                break
+        else:
+            i+=1
+    return "".join(ip_list)                                              
+
+      
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    s = input()
+
+    result = superReducedString(s)
+
+    fptr.write(result + '\n')
+
+    fptr.close()

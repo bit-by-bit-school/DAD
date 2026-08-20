@@ -1,0 +1,57 @@
+<div class="challenge_problem_statement"><div class="msB challenge_problem_statement_body"><div class="hackdown-content"><style id="MathJax_SVG_styles">.MathJax_SVG_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax_SVG .MJX-monospace {font-family: monospace}
+.MathJax_SVG .MJX-sans-serif {font-family: sans-serif}
+.MathJax_SVG {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax_SVG * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.mjx-svg-href {fill: blue; stroke: blue}
+</style><svg style="display: none;"><defs id="MathJax_SVG_glyphs"/></svg><p>You have <strong>N</strong> soldiers numbered from 1 to N. Each of your soldiers is either a liar or a truthful person. You have <strong>M</strong> sets of information about them. Each set of information tells you the number of liars among a certain range of your soldiers. Let <strong>L</strong> be the total number of your liar soldiers. Since you can&apos;t find the exact value of L, you want to find the minimum and maximum value of L.</p>
+
+<p><strong>Input Format</strong>  </p>
+
+<ul>
+<li>The first line of the input contains two integers <strong>N</strong> and <strong>M</strong>.  </li>
+<li>Each of next <strong>M</strong> lines contains three integers: <br>
+<strong>A B C</strong> where the set of soldiers numbered as {A, A+1, A+2, ..., B}, exactly C of them are liars. (1 &lt;= Ai &lt;= Bi &lt;= n) and (0 &lt;= Ci &lt;= Bi-Ai).</li>
+</ul>
+
+<p><em>Note:</em> <strong>N</strong> and <strong>M</strong> are not more than 101, and it is guaranteed the given informations is satisfiable.</p>
+
+<p><strong>Output Format</strong> <br>
+Print two integers Lmin and Lmax to the output.</p>
+
+<p><strong>Sample Input #1</strong>  </p>
+
+<pre><code>3 2
+1 2 1
+2 3 1
+</code></pre>
+
+<p><strong>Sample Output #1</strong></p>
+
+<pre><code>1 2
+</code></pre>
+
+<p><strong>Sample Input #2</strong> </p>
+
+<pre><code>20 11
+3 8 4
+1 9 6
+1 13 9
+5 11 5
+4 19 12
+8 13 5
+4 8 4
+7 9 2
+10 13 3
+7 16 7
+14 19 4
+</code></pre>
+
+<p><strong>Sample Output #2</strong></p>
+
+<pre><code>13 14
+</code></pre>
+
+<p><strong>Explanation</strong> <br>
+In the first input, the initial line is &quot;3 2&quot;, i.e. that there are 3 soldiers and we have 2 sets of information. The next line says there is one liar in the set of soldiers {1, 2}. The final line says there is one liar in the set {2,3}. There are two possibilities for this scenario: Soldiers number 1 and 3 are liars or soldier number 2 is liar. <br>
+So the minimum number of liars is 1 and maximum number of liars is 2. Hence the answer, 1 2.</p></div></div></div>

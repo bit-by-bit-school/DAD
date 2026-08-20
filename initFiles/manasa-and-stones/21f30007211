@@ -1,0 +1,74 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'stones' function below.
+#
+# The function is expected to return an INTEGER_ARRAY.
+# The function accepts following parameters:
+#  1. INTEGER n
+#  2. INTEGER a
+#  3. INTEGER b
+#
+
+def combinationAB(n, a, b):
+    l1 = [a]
+    l2 = [b]
+    l0 = [0]
+    l = []
+    for x, y in zip(range(0, n, 1), range(n - 1, -1, -1)):
+        l.append(l0 + ((l2 * x) + (l1 * y)))
+    return l
+def combinationA_only(n,a):
+    l1=[a]
+    l0=[0]
+    l=[]
+    l.append(l0+l1*(n-1))
+    return l
+
+def sequnceCombination(n,a,b):
+    if a>b:
+        return combinationAB(n,b,a)
+    elif a<b:
+        return combinationAB(n,a,b)
+    else:
+        return combinationA_only(n,a)
+    
+
+def arrAddition(arr):
+    sum1 = 0
+    for element in arr:
+        sum1 = sum1 + element
+    return sum1
+
+
+def stones(n, a, b):
+    unique_stone = []
+    combine = sequnceCombination(n, a, b)
+    for element in combine:
+        unique_stone.append(arrAddition(element))
+    return unique_stone
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    T = int(input().strip())
+
+    for T_itr in range(T):
+        n = int(input().strip())
+
+        a = int(input().strip())
+
+        b = int(input().strip())
+
+        result = stones(n, a, b)
+
+        fptr.write(' '.join(map(str, result)))
+        fptr.write('\n')
+
+    fptr.close()

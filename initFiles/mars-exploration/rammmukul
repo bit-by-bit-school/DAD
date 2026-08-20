@@ -1,0 +1,17 @@
+#!/bin/python3
+
+import sys
+
+def marsExploration(s):
+    # Complete this function
+    mut=0
+    sos='SOS'
+    for i in range(len(s)):
+        if s[i]!=sos[i%3]:
+            mut+=1
+    return mut
+
+if __name__ == "__main__":
+    s = input().strip()
+    result = marsExploration(s)
+    print(result)

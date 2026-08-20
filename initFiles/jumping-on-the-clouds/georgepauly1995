@@ -1,0 +1,44 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'jumpingOnClouds' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY c as parameter.
+#
+
+def jumpingOnClouds(c):
+    # Write your code here
+    no_of_jumps = 0
+    curr_pos = 0
+    
+    while curr_pos < len(c)-1:
+        if curr_pos+1 == len(c) - 1:
+            no_of_jumps += 1
+            break 
+        if c[curr_pos+2] == 1:
+            curr_pos += 1
+            no_of_jumps += 1
+        else:
+            curr_pos += 2
+            no_of_jumps += 1       
+    return no_of_jumps        
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    c = list(map(int, input().rstrip().split()))
+
+    result = jumpingOnClouds(c)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()

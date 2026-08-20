@@ -1,0 +1,85 @@
+'use strict';
+
+const fs = require('fs');
+
+process.stdin.resume();
+process.stdin.setEncoding('utf-8');
+
+let inputString = '';
+let currentLine = 0;
+
+process.stdin.on('data', function(inputStdin) {
+    inputString += inputStdin;
+});
+
+process.stdin.on('end', function() {
+    inputString = inputString.split('\n');
+
+    main();
+});
+
+function readLine() {
+    return inputString[currentLine++];
+}
+
+/*
+ * Complete the 'steadyGene' function below.
+ *
+ * The function is expected to return an INTEGER.
+ * The function accepts STRING gene as parameter.
+ */
+
+function steadyGene(gene) {
+    const n = gene.length;
+    const target = n / 4;
+
+   
+  const freq = { A: 0, C: 0, G: 0, T: 0 };
+    for (let ch of gene) {
+        freq[ch]++;
+    }
+
+  if (freq.A === target && freq.C === target && freq.G === target && freq.T === target) {
+        return 0;
+    }
+
+    let minLength = n;
+    let left = 0;
+
+  
+   for (let right = 0; right < n; right++) {
+        freq[gene[right]]--; 
+
+       
+     while (
+            freq.A <= target &&
+            freq.C <= target &&
+            freq.G <= target &&
+            freq.T <= target
+        ) {
+            
+            const currentLength = right - left + 1;
+            minLength = Math.min(minLength, currentLength);
+
+            
+            freq[gene[left]]++;
+            left++;
+        }
+    }
+
+    return minLength;
+}
+
+function main() {
+    const ws = fs.createWriteStream(process.env.OUTPUT_PATH);
+
+    const n = parseInt(readLine().trim(), 10);
+
+    const gene = readLine();
+
+    const result = steadyGene(gene);
+
+    ws.write(result + '\n');
+
+    ws.end();
+}

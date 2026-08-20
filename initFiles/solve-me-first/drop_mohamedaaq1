@@ -1,0 +1,19 @@
+function solveMeFirst(a, b) {
+    return a + b;
+}
+
+// Read input from stdin 
+process.stdin.resume();
+process.stdin.setEncoding('utf-8');
+
+let inputString = '';
+
+process.stdin.on('data', function(inputStdin) {
+    inputString += inputStdin;
+});
+
+process.stdin.on('end', function() {
+    const inputs = inputString.trim().split('\n').map(Number);
+    const result = solveMeFirst(inputs[0], inputs[1]);
+    console.log(result);
+});

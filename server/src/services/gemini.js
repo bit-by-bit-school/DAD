@@ -42,7 +42,8 @@ Format your output strictly as a JSON object with the following fields:
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const modelName = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+    const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent(prompt);
     let text = result.response.text() || '';
     

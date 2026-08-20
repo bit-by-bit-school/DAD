@@ -12,6 +12,7 @@
     editor: null,
     editorDecorations: [],
     editorDraftDecorations: [],
+    editorHoverDecorations: [],
     viewZoneIds: [],
     activeDraftComments: [],
     activeInlineLine: null,
@@ -274,6 +275,28 @@
         });
 
         state.editor.onDidScrollChange(() => hideSelectionTooltip());
+
+        // Track hover over lines with comments in editor
+        state.editor.onMouseMove((e) => {
+          if (e && e.target && e.target.position) {
+            const lineNum = e.target.position.lineNumber;
+            const comments = state.activeSolution?.comments || [];
+            const drafts = state.activeDraftComments || [];
+
+            const matchedComment = comments.find(c => c.startLine && lineNum >= parseInt(c.startLine) && lineNum <= (parseInt(c.endLine) || parseInt(c.startLine)));
+            const matchedDraft = drafts.find(d => d.startLine && lineNum >= parseInt(d.startLine) && lineNum <= (parseInt(d.endLine) || parseInt(d.startLine)));
+
+            if (matchedComment) {
+              highlightMonacoLines(matchedComment.startLine, matchedComment.endLine || matchedComment.startLine, false);
+            } else if (matchedDraft) {
+              highlightMonacoLines(matchedDraft.startLine, matchedDraft.endLine || matchedDraft.startLine, true);
+            } else {
+              clearMonacoLineHighlight();
+            }
+          }
+        });
+
+        state.editor.onMouseLeave(() => clearMonacoLineHighlight());
 
         // Global debounced resize listener for Monaco editor responsiveness
         let resizeTimer = null;
@@ -775,7 +798,33 @@
     }
   }
 
-  // Monaco line decorations for line-targeted code review comments
+  // Dynamic Hover Line Highlight Helper Functions for Comments
+  window.highlightMonacoLines = function(startLine, endLine, isDraft = false) {
+    if (!state.editor || typeof monaco === 'undefined' || !startLine) return;
+    const sLine = parseInt(startLine);
+    const eLine = parseInt(endLine) || sLine;
+    const className = isDraft ? 'monaco-draft-line-highlight' : 'monaco-comment-line-highlight';
+
+    state.editorHoverDecorations = state.editor.deltaDecorations(
+      state.editorHoverDecorations || [],
+      [{
+        range: new monaco.Range(sLine, 1, eLine, 1000),
+        options: {
+          isWholeLine: true,
+          className: className
+        }
+      }]
+    );
+  };
+
+  window.clearMonacoLineHighlight = function() {
+    if (!state.editor || typeof monaco === 'undefined') return;
+    if (state.editorHoverDecorations && state.editorHoverDecorations.length > 0) {
+      state.editorHoverDecorations = state.editor.deltaDecorations(state.editorHoverDecorations, []);
+    }
+  };
+
+  // Monaco line decorations for line-targeted code review comments (Glyph margin indicator only by default)
   function updateMonacoDecorations(comments) {
     if (!state.editor || typeof monaco === 'undefined') return;
 
@@ -788,7 +837,6 @@
           range: new monaco.Range(sLine, 1, eLine, 1000),
           options: {
             isWholeLine: true,
-            className: 'monaco-comment-line-highlight',
             glyphMarginClassName: 'monaco-comment-glyph-margin',
             hoverMessage: { value: `💬 **@${c.user?.username || 'User'}**: ${c.content}` }
           }
@@ -889,6 +937,12 @@
         </div>
         <div style="color: #fff; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(c.content)}</div>
       `;
+
+      if (c.startLine) {
+        item.addEventListener('mouseenter', () => highlightMonacoLines(c.startLine, c.endLine || c.startLine, false));
+        item.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+      }
+
       commentsContainer.appendChild(item);
     });
   }
@@ -1149,6 +1203,22 @@
           ${inputFormHtml}
         `;
 
+        zoneNode.querySelectorAll('.monaco-thread-item').forEach((threadItem, index) => {
+          const comment = data.comments[index];
+          if (comment && comment.startLine) {
+            threadItem.addEventListener('mouseenter', () => highlightMonacoLines(comment.startLine, comment.endLine || comment.startLine, false));
+            threadItem.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+          }
+        });
+
+        zoneNode.querySelectorAll('.draft-comment-card').forEach((draftCard, index) => {
+          const draft = data.drafts[index];
+          if (draft && draft.startLine) {
+            draftCard.addEventListener('mouseenter', () => highlightMonacoLines(draft.startLine, draft.endLine, true));
+            draftCard.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+          }
+        });
+
         const estimatedHeight = 65 
           + (data.comments.length * 60) 
           + (data.drafts.length * 105) 
@@ -1234,6 +1304,11 @@
         </div>
       `;
 
+      if (d.startLine) {
+        card.addEventListener('mouseenter', () => highlightMonacoLines(d.startLine, d.endLine, true));
+        card.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+      }
+
       aiDraftCommentsList.appendChild(card);
     });
   }
@@ -1249,7 +1324,6 @@
         range: new monaco.Range(sLine, 1, eLine, 1000),
         options: {
           isWholeLine: true,
-          className: 'monaco-draft-line-highlight',
           glyphMarginClassName: 'monaco-draft-glyph-margin',
           hoverMessage: { value: `🤖 **AI Draft (${d.type})**: ${d.content}` }
         }

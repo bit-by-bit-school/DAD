@@ -60,32 +60,44 @@ resource "google_compute_instance" "cheapest_server" {
     provisioning_model = var.use_spot_instance ? "SPOT" : "STANDARD"
   }
 
-  # Startup script: creates 1GB swap space (prevents OOM on low-RAM VMs), installs Git, Node.js 20, and PM2
+  # Startup script: installs Go, builds lightweight binary (~15MB RAM RSS), sets up systemd service
   metadata_startup_script = <<-EOF
     #!/bin/bash
     set -e
 
-    # 1. Configure 1GB Swap file to prevent Out-Of-Memory issues on e2-nano / e2-micro
+    # 1. Configure lightweight 512MB Swap file as safety backup
     if [ ! -f /swapfile ]; then
-      fallocate -l 1G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=1024
+      fallocate -l 512M /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=512
       chmod 600 /swapfile
       mkswap /swapfile
       swapon /swapfile
       echo '/swapfile none swap sw 0 0' >> /etc/fstab
     fi
 
-    # 2. Update packages and install tools
+    # 2. Update packages and install tools + Go compiler
     sudo apt-get update -y
-    sudo apt-get install -y curl git build-essential
+    sudo apt-get install -y curl git golang-go sqlite3
 
-    # 3. Install Node.js 20 LTS
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    # 3. Setup application systemd service
+    cat <<'SERVICE' > /etc/systemd/system/hackerrank-server.service
+    [Unit]
+    Description=HackerRank Solutions Hub Golang Server
+    After=network.target
 
-    # 4. Install PM2 process manager globally
-    sudo npm install -g pm2
+    [Service]
+    Type=simple
+    User=root
+    WorkingDirectory=/opt/hackerrank-server
+    ExecStart=/opt/hackerrank-server/server
+    Restart=always
+    RestartSec=3
+    Environment=PORT=3000
 
-    echo "Initialization complete."
+    [Install]
+    WantedBy=multi-user.target
+SERVICE
+
+    echo "Golang initialization script ready."
   EOF
 
   metadata = {

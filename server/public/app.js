@@ -1118,7 +1118,6 @@
 
       virtualGrid.render();
       solutionsCountBadge.textContent = `Loaded ${state.solutions.length} / ${state.totalCount} Solutions`;
-      populateReviewPicker(state.solutions);
     } catch (err) {
       if (!append) {
         solutionsGrid.innerHTML = `<div class="glass-panel" style="grid-column: 1 / -1; color: var(--neon-pink);">Failed to load solutions: ${err.message}</div>`;

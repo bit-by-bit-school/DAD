@@ -243,6 +243,13 @@ body::before {
   backdrop-filter: blur(8px);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 10;
+}
+
+.glass-panel:has(.multiselect-wrapper.open),
+.glass-panel:focus-within {
+  z-index: 100;
 }
 
 .glass-panel:hover {
@@ -304,6 +311,8 @@ body::before {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .solution-card {
@@ -316,12 +325,15 @@ body::before {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+  z-index: 1;
 }
 
 .solution-card:hover {
   transform: translateY(-2px);
   border-color: var(--neon-cyan);
   box-shadow: 0 6px 20px rgba(0, 243, 255, 0.2);
+  z-index: 2;
 }
 
 .sol-header {
@@ -578,6 +590,11 @@ body::before {
 .multiselect-wrapper {
   position: relative;
   width: 100%;
+  z-index: 1;
+}
+
+.multiselect-wrapper.open {
+  z-index: 500;
 }
 
 .multiselect-btn {
@@ -629,7 +646,7 @@ body::before {
   border: 1px solid var(--neon-cyan);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 243, 255, 0.2);
   border-radius: var(--radius-md);
-  z-index: 500;
+  z-index: 1000;
   padding: 0.5rem;
 }
 

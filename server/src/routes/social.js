@@ -73,6 +73,15 @@ router.post('/solutions/:id/comments', async (req, res) => {
   }
 
   try {
+    const solution = await prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: { id: true, userId: true, challengeTitle: true }
+    });
+
+    if (!solution) {
+      return res.status(404).json({ error: 'Solution not found.' });
+    }
+
     const comment = await prisma.comment.create({
       data: {
         solutionId,
@@ -86,6 +95,19 @@ router.post('/solutions/:id/comments', async (req, res) => {
         user: { select: { id: true, username: true, discordAvatar: true, role: true } }
       }
     });
+
+    // Create notification if commenter is not the solution owner
+    if (solution.userId !== userId) {
+      await prisma.notification.create({
+        data: {
+          userId: solution.userId,
+          actorId: userId,
+          solutionId,
+          type: 'COMMENT',
+          message: `@${req.user.username} left a comment on "${solution.challengeTitle}"`
+        }
+      }).catch(err => console.warn('Could not create comment notification:', err.message));
+    }
 
     res.status(201).json({ success: true, comment });
   } catch (err) {

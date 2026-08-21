@@ -21,6 +21,8 @@ model User {
   ratings         Rating[]
   comments        Comment[]
   reviewRounds    ReviewRound[]
+  notifications   Notification[] @relation("UserNotifications")
+  actedNotifications Notification[] @relation("ActorNotifications")
 }
 
 model UnmappedDiscord {
@@ -49,6 +51,7 @@ model Solution {
   ratings        Rating[]
   comments       Comment[]
   reviewRounds   ReviewRound[]
+  notifications  Notification[]
 
   @@unique([submissionId, userId])
 }
@@ -96,3 +99,18 @@ model ReviewRound {
 
   @@unique([solutionId, roundNumber])
 }
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actorId    String?
+  actor      User?    @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  solutionId String
+  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  type       String   // "COMMENT" or "REVIEW"
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+

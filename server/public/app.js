@@ -183,6 +183,7 @@
   const detailLanguageTag = document.getElementById('detail-language-tag');
   const detailUserName = document.getElementById('detail-user-name');
   const detailReviewStatusBadge = document.getElementById('detail-review-status-badge');
+  const monacoSelectionBadge = document.getElementById('monaco-selection-badge');
   const avgClevernessVal = document.getElementById('avg-cleverness-val');
   const avgReadabilityVal = document.getElementById('avg-readability-val');
   const btnSubmitRating = document.getElementById('btn-submit-rating');
@@ -230,6 +231,7 @@
     setupEventListeners();
     await multiselectUser.init();
     await verifyAuth();
+    initNotificationSystem();
     virtualGrid.init();
     setupInfiniteScroll();
 
@@ -370,11 +372,25 @@
           readOnly: true,
           minimap: { enabled: false },
           automaticLayout: true,
+          glyphMargin: true,
           fontFamily: "'Fira Code', 'Share Tech Mono', monospace",
           fontSize: 13
         });
 
         setupSelectionTooltipWidget();
+
+        // Gutter click listener: clicking line numbers or glyph dots opens inline review comment thread
+        state.editor.onMouseDown((e) => {
+          if (e && e.target && (
+            e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_NUMBERS ||
+            e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN
+          )) {
+            const lineNum = e.target.position?.lineNumber;
+            if (lineNum) {
+              openInlineCommentBox(lineNum, lineNum);
+            }
+          }
+        });
 
         // Track active line selection for code review comments
         state.editor.onDidChangeCursorSelection((e) => {
@@ -451,9 +467,7 @@
           this.domNode.querySelector('button').addEventListener('click', (e) => {
             e.stopPropagation();
             if (state.currentSelection) {
-              const endLine = state.currentSelection.endLine;
-              state.activeInlineLine = endLine;
-              updateMonacoViewZones();
+              openInlineCommentBox(state.currentSelection.startLine, state.currentSelection.endLine);
               hideSelectionTooltip();
             }
           });
@@ -758,6 +772,206 @@
     updateRoleUI();
   }
 
+  // ==========================================================================
+  // Notification System Controller
+  // ==========================================================================
+  let notificationPollTimer = null;
+  let previousUnreadCount = -1;
+
+  function initNotificationSystem() {
+    const notificationBellBtn = document.getElementById('notification-bell-btn');
+    const notificationDropdown = document.getElementById('notification-dropdown');
+    const notificationWrapper = document.getElementById('notification-wrapper');
+    const btnMarkAllRead = document.getElementById('btn-mark-all-read');
+
+    if (notificationBellBtn && notificationDropdown) {
+      notificationBellBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = notificationDropdown.classList.contains('hidden');
+        if (isHidden) {
+          fetchNotifications();
+          notificationDropdown.classList.remove('hidden');
+        } else {
+          notificationDropdown.classList.add('hidden');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (notificationWrapper && !notificationWrapper.contains(e.target)) {
+          notificationDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    if (btnMarkAllRead) {
+      btnMarkAllRead.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await markAllNotificationsAsRead();
+      });
+    }
+
+    fetchNotifications();
+    if (notificationPollTimer) clearInterval(notificationPollTimer);
+    notificationPollTimer = setInterval(fetchNotifications, 15000);
+  }
+
+  async function fetchNotifications() {
+    if (!state.currentToken || (state.currentUser && state.currentUser.username === 'Guest')) {
+      updateNotificationUI([], 0);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/notifications', {
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const notifications = data.notifications || [];
+        const unreadCount = data.unreadCount || 0;
+
+        previousUnreadCount = unreadCount;
+        updateNotificationUI(notifications, unreadCount);
+      }
+    } catch (err) {
+      console.warn('Error fetching notifications:', err);
+    }
+  }
+
+  function updateNotificationUI(notifications, unreadCount) {
+    const notificationBadge = document.getElementById('notification-badge');
+    const notificationCountSub = document.getElementById('notification-count-sub');
+    const notificationList = document.getElementById('notification-list');
+
+    if (notificationBadge) {
+      if (unreadCount > 0) {
+        notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        notificationBadge.classList.remove('hidden');
+      } else {
+        notificationBadge.classList.add('hidden');
+      }
+    }
+
+    if (notificationCountSub) {
+      notificationCountSub.textContent = `${unreadCount} unread`;
+    }
+
+    if (!notificationList) return;
+
+    if (!notifications || notifications.length === 0) {
+      notificationList.innerHTML = `<div class="notification-empty">No notifications yet</div>`;
+      return;
+    }
+
+    notificationList.innerHTML = '';
+    notifications.forEach(n => {
+      const item = document.createElement('div');
+      item.className = `notification-item ${n.isRead ? 'read' : 'unread'}`;
+
+      const icon = n.type === 'COMMENT' ? '💬' : '📑';
+      const timeAgo = formatTimeAgo(n.createdAt);
+
+      item.innerHTML = `
+        <div class="notification-icon">${icon}</div>
+        <div class="notification-body">
+          <div class="notification-msg">${escapeHtml(n.message)}</div>
+          <div class="notification-meta">
+            <span class="notification-type-tag ${n.type}">${n.type}</span>
+            <span>${timeAgo}</span>
+          </div>
+        </div>
+      `;
+
+      item.addEventListener('click', async () => {
+        if (!n.isRead) {
+          await markNotificationAsRead(n.id);
+        }
+        const dropdown = document.getElementById('notification-dropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+
+        if (n.solutionId) {
+          activateTab('tab-detail', true);
+          await openSolutionDetail(n.solutionId);
+        }
+      });
+
+      notificationList.appendChild(item);
+    });
+  }
+
+  async function markNotificationAsRead(id) {
+    if (!state.currentToken) return;
+    try {
+      const res = await fetch(`/api/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.warn('Error marking notification read:', err);
+    }
+  }
+
+  async function markAllNotificationsAsRead() {
+    if (!state.currentToken) return;
+    try {
+      const res = await fetch('/api/notifications/read-all', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.warn('Error marking all notifications read:', err);
+    }
+  }
+
+  function showRetroToast(message, icon = '🔔') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'retro-toast';
+    toast.innerHTML = `
+      <span style="font-size: 1.2rem;">${icon}</span>
+      <span>${escapeHtml(message)}</span>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(50px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+
+  function formatTimeAgo(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    return date.toLocaleDateString();
+  }
+
   // DOM Virtualization Controller (Virtual Window)
   const virtualGrid = {
     cardMinWidth: 320,
@@ -1047,7 +1261,7 @@
   }
 
   // Dynamic Hover Line Highlight Helper Functions for Comments
-  window.highlightMonacoLines = function(startLine, endLine, isDraft = false) {
+  function highlightMonacoLines(startLine, endLine, isDraft = false) {
     if (!state.editor || typeof monaco === 'undefined' || !startLine) return;
     const sLine = parseInt(startLine);
     const eLine = parseInt(endLine) || sLine;
@@ -1063,14 +1277,16 @@
         }
       }]
     );
-  };
+  }
+  window.highlightMonacoLines = highlightMonacoLines;
 
-  window.clearMonacoLineHighlight = function() {
+  function clearMonacoLineHighlight() {
     if (!state.editor || typeof monaco === 'undefined') return;
     if (state.editorHoverDecorations && state.editorHoverDecorations.length > 0) {
       state.editorHoverDecorations = state.editor.deltaDecorations(state.editorHoverDecorations, []);
     }
-  };
+  }
+  window.clearMonacoLineHighlight = clearMonacoLineHighlight;
 
   // Monaco line decorations for line-targeted code review comments (Glyph margin indicator only by default)
   function updateMonacoDecorations(comments) {
@@ -1104,8 +1320,7 @@
     state.editor.setSelection(new monaco.Range(sLine, 1, eLine, 1000));
     state.editor.focus();
 
-    state.activeInlineLine = eLine;
-    updateMonacoViewZones();
+    openInlineCommentBox(sLine, eLine);
   };
 
   // Submit Rating Handler
@@ -1292,7 +1507,10 @@
     updateMonacoViewZones();
     setTimeout(() => {
       const input = document.getElementById(`zone-input-${eLine}`);
-      if (input) input.focus();
+      if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }, 80);
   }
 
@@ -1317,6 +1535,15 @@
     const content = textarea ? textarea.value.trim() : '';
     if (!content) return alert('Comment content cannot be empty');
 
+    const num = parseInt(lineNum);
+    let sLine = num;
+    let eLine = num;
+
+    if (state.currentSelection && parseInt(state.currentSelection.endLine) === num && state.currentSelection.startLine) {
+      sLine = parseInt(state.currentSelection.startLine);
+      eLine = num;
+    }
+
     try {
       const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
         method: 'POST',
@@ -1326,15 +1553,15 @@
         },
         body: JSON.stringify({
           content,
-          startLine: lineNum,
-          endLine: lineNum
+          startLine: sLine,
+          endLine: eLine
         })
       });
 
       const data = await res.json();
       if (res.ok) {
         state.activeInlineLine = null;
-        state.collapsedZones.delete(lineNum);
+        state.collapsedZones.delete(num);
         await openSolutionDetail(state.activeSolution.id);
       } else {
         alert('Failed to post inline comment: ' + data.error);
@@ -1398,6 +1625,20 @@
         const data = lineMap.get(lineNum);
         const hasDraft = data.drafts.length > 0;
 
+        let isSelectedRange = false;
+        let sLine = lineNum;
+        if (state.currentSelection && parseInt(state.currentSelection.endLine) === lineNum && parseInt(state.currentSelection.startLine) < lineNum) {
+          sLine = parseInt(state.currentSelection.startLine);
+          isSelectedRange = true;
+        }
+
+        const titleText = isSelectedRange 
+          ? `💬 Lines ${sLine}-${lineNum} Code Review Thread`
+          : `💬 Line ${lineNum} Code Review Thread`;
+        const placeholderText = isSelectedRange
+          ? `Write inline review comment on lines ${sLine}-${lineNum}...`
+          : `Write inline review comment on line ${lineNum}...`;
+
         const zoneNode = document.createElement('div');
         zoneNode.className = `monaco-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
 
@@ -1444,7 +1685,7 @@
 
         const inputFormHtml = `
           <div class="monaco-thread-input-row">
-            <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="Write inline review comment on line ${lineNum}..."></textarea>
+            <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="${placeholderText}"></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 0.4rem;">
               <button type="button" class="btn-micro btn-zone-cancel" data-line="${lineNum}">Cancel</button>
               <button type="button" class="btn-retro btn-green btn-zone-post" style="font-size: 0.75rem; padding: 3px 8px;" data-line="${lineNum}">Post Comment</button>
@@ -1454,7 +1695,7 @@
 
         zoneNode.innerHTML = `
           <div class="monaco-thread-header">
-            <span>💬 Line ${lineNum} Code Review Thread</span>
+            <span>${titleText}</span>
             <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">✕ Close</button>
           </div>
           ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
@@ -1513,14 +1754,20 @@
           }
         });
 
-        const estimatedHeight = 65 
-          + (data.comments.length * 60) 
-          + (data.drafts.length * 105) 
-          + 95;
+        // Dynamic height calculation ensuring content fits cleanly without clipping
+        let dynamicHeight = 70 + 110; // header + input row
+        data.comments.forEach(c => {
+          const lines = (c.content || '').split('\n').length;
+          dynamicHeight += 45 + Math.max(lines, 1) * 22;
+        });
+        data.drafts.forEach(d => {
+          const lines = (d.content || '').split('\n').length;
+          dynamicHeight += 75 + Math.max(lines, 1) * 22;
+        });
 
         const zoneId = accessor.addZone({
           afterLineNumber: lineNum,
-          heightInPx: estimatedHeight,
+          heightInPx: dynamicHeight,
           domNode: zoneNode,
           suppressMouseDown: false
         });
@@ -1528,36 +1775,6 @@
         state.viewZoneIds.push(zoneId);
       });
     });
-  }
-
-  async function postInlineComment() {
-    if (!state.activeSolution) return alert('Please select a solution first');
-    const content = inlineCommentTextarea ? inlineCommentTextarea.value.trim() : '';
-    if (!content) return alert('Comment content cannot be empty');
-
-    const startLine = state.currentSelection?.startLine || 1;
-    const endLine = state.currentSelection?.endLine || startLine;
-
-    try {
-      const res = await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${state.currentToken}`
-        },
-        body: JSON.stringify({ content, startLine, endLine })
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        closeInlineCommentBox();
-        await openSolutionDetail(state.activeSolution.id);
-      } else {
-        alert('Failed to post inline comment: ' + data.error);
-      }
-    } catch (err) {
-      alert('Error posting inline comment: ' + err.message);
-    }
   }
 
   // AI Draft Comments Renderer & Approve/Reject Handlers

@@ -77,6 +77,15 @@ router.post('/solutions/:id/review/publish', async (req, res) => {
   }
 
   try {
+    const solution = await prisma.solution.findUnique({
+      where: { id: solutionId },
+      select: { id: true, userId: true, challengeTitle: true }
+    });
+
+    if (!solution) {
+      return res.status(404).json({ error: 'Solution not found.' });
+    }
+
     const rNum = parseInt(roundNumber) || 1;
 
     const reviewRound = await prisma.reviewRound.upsert({
@@ -101,6 +110,19 @@ router.post('/solutions/:id/review/publish', async (req, res) => {
         reviewer: { select: { id: true, username: true, role: true } }
       }
     });
+
+    // Create notification if reviewer is not the solution owner
+    if (solution.userId !== req.user.id) {
+      await prisma.notification.create({
+        data: {
+          userId: solution.userId,
+          actorId: req.user.id,
+          solutionId,
+          type: 'REVIEW',
+          message: `@${req.user.username} published Review Round #${rNum} (${status}) for "${solution.challengeTitle}"`
+        }
+      }).catch(err => console.warn('Could not create review notification:', err.message));
+    }
 
     res.json({ success: true, reviewRound });
   } catch (err) {

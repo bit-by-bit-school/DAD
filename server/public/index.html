@@ -24,6 +24,26 @@
       </nav>
 
       <div class="user-widget">
+        <!-- Notification Widget -->
+        <div id="notification-wrapper" class="notification-wrapper">
+          <button id="notification-bell-btn" class="bell-btn" title="Notifications">
+            🔔
+            <span id="notification-badge" class="notification-badge hidden">0</span>
+          </button>
+          <div id="notification-dropdown" class="notification-dropdown hidden">
+            <div class="notification-dropdown-header">
+              <div class="notification-dropdown-title">
+                <span>🔔 Notifications</span>
+                <span id="notification-count-sub" class="notification-count-sub">0 unread</span>
+              </div>
+              <button id="btn-mark-all-read" class="btn-micro">Mark all as read</button>
+            </div>
+            <div id="notification-list" class="notification-list">
+              <div class="notification-empty">No notifications yet</div>
+            </div>
+          </div>
+        </div>
+
         <div id="user-info-tag" class="user-tag">
           <span id="active-user-name">Guest User</span>
           <span id="active-user-role" class="role-badge user">USER</span>

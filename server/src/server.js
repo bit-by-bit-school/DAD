@@ -9,6 +9,7 @@ const solutionsRouter = require('./routes/solutions');
 const socialRouter = require('./routes/social');
 const reviewsRouter = require('./routes/reviews');
 const feedbackRouter = require('./routes/feedback');
+const notificationsRouter = require('./routes/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/solutions', solutionsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 app.get('/api/users', async (req, res) => {
   try {

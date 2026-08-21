@@ -224,7 +224,6 @@
     if (tokenParam) {
       state.currentToken = tokenParam;
       localStorage.setItem('hr_app_token', tokenParam);
-      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     initMonaco();
@@ -233,8 +232,131 @@
     await verifyAuth();
     virtualGrid.init();
     setupInfiniteScroll();
+
+    await restoreStateFromUrl();
     await loadSolutions({ append: false });
   });
+
+  window.addEventListener('popstate', () => {
+    restoreStateFromUrl();
+  });
+
+  // URL State Management Helpers
+  function updateUrlState(options = {}) {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    const activeTabEl = document.querySelector('.tab-content.active');
+    const activeTabId = options.tab || (activeTabEl ? activeTabEl.id : 'tab-explorer');
+    const tabShortName = activeTabId.replace('tab-', '');
+
+    const newParams = new URLSearchParams();
+
+    if (token) {
+      newParams.set('token', token);
+    }
+
+    newParams.set('tab', tabShortName);
+
+    const solId = options.solutionId !== undefined ? options.solutionId : (state.activeSolution ? state.activeSolution.id : null);
+    if (tabShortName === 'detail' && solId) {
+      newParams.set('solutionId', solId);
+
+      const activeSubtabEl = document.querySelector('.sidebar-subtab-content.active');
+      if (activeSubtabEl) {
+        newParams.set('subtab', activeSubtabEl.id.replace('subtab-', ''));
+      }
+    }
+
+    if (filterSearch && filterSearch.value.trim()) {
+      newParams.set('search', filterSearch.value.trim());
+    }
+    if (filterLanguage && filterLanguage.value) {
+      newParams.set('language', filterLanguage.value);
+    }
+    if (multiselectUser) {
+      const selectedUsers = multiselectUser.getSelectedUsernames();
+      if (selectedUsers.length > 0 && selectedUsers.length < multiselectUser.usersList.length) {
+        newParams.set('users', selectedUsers.join(','));
+      }
+    }
+
+    const newQuery = newParams.toString();
+    const newUrl = window.location.pathname + (newQuery ? `?${newQuery}` : '');
+    if (window.location.search !== `?${newQuery}`) {
+      if (options.replace) {
+        window.history.replaceState(null, '', newUrl);
+      } else {
+        window.history.pushState(null, '', newUrl);
+      }
+    }
+  }
+
+  function activateTab(targetTabId, updateUrl = true) {
+    const btn = document.querySelector(`.nav-btn[data-tab="${targetTabId}"]`);
+    navBtns.forEach(b => b.classList.remove('active'));
+    tabContents.forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const content = document.getElementById(targetTabId);
+    if (content) content.classList.add('active');
+
+    if (targetTabId === 'tab-detail' && state.editor) {
+      setTimeout(() => state.editor.layout(), 100);
+    }
+    if (targetTabId === 'tab-admin') {
+      loadAdminPanel();
+    }
+    if (updateUrl) {
+      updateUrlState({ tab: targetTabId });
+    }
+  }
+
+  function activateSidebarSubtab(targetSubtabId, updateUrl = true) {
+    const btn = document.querySelector(`.sidebar-tab-btn[data-subtab="${targetSubtabId}"]`);
+    document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.sidebar-subtab-content').forEach(s => s.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const activeContent = document.getElementById(targetSubtabId);
+    if (activeContent) activeContent.classList.add('active');
+
+    if (updateUrl) {
+      updateUrlState();
+    }
+  }
+
+  async function restoreStateFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+
+    const searchVal = params.get('search') || '';
+    if (filterSearch) filterSearch.value = searchVal;
+
+    const langVal = params.get('language') || '';
+    if (filterLanguage) filterLanguage.value = langVal;
+
+    const usersVal = params.get('users') || '';
+    if (usersVal && multiselectUser) {
+      const usernames = usersVal.split(',').map(u => u.trim()).filter(Boolean);
+      multiselectUser.selectedUsernames = new Set(usernames);
+      multiselectUser.renderOptions();
+      multiselectUser.updateButtonLabel();
+    }
+
+    const solutionId = params.get('solutionId') || params.get('solution') || params.get('id');
+    const tabParam = params.get('tab') || (solutionId ? 'detail' : 'explorer');
+    const targetTabId = tabParam.startsWith('tab-') ? tabParam : `tab-${tabParam}`;
+
+    activateTab(targetTabId, false);
+
+    if (solutionId) {
+      await openSolutionDetail(solutionId, false);
+    }
+
+    const subtabParam = params.get('subtab');
+    if (subtabParam) {
+      const targetSubtabId = subtabParam.startsWith('subtab-') ? subtabParam : `subtab-${subtabParam}`;
+      activateSidebarSubtab(targetSubtabId, false);
+    }
+  }
 
   // Monaco Editor Initialization
   function initMonaco() {
@@ -375,17 +497,7 @@
     navBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTab = btn.dataset.tab;
-        navBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(targetTab).classList.add('active');
-
-        if (targetTab === 'tab-detail' && state.editor) {
-          setTimeout(() => state.editor.layout(), 100);
-        }
-        if (targetTab === 'tab-admin') {
-          loadAdminPanel();
-        }
+        activateTab(targetTab, true);
       });
     });
 
@@ -393,11 +505,7 @@
     document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetSubtab = btn.dataset.subtab;
-        document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.sidebar-subtab-content').forEach(s => s.classList.remove('active'));
-        btn.classList.add('active');
-        const activeContent = document.getElementById(targetSubtab);
-        if (activeContent) activeContent.classList.add('active');
+        activateSidebarSubtab(targetSubtab, true);
       });
     });
 
@@ -444,7 +552,10 @@
     }
 
     // Filters
-    btnApplyFilters.addEventListener('click', () => loadSolutions({ append: false }));
+    btnApplyFilters.addEventListener('click', () => {
+      updateUrlState();
+      loadSolutions({ append: false });
+    });
 
     // Star Selectors
     setupStarSelectors();
@@ -862,11 +973,12 @@
   }
 
   // Open Solution Detail Tab (Merged Workspace)
-  async function openSolutionDetail(id) {
+  async function openSolutionDetail(id, updateUrl = true) {
     try {
       const res = await fetch(`/api/solutions/${id}`);
       const data = await res.json();
       const sol = data.solution;
+      if (!sol) return;
       state.activeSolution = sol;
 
       detailChallengeTitle.textContent = sol.challengeTitle;
@@ -924,8 +1036,11 @@
       renderComments(sol.comments || []);
       renderReviewRoundsTimeline(sol.reviewRounds || []);
 
-      // Switch tab
-      document.querySelector('[data-tab="tab-detail"]').click();
+      // Switch tab and update URL
+      activateTab('tab-detail', false);
+      if (updateUrl) {
+        updateUrlState({ solutionId: id, tab: 'tab-detail' });
+      }
     } catch (err) {
       alert('Failed to load solution details: ' + err.message);
     }

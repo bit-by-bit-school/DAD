@@ -1,0 +1,20 @@
+# Replace with your GCP Project ID
+gcp_project_id = "your-gcp-project-id"
+
+# Region & Zone (us-central1, us-east1, us-west1 are among the cheapest regions)
+gcp_region     = "us-central1"
+gcp_zone       = "us-central1-a"
+
+instance_name  = "cheapest-gcp-server"
+
+# Machine type options:
+# "e2-micro" (1 GB RAM, 2 vCPUs burstable) - Smallest E2 instance (~$2/mo Spot, ~$7/mo standard)
+# "f1-micro" (0.6 GB RAM, 1 vCPU shared)  - 1st Gen N1 instance (~$1.50/mo Spot, ~$5.10/mo standard)
+machine_type   = "f1-micro"
+
+# Set to true for Spot VM (~$1.50-$2/mo), or false for standard VM (~$5-$7/mo)
+use_spot_instance = false
+
+# Optional: Add SSH user and public key
+# ssh_user    = "ubuntu"
+# ssh_pub_key = "ssh-rsa AAAAB3NzaC1yc2E..."

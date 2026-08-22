@@ -169,7 +169,7 @@ const HRIcons = {
   // Pixelarticons: Message / Comment
   comment: (size = 16) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
-      <path d="M20 2H4v2h16zm0 14H6v2h14zm2-12h-2v12h2zM4 4H2v18h2zm2 14H4v2h2z"/>
+      <path d="M20 2H4v2h16zm0 14H6v2h14zm2-12h-2v12h2zM4 4H2v18h2zm2 14H4v2h2zm0-12h12v2H6V6zm0 4h8v2H6v-2z"/>
     </svg>
   `,
 
@@ -180,14 +180,21 @@ const HRIcons = {
     </svg>
   `,
 
-  // Pixelarticons: CPU / Chip (Cleverness Metric)
+  // Pixelarticons: Brain (Cleverness Metric)
   brain: (size = 16) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
-      <path d="M5 3h14v2H5zm0 16h14v2H5zM3 5h2v14H3zm16 0h2v14h-2zM9 7h6v2H9zm0 8h6v2H9zM7 9h2v6H7zm8 0h2v6h-2zm-4-8h2v2h-2zm0 20h2v2h-2zM1 11h2v2H1zm20 0h2v2h-2zm0-4h2v2h-2zm0 8h2v2h-2zM1 15h2v2H1zm0-8h2v2H1zm6-6h2v2H7zm8 0h2v2h-2zm0 20h2v2h-2zm-8 0h2v2H7z"/>
+      <path d="M8 2H5v2H3v3H2v6h1v2h1v2h2v2h4v-2h1v-4h-2v2H7v-2H5v-2H4V9h1V7h2V5h2v2h2V2H8zm8 0h3v2h2v3h1v6h-1v2h-1v2h-2v2h-4v-2h-1v-4h2v2h2v-2h2v-2h1V9h-1V7h-2V5h-2v2h-2V2h3z"/>
     </svg>
   `,
 
-  // Pixelarticons: File-Text (Readability / Document)
+  // Pixelarticons: Book-Open (Readability / Documentation)
+  bookOpen: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
+      <path d="M4 3h6v2H4v14h6v2H2V3h2zm16 0h-6v2h6v14h-6v2h8V3h-2zm-8 4h2v12h-2V7zm-6 0h3v2H6V7zm0 4h3v2H6v-2zm9-4h3v2h-3V7zm0 4h3v2h-3v-2z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: File-Text (Document / Solution Source)
   document: (size = 16) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M6 4H4v16h2zm10-2H6v2h10zm4 4h-2v14h2zm-2 14H6v2h12zM16 4h2v2h-2zm-4 0h2v6h-2z"/>

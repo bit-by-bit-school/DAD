@@ -12,49 +12,49 @@
   --bg-elevated: #151B26;
   --bg-input: #0A0D14;
   --bg-hover: #1D2535;
-  
+
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-color: rgba(255, 255, 255, 0.12);
   --border-focus: #00E5FF;
-  
+
   /* Text Hierarchy */
   --text-bright: #FFFFFF;
   --text-main: #E2E8F0;
   --text-muted: #94A3B8;
   --text-dim: #64748B;
-  
+
   /* Brand Accent: Phosphor Ice Cyan */
   --color-brand: #00E5FF;
   --color-brand-hover: #38BDF8;
   --color-brand-dim: rgba(0, 229, 255, 0.12);
   --color-brand-glow: rgba(0, 229, 255, 0.25);
-  
+
   /* Role 1: Success / Solved / Synchronized (Terminal Emerald) */
   --role-success: #10B981;
   --role-success-dim: rgba(16, 185, 129, 0.14);
   --role-success-glow: rgba(16, 185, 129, 0.25);
-  
+
   /* Role 2: Attention / Pending / Warning (Phosphor Amber) */
   --role-attention: #F59E0B;
   --role-attention-dim: rgba(245, 158, 11, 0.14);
   --role-attention-glow: rgba(245, 158, 11, 0.25);
-  
+
   /* Role 3: Critical / Destructive (Signal Crimson) */
   --role-critical: #EF4444;
   --role-critical-dim: rgba(239, 68, 68, 0.14);
   --role-critical-glow: rgba(239, 68, 68, 0.25);
-  
+
   /* Radii */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;
-  
+
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
   --font-segment: 'Share Tech Mono', 'JetBrains Mono', monospace;
-  
+
   --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 12px var(--color-brand-glow);
 }
@@ -93,7 +93,8 @@
   background: var(--bg-primary);
 }
 
-.hr-icon, .hr-icon-logo {
+.hr-icon,
+.hr-icon-logo {
   shape-rendering: crispEdges;
   vertical-align: middle;
 }
@@ -115,8 +116,11 @@ body {
 body::before {
   content: "";
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: 
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
     linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
   background-size: 24px 24px;
@@ -181,17 +185,6 @@ body::before {
   font-family: var(--font-family);
 }
 
-.badge-tag {
-  font-size: 9.5px;
-  font-weight: 600;
-  padding: 1px 5px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-}
-
 /* Auth Status Badge */
 .auth-badge {
   display: flex;
@@ -251,8 +244,17 @@ body::before {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 0.4; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.15); }
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
 }
 
 /* Main Content */
@@ -684,7 +686,10 @@ body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

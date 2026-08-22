@@ -1179,7 +1179,7 @@
           ${cleverStarsHtml}
         </div>
         <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : '0/5'}">
-          <span class="star-label-icon" style="color: var(--color-brand); display: inline-flex;">${HRIcons.document(12)}</span>
+          <span class="star-label-icon" style="color: var(--color-brand); display: inline-flex;">${HRIcons.bookOpen(12)}</span>
           ${readStarsHtml}
         </div>
         <div class="rating-badge" style="margin-left: auto;" title="Comments: ${commentsCount}">

@@ -96,10 +96,27 @@ The color palette consists of one primary **Brand Color** and exactly **Three Fu
 - **Interface & Content**: Inter for labels, modals, and readable problem descriptions.
 - **Segmented Badges**: Uppercase alphanumeric readouts with letter spacing (`0.5px`) resembling physical electronic test equipment.
 
-## Iconography
+## Iconography & Icon Packs
 
-- **Prohibition**: Raw unicode emojis (e.g. 📂, 💻, ⚡, 🔔, 🔑, 🤖) are strictly forbidden in UI chrome, headings, badges, and buttons.
-- **Standard**: All icons must be purpose-built, geometric vector SVGs (`16x16` or `20x20`) with 1.5px to 2px crisp stroke geometry that aligns with the segmented digital display theme.
+- **Strict Prohibition**: Raw Unicode emojis (e.g. 🧠, 📖, 💬, 📂, 💻, ⚡, 🔔, 🔑, 🤖, ⭐, ★) are **strictly forbidden** anywhere in UI chrome, cards, badges, headings, buttons, and status displays.
+- **Primary Icon Pack**: **`Pixelarticons`** (24×24 strict pixel grid, 1-bit / 2-bit geometric pixel-art paths).
+- **Secondary / Fallback Pack**: **`Pixel Icon Library`** (`pixeliconlibrary`) — used as a fallback whenever a specialized icon is not available in Pixelarticons.
+- **Brand Logo**: 3-Cell 16-Segment Alphanumeric Phosphor Display spelling **`HRH`** with unlit skeleton segments and cyan/white phosphor glow.
+- **Implementation Rules**:
+  - All icons must be loaded from / synced between `server/public/icons.js` and `extension/lib/icons.js` under the global `HRIcons` object.
+  - Every icon SVG must specify `viewBox="0 0 24 24"`, `fill="currentColor"`, and `shape-rendering="crispEdges"` with the CSS class `.hr-icon`.
+  - **Standard Icon Mappings**:
+    - **Cleverness Metric**: `HRIcons.brain(size)` — Pixelarticons `brain`
+    - **Readability Metric**: `HRIcons.document(size)` / `HRIcons.bookOpen(size)` — Pixelarticons `book-open` / `file-text`
+    - **Comments / Reviews**: `HRIcons.comment(size)` — Pixelarticons `message`
+    - **Star Rating (Outline)**: `HRIcons.star(size)` — Authentic 5-point retro pixel star (unfilled)
+    - **Star Rating (Solid)**: `HRIcons.starFilled(size)` — Authentic 5-point retro pixel star (solid filled)
+    - **Explorer Tab**: `HRIcons.folder(size)` — Pixelarticons `folder`
+    - **Workspace Tab**: `HRIcons.workspace(size)` — Pixelarticons `code` / `layout`
+    - **Admin & Safety**: `HRIcons.shield(size)` / `HRIcons.admin(size)`
+    - **Line Selection Badge**: `HRIcons.target(size)` — Pixelarticons `target`
+    - **AI Assistant**: `HRIcons.aiSpark(size)` — Pixelarticons `sparkle`
+    - **Actions & Controls**: `HRIcons.search(size)`, `HRIcons.chevronDown(size)`, `HRIcons.check(size)`, `HRIcons.close(size)`, `HRIcons.reload(size)`, `HRIcons.download(size)`, `HRIcons.upload(size)`, `HRIcons.copy(size)`, `HRIcons.external(size)`.
 
 ## Motion & Transitions
 
@@ -115,9 +132,11 @@ The color palette consists of one primary **Brand Color** and exactly **Three Fu
 - Do use the 3 assigned role colors exclusively for their functional purposes.
 - Do display numerical counts with monospace digits for stable tabular layout.
 - Do provide clear focus outlines using the brand phosphor cyan color.
+- Do use `HRIcons.<name>(size)` from `icons.js` for all visual icons and symbols.
 
 ### Don'ts
 - Don't use rainbow gradients, purple buttons, or multicolor ambient backgrounds.
 - Don't use saturated colored backgrounds under large blocks of text.
-- Don't use emojis in navigation headers, button labels, or status indicators.
+- Don't use raw Unicode emojis in navigation headers, button labels, cards, or status indicators.
 - Don't introduce arbitrary accent colors outside the defined 4-color system.
+- Don't use antialiased/vector icons that clash with the retro pixel CRT instrument aesthetic.

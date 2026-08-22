@@ -850,6 +850,7 @@ textarea.form-control {
   background: var(--role-critical-dim) !important;
   border-color: rgba(239, 68, 68, 0.4) !important;
   color: var(--role-critical) !important;
+  cursor: pointer !important;
 }
 
 .btn-danger:hover {
@@ -863,12 +864,15 @@ textarea.form-control {
   border: 1px solid var(--border-subtle);
   border-radius: 3px;
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: pointer !important;
+  user-select: none;
+  transition: all 0.12s ease;
 }
 
 .btn-micro:hover {
   background: var(--bg-hover);
   color: var(--text-bright);
+  border-color: var(--color-brand);
 }
 
 .btn-approve {
@@ -876,7 +880,7 @@ textarea.form-control {
   border: 1px solid rgba(16, 185, 129, 0.4);
   color: var(--role-success);
   border-radius: 3px;
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 .btn-reject {
@@ -884,7 +888,28 @@ textarea.form-control {
   border: 1px solid rgba(239, 68, 68, 0.4);
   color: var(--role-critical);
   border-radius: 3px;
-  cursor: pointer;
+  cursor: pointer !important;
+}
+
+.line-tag-badge {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--color-brand);
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  border-radius: 3px;
+  cursor: pointer !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.12s ease;
+}
+
+.line-tag-badge:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--color-brand);
+  box-shadow: 0 0 8px var(--color-brand-glow);
 }
 
 /* Solution Detail Workspace Layout */
@@ -1037,7 +1062,7 @@ textarea.form-control {
   line-height: 0;
   color: var(--text-dim);
   opacity: 0.35;
-  cursor: pointer;
+  cursor: pointer !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1122,6 +1147,158 @@ textarea.form-control {
   font-family: var(--font-mono);
 }
 
+/* Monaco Inline Review Threads & ViewZones */
+.monaco-editor .view-zones {
+  pointer-events: auto !important;
+}
+
+.monaco-editor .view-zones .monaco-inline-thread-zone,
+.monaco-inline-thread-zone {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #0d1117;
+  border: 1px solid var(--color-brand);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 229, 255, 0.06);
+  padding: 0.6rem 0.85rem;
+  box-sizing: border-box !important;
+  font-family: var(--font-sans);
+  z-index: 100;
+  pointer-events: auto !important;
+  user-select: text;
+  gap: 0.5rem;
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+  position: relative;
+}
+
+.monaco-inline-thread-zone * {
+  pointer-events: auto;
+}
+
+.monaco-inline-thread-zone.has-draft {
+  border-color: var(--neon-cyan, #00f3ff);
+  box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.monaco-thread-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-brand);
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.monaco-thread-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1 1 0px !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
+.monaco-thread-item {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+}
+
+.monaco-thread-item:hover {
+  border-color: var(--color-brand);
+}
+
+.monaco-thread-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.monaco-thread-reply-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.btn-zone-reply, .btn-zone-cancel, .btn-zone-close, .btn-zone-post, .btn-item-reply {
+  cursor: pointer !important;
+  user-select: none;
+}
+
+.monaco-selection-tooltip {
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.btn-tooltip-comment {
+  background: var(--color-brand);
+  color: #080B10;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--color-brand-glow);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.btn-tooltip-comment:hover {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+}
+
+/* Monaco Editor Line & Margin Highlights */
+.monaco-comment-glyph-margin {
+  background: var(--color-brand);
+  border-radius: 50%;
+  width: 8px !important;
+  height: 8px !important;
+  margin-left: 5px;
+  margin-top: 5px;
+  box-shadow: 0 0 8px var(--color-brand-glow);
+  cursor: pointer;
+}
+
+.monaco-draft-glyph-margin {
+  background: var(--role-attention, #f59e0b);
+  border-radius: 50%;
+  width: 8px !important;
+  height: 8px !important;
+  margin-left: 5px;
+  margin-top: 5px;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  cursor: pointer;
+}
+
+.monaco-comment-line-highlight {
+  background: rgba(0, 229, 255, 0.12) !important;
+  border-left: 2px solid var(--color-brand);
+}
+
+.monaco-draft-line-highlight {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border-left: 2px solid var(--role-attention, #f59e0b);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -1129,3 +1306,4 @@ textarea.form-control {
     transition-duration: 0.01ms !important;
   }
 }
+

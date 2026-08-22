@@ -175,7 +175,7 @@
 
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
       <button id="fb-btn-cancel" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
-      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 0 10px rgba(0,243,255,0.4); display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.lightning(13) : ''} <span>Send to AI</span></button>
+      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 0 10px rgba(0,243,255,0.4); display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' && HRIcons.zap ? HRIcons.zap(13) : ''} <span>Send to AI</span></button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -207,13 +207,6 @@
 
   function showToast(msg) {
     toast.innerHTML = `<span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.check(14) : ''} <span>${msg}</span></span>`;
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateX(-50%) translateY(0)';
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(-50%) translateY(100px)';
-    }, 3500);
-  }
     toast.style.opacity = '1';
     toast.style.transform = 'translateX(-50%) translateY(0)';
     setTimeout(() => {

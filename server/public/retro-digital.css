@@ -580,18 +580,20 @@ textarea.form-control {
   z-index: 2;
 }
 
-.card-top {
+.sol-header, .card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
-.card-title {
-  font-size: 0.95rem;
+.sol-title, .card-title {
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-bright);
-  line-height: 1.3;
+  line-height: 1.35;
+  font-family: var(--font-sans);
 }
 
 .card-badges {
@@ -609,17 +611,78 @@ textarea.form-control {
   color: var(--text-muted);
   padding: 2px 6px;
   border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.card-bottom {
+.sol-meta {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sol-meta strong {
+  color: var(--color-brand);
+  font-weight: 500;
+}
+
+.sol-ratings-summary, .card-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-size: 0.76rem;
-  color: var(--text-dim);
-  font-family: var(--font-mono);
+  font-family: var(--font-segment);
   border-top: 1px solid var(--border-subtle);
   padding-top: 0.6rem;
+}
+
+.rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px 6px;
+  font-size: 0.74rem;
+  font-family: var(--font-segment);
+}
+
+.rating-badge .star-label-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-brand);
+}
+
+.rating-badge .star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rating-badge .star-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.rating-badge .star-icon.filled {
+  color: var(--role-attention);
+  filter: drop-shadow(0 0 3px var(--role-attention-glow));
+}
+
+.rating-badge .star-icon.empty {
+  color: var(--text-dim);
+  opacity: 0.35;
+}
+
+.rating-badge .review-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
 }
 
 .author-name {
@@ -859,21 +922,36 @@ textarea.form-control {
 /* Star Selector */
 .star-selector {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
 }
 
 .star-btn {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  padding: 3px;
+  line-height: 0;
   color: var(--text-dim);
+  opacity: 0.35;
   cursor: pointer;
-  transition: color 0.1s ease, transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  transition: transform 0.12s ease, color 0.12s ease, opacity 0.12s ease;
 }
 
-.star-btn:hover, .star-btn.active {
-  color: var(--role-attention);
-  transform: scale(1.15);
+.star-btn svg {
+  display: block;
+}
+
+.star-btn:hover,
+.star-btn.hover-highlight,
+.star-btn.active {
+  color: var(--role-attention) !important;
+  opacity: 1 !important;
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 6px var(--role-attention-glow));
 }
 
 .rating-feedback-label {

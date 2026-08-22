@@ -718,6 +718,8 @@
   function setupStarSelectors() {
     setupStarSelector('cleverness');
     setupStarSelector('readability');
+    updateStarVisuals('cleverness', 0, false);
+    updateStarVisuals('readability', 0, false);
   }
 
   function updateRoleUI() {
@@ -1237,15 +1239,18 @@
         updateMonacoDecorations(sol.comments || []);
       }
 
-      // Reset active AI draft comments, ratings & view zones on new solution selection
+      // Initialize active solution ratings (show solid filled stars for existing ratings)
+      const myRating = (sol.ratings || []).find(r => r.userId === state.currentUser?.id);
+      const initialClever = myRating ? myRating.cleverness : Math.round(sol.clevernessAvg || 0);
+      const initialRead = myRating ? myRating.readability : Math.round(sol.readabilityAvg || 0);
+      state.selectedCleverness = initialClever;
+      state.selectedReadability = initialRead;
+      if (typeof updateStarVisuals === 'function') {
+        updateStarVisuals('cleverness', initialClever, false);
+        updateStarVisuals('readability', initialRead, false);
+      }
       state.activeDraftComments = [];
       state.activeInlineLine = null;
-      state.selectedCleverness = 0;
-      state.selectedReadability = 0;
-      if (typeof updateStarVisuals === 'function') {
-        updateStarVisuals('cleverness', 0, false);
-        updateStarVisuals('readability', 0, false);
-      }
       state.collapsedZones.clear();
       closeInlineCommentBox();
       renderAiDraftComments();

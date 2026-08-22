@@ -87,23 +87,40 @@ body::before {
   z-index: 1;
 }
 
-/* Custom Scrollbars */
+/* Custom Retro Pixel Phosphor Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-app);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
+  background: var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-brand);
+  box-shadow: 0 0 8px var(--color-brand-glow);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-app);
+}
+
+.hr-icon, .hr-icon-logo {
+  shape-rendering: crispEdges;
+  vertical-align: middle;
 }
 
 /* Main Layout */

@@ -16,10 +16,10 @@
       <div class="brand-section">
         <div class="brand-logo">
           <!-- Precision 6-Unit 16-Segment Staircase Logo -->
-          <svg viewBox="0 0 72 72" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+          <svg viewBox="0 0 72 72" width="26" height="26" fill="none" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
             <defs>
               <g id="seg-cell-html" transform="skewX(-8)">
-                <g stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <g stroke="rgba(255, 255, 255, 0.14)" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter">
                   <line x1="2" y1="1" x2="10" y2="1"/>
                   <line x1="10" y1="1" x2="10" y2="9"/>
                   <line x1="10" y1="9" x2="10" y2="17"/>
@@ -33,30 +33,30 @@
                   <line x1="10" y1="1" x2="6" y2="9"/>
                   <line x1="6" y1="9" x2="2" y2="17"/>
                   <line x1="6" y1="9" x2="10" y2="17"/>
-                  <circle cx="12.5" cy="17" r="0.9" fill="rgba(255, 255, 255, 0.15)"/>
+                  <rect x="12" y="16" width="2" height="2" fill="rgba(255, 255, 255, 0.14)"/>
                 </g>
               </g>
             </defs>
             <g transform="translate(6, 26)">
               <use href="#seg-cell-html" x="0" y="0"/>
-              <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+              <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
               <use href="#seg-cell-html" x="0" y="20"/>
-              <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-              <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
+              <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+              <rect x="14" y="36" width="2" height="2" fill="var(--color-brand, #00E5FF)"/>
             </g>
             <g transform="translate(26, 14)">
               <use href="#seg-cell-html" x="0" y="0"/>
-              <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+              <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
               <use href="#seg-cell-html" x="0" y="20"/>
-              <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-              <circle cx="14.5" cy="37" r="1.1" fill="#FFFFFF"/>
+              <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+              <rect x="14" y="36" width="2" height="2" fill="#FFFFFF"/>
             </g>
             <g transform="translate(46, 2)">
               <use href="#seg-cell-html" x="0" y="0"/>
-              <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+              <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
               <use href="#seg-cell-html" x="0" y="20"/>
-              <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-              <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
+              <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+              <rect x="14" y="36" width="2" height="2" fill="var(--color-brand, #00E5FF)"/>
             </g>
           </svg>
           <span class="brand-text">HACKERRANK_HUB</span>
@@ -127,12 +127,11 @@
 
     <!-- 1. SOLUTION EXPLORER TAB -->
     <section id="tab-explorer" class="tab-content active">
-      <div class="glass-panel">
+      <div class="glass-panel filter-panel">
         <div class="panel-title">
           <div class="panel-title-group">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--color-brand)" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: var(--color-brand);" shape-rendering="crispEdges">
+              <path d="M22 22h-2v-2h2v2Zm-2-2h-2v-2h2v2Zm-6-2H6v-2h8v2Zm4 0h-2v-2h2v2ZM6 16H4v-2h2v2Zm10 0h-2v-2h2v2ZM4 14H2V6h2v8Zm14 0h-2V6h2v8ZM6 6H4V4h2v2Zm10 0h-2V4h2v2Zm-2-2H6V2h8v2Z"/>
             </svg>
             <span>Filter Solutions Database</span>
           </div>
@@ -159,7 +158,7 @@
             <div id="multiselect-user-wrapper" class="multiselect-wrapper">
               <button type="button" id="multiselect-user-btn" class="multiselect-btn">
                 <span id="multiselect-user-label" class="multiselect-label">All Users</span>
-                <span class="multiselect-arrow">▼</span>
+                <span class="multiselect-arrow" style="display: flex; align-items: center;"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" shape-rendering="crispEdges"><path d="M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z"/></svg></span>
               </button>
               <div id="multiselect-user-dropdown" class="multiselect-dropdown hidden">
                 <div class="multiselect-header">
@@ -237,8 +236,8 @@
                 <span>AI &amp; Admin Reviews</span>
               </button>
               <button class="sidebar-tab-btn" data-subtab="subtab-ratings">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                  <path d="M11 1h2v4h2v2h6v4h-2v2h2v7h-5v-2h-4v2H5v-7h2v-2H3V7h6V5h2V1z"/>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges">
+                  <path d="M11 2h2v2h-2z M10 4h4v2h-4z M9 6h6v2H9z M1 8h22v3H1z M4 11h16v2H4z M6 13h12v2H6z M5 15h14v2H5z M4 17h6v2H4z M14 17h6v2h-6z M3 19h4v3H3z M17 19h4v3h-4z"/>
                 </svg>
                 <span>Ratings</span>
               </button>
@@ -359,11 +358,11 @@
                       <span id="cleverness-rating-label" class="rating-feedback-label">Not rated</span>
                     </div>
                     <div id="star-cleverness-selector" class="star-selector" data-type="cleverness" role="radiogroup" aria-label="Cleverness rating out of 5 stars">
-                      <button type="button" class="star-btn" data-val="1" role="radio" aria-label="1 star - Basic"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="2" role="radio" aria-label="2 stars - Fair"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="3" role="radio" aria-label="3 stars - Good"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="4" role="radio" aria-label="4 stars - Clever"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="5" role="radio" aria-label="5 stars - Brilliant"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+                      <button type="button" class="star-btn" data-val="1" role="radio" aria-label="1 star - Basic"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="2" role="radio" aria-label="2 stars - Fair"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="3" role="radio" aria-label="3 stars - Good"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="4" role="radio" aria-label="4 stars - Clever"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="5" role="radio" aria-label="5 stars - Brilliant"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
                     </div>
                   </div>
 
@@ -373,11 +372,11 @@
                       <span id="readability-rating-label" class="rating-feedback-label">Not rated</span>
                     </div>
                     <div id="star-readability-selector" class="star-selector" data-type="readability" role="radiogroup" aria-label="Readability rating out of 5 stars">
-                      <button type="button" class="star-btn" data-val="1" role="radio" aria-label="1 star - Hard to follow"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="2" role="radio" aria-label="2 stars - Acceptable"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="3" role="radio" aria-label="3 stars - Readable"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="4" role="radio" aria-label="4 stars - Clean"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
-                      <button type="button" class="star-btn" data-val="5" role="radio" aria-label="5 stars - Pristine"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+                      <button type="button" class="star-btn" data-val="1" role="radio" aria-label="1 star - Hard to follow"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="2" role="radio" aria-label="2 stars - Acceptable"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="3" role="radio" aria-label="3 stars - Readable"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="4" role="radio" aria-label="4 stars - Clean"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
+                      <button type="button" class="star-btn" data-val="5" role="radio" aria-label="5 stars - Pristine"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges"><path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/></svg></button>
                     </div>
                   </div>
 

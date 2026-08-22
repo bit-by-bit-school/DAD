@@ -66,6 +66,39 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-dark);
+}
+
+/* Custom Retro Pixel Phosphor Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand);
+  box-shadow: 0 0 8px var(--color-brand-glow);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-dark);
+}
+
+.hr-icon, .hr-icon-logo {
+  shape-rendering: crispEdges;
+  vertical-align: middle;
 }
 
 /* Utilities */
@@ -419,9 +452,17 @@ textarea.form-control {
   resize: vertical;
 }
 
+/* Filter Panel */
+.glass-panel.filter-panel {
+  position: relative;
+  z-index: 100;
+  overflow: visible;
+}
+
 /* Multiselect Component */
 .multiselect-wrapper {
   position: relative;
+  z-index: 100;
 }
 
 .multiselect-btn {
@@ -455,8 +496,8 @@ textarea.form-control {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
-  z-index: 150;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.95);
+  z-index: 9999;
   padding: 0.5rem;
 }
 
@@ -505,6 +546,8 @@ textarea.form-control {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .solution-card {
@@ -519,6 +562,7 @@ textarea.form-control {
   gap: 0.75rem;
   transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   position: relative;
+  z-index: 1;
 }
 
 .solution-card:hover {
@@ -526,12 +570,14 @@ textarea.form-control {
   border-color: rgba(0, 229, 255, 0.4);
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  z-index: 2;
 }
 
 .solution-card.active {
   border-color: var(--color-brand);
   background: var(--bg-card-hover);
   box-shadow: 0 0 12px var(--color-brand-glow);
+  z-index: 2;
 }
 
 .card-top {

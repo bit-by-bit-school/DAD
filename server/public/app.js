@@ -401,9 +401,9 @@
 
           if (monacoSelectionBadge) {
             if (start === end) {
-              monacoSelectionBadge.textContent = `Line ${start} selected`;
+              monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Line ${start} selected</span>`;
             } else {
-              monacoSelectionBadge.textContent = `Lines ${start} - ${end} selected (${end - start + 1} lines)`;
+              monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Lines ${start} - ${end} selected (${end - start + 1} lines)</span>`;
             }
           }
 
@@ -635,13 +635,15 @@
 
     stars.forEach(btn => {
       const val = parseInt(btn.dataset.val);
+      const isFilled = val <= score;
       if (isHover) {
-        btn.classList.toggle('hover-highlight', val <= score);
+        btn.classList.toggle('hover-highlight', isFilled);
       } else {
         btn.classList.remove('hover-highlight');
-        btn.classList.toggle('active', val <= score);
+        btn.classList.toggle('active', isFilled);
         btn.setAttribute('aria-checked', val === score ? 'true' : 'false');
       }
+      btn.innerHTML = isFilled ? HRIcons.starFilled(13) : HRIcons.star(13);
     });
 
     if (label) {
@@ -1141,12 +1143,12 @@
     let html = '';
     for (let i = 1; i <= 5; i++) {
       if (i <= score) {
-        html += `<span class="star-icon filled">${HRIcons.starFilled(11)}</span>`;
+        html += `<span class="star-icon filled" style="color: var(--role-attention); display: inline-flex;">${HRIcons.starFilled(10)}</span>`;
       } else {
-        html += `<span class="star-icon empty">${HRIcons.star(11)}</span>`;
+        html += `<span class="star-icon empty" style="color: var(--text-dim); opacity: 0.35; display: inline-flex;">${HRIcons.star(10)}</span>`;
       }
     }
-    return `<span class="star-rating">${html}</span>`;
+    return `<span class="star-rating" style="display: inline-flex; align-items: center; gap: 2px;">${html}</span>`;
   }
 
   // Create Solution Card Element
@@ -1156,7 +1158,7 @@
     
     const cleverStarsHtml = renderStarsHtml(sol.clevernessAvg);
     const readStarsHtml = renderStarsHtml(sol.readabilityAvg);
-    const reviewsCount = sol._count?.reviewRounds || 0;
+    const commentsCount = sol._count?.comments !== undefined ? sol._count.comments : (sol.comments ? sol.comments.length : (sol._count?.reviewRounds || 0));
 
     card.innerHTML = `
       <div>
@@ -1170,14 +1172,17 @@
       </div>
 
       <div class="sol-ratings-summary">
-        <div class="rating-badge" title="Cleverness: ${sol.clevernessAvg ? sol.clevernessAvg + '/5' : 'Unrated'}">
-          <span class="star-label-icon">${HRIcons.brain(12)}</span> ${cleverStarsHtml}
+        <div class="rating-badge" title="Cleverness: ${sol.clevernessAvg ? sol.clevernessAvg + '/5' : '0/5'}">
+          <span class="star-label-icon" style="color: var(--color-brand); display: inline-flex;">${HRIcons.brain(12)}</span>
+          ${cleverStarsHtml}
         </div>
-        <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : 'Unrated'}">
-          <span class="star-label-icon">${HRIcons.document(12)}</span> ${readStarsHtml}
+        <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : '0/5'}">
+          <span class="star-label-icon" style="color: var(--color-brand); display: inline-flex;">${HRIcons.document(12)}</span>
+          ${readStarsHtml}
         </div>
-        <div class="rating-badge" style="margin-left: auto;" title="Reviews: ${reviewsCount}">
-          <span class="review-icon">${HRIcons.comment(12)}</span> <span class="segment-number">${reviewsCount}</span>
+        <div class="rating-badge" style="margin-left: auto;" title="Comments: ${commentsCount}">
+          <span class="review-icon" style="color: var(--text-muted); display: inline-flex;">${HRIcons.comment(12)}</span>
+          <span class="segment-number" style="font-size: 0.75rem; color: var(--text-bright);">${commentsCount}</span>
         </div>
       </div>
     `;

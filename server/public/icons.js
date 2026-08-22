@@ -6,12 +6,12 @@
 const HRIcons = {
   // Precision 6-Unit 3-Column Ascending Multi-Segment Display Logo (1:1 with Reference Photo)
   logo: (size = 24) => `
-    <svg viewBox="0 0 72 72" width="${size}" height="${size}" fill="none" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+    <svg viewBox="0 0 72 72" width="${size}" height="${size}" fill="none" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
       <defs>
         <!-- Single 16-Segment Display Cell Template -->
         <g id="seg-cell" transform="skewX(-8)">
           <!-- Unlit skeleton segments (dark grid) -->
-          <g stroke="rgba(255, 255, 255, 0.14)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <g stroke="rgba(255, 255, 255, 0.14)" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter">
             <line x1="2" y1="1" x2="10" y2="1"/>
             <line x1="10" y1="1" x2="10" y2="9"/>
             <line x1="10" y1="9" x2="10" y2="17"/>
@@ -25,7 +25,7 @@ const HRIcons = {
             <line x1="10" y1="1" x2="6" y2="9"/>
             <line x1="6" y1="9" x2="2" y2="17"/>
             <line x1="6" y1="9" x2="10" y2="17"/>
-            <circle cx="12.5" cy="17" r="0.9" fill="rgba(255, 255, 255, 0.14)"/>
+            <rect x="12" y="16" width="2" height="2" fill="rgba(255, 255, 255, 0.14)"/>
           </g>
         </g>
       </defs>
@@ -33,63 +33,63 @@ const HRIcons = {
       <!-- Column 1 (Left: 2 Stacked Displays, lowest elevation) -->
       <g transform="translate(6, 26)">
         <use href="#seg-cell" x="0" y="0"/>
-        <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+        <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
         <use href="#seg-cell" x="0" y="20"/>
-        <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-        <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
+        <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+        <rect x="14" y="36" width="2" height="2" fill="var(--color-brand, #00E5FF)"/>
       </g>
 
       <!-- Column 2 (Middle: 2 Stacked Displays, mid elevation) -->
       <g transform="translate(26, 14)">
         <use href="#seg-cell" x="0" y="0"/>
-        <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+        <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
         <use href="#seg-cell" x="0" y="20"/>
-        <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-        <circle cx="14.5" cy="37" r="1.1" fill="#FFFFFF"/>
+        <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+        <rect x="14" y="36" width="2" height="2" fill="#FFFFFF"/>
       </g>
 
       <!-- Column 3 (Right: 2 Stacked Displays, highest elevation) -->
       <g transform="translate(46, 2)">
         <use href="#seg-cell" x="0" y="0"/>
-        <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+        <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
         <use href="#seg-cell" x="0" y="20"/>
-        <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-        <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
+        <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+        <rect x="14" y="36" width="2" height="2" fill="var(--color-brand, #00E5FF)"/>
       </g>
     </svg>
   `,
 
   // Pixelarticons: Folder (Explorer)
   folder: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M4 4h6v2H4zm0 14h16v2H4zM20 8h2v10h-2zM2 6h2v12H2zm8 0h10v2H10z"/>
     </svg>
   `,
 
   // Pixelarticons: Code / Workspace
   workspace: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M11 18H9v-4h2v4Zm-4-1H5v-2h2v2Zm12-2v2h-2v-2h2ZM5 15H3v-2h2v2Zm16 0h-2v-2h2v2Zm-8-1h-2v-4h2v4ZM3 13H1v-2h2v2Zm20 0h-2v-2h2v2ZM5 11H3V9h2v2Zm16 0h-2V9h2v2Zm-6-1h-2V6h2v4ZM7 9H5V7h2v2Zm12 0h-2V7h2v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Terminal
   terminal: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM6 16h2v2H6zm2-2h2v2H8zm-2-2h2v2H6z"/>
     </svg>
   `,
 
   // Pixelarticons: Sliders (Admin Settings)
   admin: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M8 14H7v6H5v-6H2v-2h6v2Zm5 6h-2V10h2v10Zm9-2h-3v2h-2v-2h-1v-2h6v2Zm-3-4h-2V4h2v10ZM7 10H5V4h2v6Zm6-4h2v2H9V6h2V4h2v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Bell (Notification)
   bell: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M9 2h6v2H9zM7 4h2v2H7zm8 0h2v2h-2zM5 6h2v7H5zm12 0h2v7h-2zM3 13h2v4H3zm16 0h2v4h-2z"/>
       <path d="M3 15h18v2H3zm5 3h2v2H8zm6 0h2v2h-2zm-4 2h4v2h-4z"/>
     </svg>
@@ -97,91 +97,91 @@ const HRIcons = {
 
   // Pixelarticons: Key (Auth)
   key: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M11 18H3V16H11V18ZM23 15H21V18H17V16H19V13H21V11H11V8H13V9H23V15ZM3 16H1V8H3V16ZM17 16H15V15H13V16H11V13H17V16ZM9 14H5V10H9V14ZM11 8H3V6H11V8Z"/>
     </svg>
   `,
 
   // Pixelarticons: Zap (Lightning / Fetch)
   zap: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-brand">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-brand">
       <path d="M4 13h8v6h2v2h-2v2h-2v-8H2v-4h2v2Zm12 6h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-6-6h8v4h-2v-2h-8V5h-2V3h2V1h2v8Zm-8 2H4V9h2v2Zm2-2H6V7h2v2Zm2-2H8V5h2v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Search
   search: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M22 22h-2v-2h2v2Zm-2-2h-2v-2h2v2Zm-6-2H6v-2h8v2Zm4 0h-2v-2h2v2ZM6 16H4v-2h2v2Zm10 0h-2v-2h2v2ZM4 14H2V6h2v8Zm14 0h-2V6h2v8ZM6 6H4V4h2v2Zm10 0h-2V4h2v2Zm-2-2H6V2h8v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Filter
   filter: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M11 20H13V22H9V12H11V20ZM15 20H13V12H15V20ZM9 12H7V10H9V12ZM17 12H15V10H17V12ZM7 10H5V8H7V10ZM19 10H17V8H19V10ZM21 8H19V4H5V8H3V2H21V8Z"/>
     </svg>
   `,
 
   // Pixelarticons: Check (Success / Solved / Approved)
   check: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-success">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-success">
       <path d="M10 18H8v-2h2v2Zm-2-2H6v-2h2v2Zm4-2v2h-2v-2h2Zm-6 0H4v-2h2v2Zm8 0h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2V8h2v2Zm2-2h-2V6h2v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Clock (Attention / Pending)
   clock: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-attention">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-attention">
       <path d="M6 2h12v2H6zM2 6h2v12H2zm18 0h2v12h-2zm-2-2h2v2h-2zM4 4h2v2H4zm2 18h12v-2H6zm12-2h2v-2h-2zM4 20h2v-2H4zm7-14h2v7h-2zm2 7h2v2h-2zm2 2h2v2h-2z"/>
     </svg>
   `,
 
   // Pixelarticons: Close (Critical / Reject / Dismiss)
   close: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-critical">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-critical">
       <path d="M7 19H5V17H7V19ZM19 19H17V17H19V19ZM9 15V17H7V15H9ZM17 17H15V15H17V17ZM11 15H9V13H11V15ZM15 15H13V13H15V15ZM13 13H11V11H13V13ZM11 11H9V9H11V11ZM15 11H13V9H15V11ZM9 9H7V7H9V9ZM17 9H15V7H17V9ZM7 7H5V5H7V7ZM19 7H17V5H19V7Z"/>
     </svg>
   `,
 
-  // Pixelarticons: Star (Outline Rating)
+  // Authentic 5-Point Pixel Star (Outline Hollow Rating)
   star: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-star">
-      <path d="M5 20H8V22H3V16H5V20ZM21 22H16V20H19V16H21V22ZM10 20H8V18H10V20ZM16 20H14V18H16V20ZM14 18H10V16H14V18ZM7 16H5V13H7V16ZM19 16H17V13H19V16ZM5 13H3V11H5V13ZM21 13H19V11H21V13ZM9 9H3V11H1V7H9V9ZM23 11H21V9H15V7H23V11ZM11 7H9V3H11V7ZM15 7H13V3H15V7ZM13 3H11V1H13V3Z"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-star">
+      <path d="M11 2h2v2h-2z M10 4h1v2h-1z M13 4h1v2h-1z M9 6h1v2H9z M14 6h1v2h-1z M1 8h8v1H1z M15 8h8v1h-8z M1 9h1v2H1z M22 9h1v2h-1z M2 11h3v1H2z M19 11h3v1h-3z M5 12h2v1H5z M17 12h2v1h-2z M6 13h1v2H6z M17 13h1v2h-1z M5 15h1v2H5z M18 15h1v2h-1z M4 17h1v2H4z M19 17h1v2h-1z M3 19h1v3H3z M20 19h1v3h-1z M4 21h3v1H4z M17 21h3v1h-3z M7 19h2v2H7z M15 19h2v2h-2z M9 17h6v2H9z"/>
     </svg>
   `,
 
-  // Pixelarticons: Star (Solid Filled Rating)
+  // Authentic 5-Point Pixel Star (Solid Filled Rating)
   starFilled: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-star-filled">
-      <path d="M11 1h2v4h2v2h6v4h-2v2h2v7h-5v-2h-4v2H5v-7h2v-2H3V7h6V5h2V1z"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-star-filled">
+      <path d="M11 2h2v2h-2z M10 4h4v2h-4z M9 6h6v2H9z M1 8h22v3H1z M4 11h16v2H4z M6 13h12v2H6z M5 15h14v2H5z M4 17h6v2H4z M14 17h6v2h-6z M3 19h4v3H3z M17 19h4v3h-4z"/>
     </svg>
   `,
 
   // Pixelarticons: Message / Comment
   comment: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M20 2H4v2h16zm0 14H6v2h14zm2-12h-2v12h2zM4 4H2v18h2zm2 14H4v2h2z"/>
     </svg>
   `,
 
   // Pixelarticons: Sparkle (AI Agent)
   aiSpark: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-brand">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-brand">
       <path d="M11 1h2v4h-2zm0 22h2v-4h-2zM9 5h2v4H9zm0 14h2v-4H9zm4-14h2v4h-2zm0 14h2v-4h-2zM5 9h4v2H5zm14 0h-4v2h4zM1 11h4v2H1zm22 0h-4v2h4zM5 13h4v2H5zm14 0h-4v2h4z"/>
     </svg>
   `,
 
-  // Pixelarticons: Algorithm / CPU (Cleverness Metric)
+  // Pixelarticons: CPU / Chip (Cleverness Metric)
   brain: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M5 3h14v2H5zm0 16h14v2H5zM3 5h2v14H3zm16 0h2v14h-2zM9 7h6v2H9zm0 8h6v2H9zM7 9h2v6H7zm8 0h2v6h-2zm-4-8h2v2h-2zm0 20h2v2h-2zM1 11h2v2H1zm20 0h2v2h-2zm0-4h2v2h-2zm0 8h2v2h-2zM1 15h2v2H1zm0-8h2v2H1zm6-6h2v2H7zm8 0h2v2h-2zm0 20h2v2h-2zm-8 0h2v2H7z"/>
     </svg>
   `,
 
   // Pixelarticons: File-Text (Readability / Document)
   document: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M6 4H4v16h2zm10-2H6v2h10zm4 4h-2v14h2zm-2 14H6v2h12zM16 4h2v2h-2zm-4 0h2v6h-2z"/>
       <path d="M12 8h6v2h-6zm-4 8h8v2H8zm0-4h8v2H8zm0-4h2v2H8z"/>
     </svg>
@@ -189,28 +189,28 @@ const HRIcons = {
 
   // Pixelarticons: Target / Line Badge
   target: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M5 1h14v2H5zM3 3h2v2H3zm0 16h2v2H3zm16 0h2v2h-2zm0-16h2v2h-2zm2 2h2v14h-2zM5 21h14v2H5zM1 5h2v14H1zm8 0h6v2H9zM5 9h2v6H5zm4 8h6v2H9zm8-8h2v6h-2zm-6 0h2v2h-2zM7 7h2v2H7zm0 8h2v2H7zm8 0h2v2h-2zm0-8h2v2h-2zm-6 4h2v2H9zm2 2h2v2h-2zm2-2h2v2h-2z"/>
     </svg>
   `,
 
   // Pixelarticons: Discord (Community SSO)
   discord: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M9 21H5v-2h4v2Zm10 0h-4v-2h4v2ZM5 19H3v-2h2v2Zm12-2h-2v2h-2v-2h-2v2H9v-2H7v-2h10v2Zm4 2h-2v-2h2v2ZM3 17H1V7h2v10Zm20 0h-2V7h2v10Zm-12-4H8v-3h3v3Zm5 0h-3v-3h3v3ZM5 7H3V5h2v2Zm10 0H9V5h6v2Zm6 0h-2V5h2v2ZM9 5H5V3h4v2Zm10 0h-4V3h4v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Bullet List (Table of Contents / Queue)
   list: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M10 5h12v2H10zm0 4h8v2h-8zm0 4h12v2H10zm0 4h8v2h-8zm-4-6H4V9h2v2ZM4 9H2V7h2v2Zm4 0H6V7h2v2ZM6 7H4V5h2v2Zm-2 6h2v2H4zm0 4h2v2H4zm-2 0v-2h2v2zm4 0v-2h2v2z"/>
     </svg>
   `,
 
   // Pixelarticons: Download (Export)
   download: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M21 15v4h-2v-4zm-2 4v2H5v-2zM5 15v4H3v-4zm8-12v14h-2V3z"/>
       <path d="M7 11v2h10v-2zm2 2v2h2v-2zm4 0v2h2v-2z"/>
       <path d="M15 11v2h2v-2z"/>
@@ -219,21 +219,21 @@ const HRIcons = {
 
   // Pixelarticons: Upload (Import)
   upload: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M19 21H5v-2h14v2ZM5 19H3v-4h2v4Zm16 0h-2v-4h2v4ZM13 5h2v2h2v2h-4v8h-2V9H7V7h2V5h2V3h2v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Copy
   copy: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M8 6h12v2H8zM4 2h12v2H4zm2 6h2v12H6zM2 4h2v12H2zm6 16h12v2H8zM20 8h2v12h-2zm-4-4h2v2h-2zM4 16h2v2H4z"/>
     </svg>
   `,
 
   // Pixelarticons: External Link
   external: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M11 5H5v2h6V5ZM5 7H3v12h2V7Zm12 12H5v2h12v-2Zm2-6h-2v6h2v-6Zm-8 0H9v2h2v-2Zm2-2h-2v2h2v-2Zm2-2h-2v2h2V9Zm2-2h-2v2h2V7Zm2-2h-2v2h2V5Zm2-2h-2v8h2V3Z"/>
       <path d="M21 3h-8v2h8V3Z"/>
     </svg>
@@ -241,7 +241,7 @@ const HRIcons = {
 
   // Pixelarticons: Reload / Sync
   sync: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M16 4h2v6h-2zm-2-2h2v2h-2zm0 2h2v8h-2zM4 8H2v5h2z"/>
       <path d="M4 6h16v2H4zm4 14H6v-6h2zm2 2H8v-2h2zm0-2H8v-8h2zm10-4h2v-5h-2z"/>
       <path d="M20 18H4v-2h16z"/>
@@ -250,70 +250,70 @@ const HRIcons = {
 
   // Pixelarticons: User
   user: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M9 2h6v2H9zm0 8h6v2H9zm6-6h2v6h-2zM7 4h2v6H7zM4 18h2v4H4zm14 0h2v4h-2zM8 14h8v2H8zm-2 2h2v2H6zm10 0h2v2h-2z"/>
     </svg>
   `,
 
   // Pixelarticons: Trash
   trash: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M18 22H6V20H18V22ZM9 6H15V4H17V6H22V8H20V20H18V8H6V20H4V8H2V6H7V4H9V6ZM15 4H9V2H15V4Z"/>
     </svg>
   `,
 
   // Pixelarticons: Pencil / Edit
   edit: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M4 16H6V18H8V20H10V22H2V14H4V16ZM12 20H10V18H12V20ZM14 18H12V16H14V18ZM10 16H8V14H10V16ZM16 16H14V14H16V16ZM6 14H4V12H6V14ZM12 14H10V12H12V14ZM18 14H16V12H18V14ZM8 12H6V10H8V12ZM14 12H12V10H14V12ZM20 12H18V10H20V12ZM10 10H8V8H10V10ZM18 10H16V8H18V10ZM22 10H20V8H22V10ZM12 8H10V6H12V8ZM16 8H14V6H16V8ZM20 8H18V6H20V8ZM14 6H12V4H14V6ZM18 6H16V4H18V6ZM16 4H14V2H16V4Z"/>
     </svg>
   `,
 
   // Pixelarticons: Eye
   eye: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M16 20H8v-2h8v2Zm-8-2H4v-2h4v2Zm12 0h-4v-2h4v2ZM4 16H2v-2h2v2Zm10-6h-2v2h2v-2h2v4h-2v2h-4v-2H8v-4h2V8h4v2Zm8 6h-2v-2h2v2ZM2 14H0v-4h2v4Zm22 0h-2v-4h2v4ZM4 10H2V8h2v2Zm18 0h-2V8h2v2ZM8 8H4V6h4v2Zm12 0h-4V6h4v2Zm-4-2H8V4h8v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Git-Branch
   gitBranch: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M4 14h4v2H4zm0 6h4v2H4zm-2-4h2v4H2zm6 0h2v4H8zm8-14h4v2h-4zm0 6h4v2h-4zm-2-4h2v4h-2zm6 0h2v4h-2zm-8 13h5v2h-5zm5-5h2v5h-2zM5 2h2v10H5z"/>
     </svg>
   `,
 
   // Pixelarticons: Warning Diamond (Alert)
   alert: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-attention">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-attention">
       <path d="M2 10h2v2H2zm0 4h2v-2H2zm20-4h-2v2h2zm0 4h-2v-2h2zM4 8h2v2H4zm0 8h2v-2H4zm16-8h-2v2h2zm0 8h-2v-2h2zM6 6h2v2H6zm0 12h2v-2H6zM18 6h-2v2h2zm0 12h-2v-2h2zM8 4h2v2H8zm0 16h2v-2H8zm8-16h-2v2h2zm0 16h-2v-2h2zM10 2h2v2h-2zm0 20h2v-2h-2zm4-20h-2v2h2zm0 20h-2v-2h2zm-3-5h2v-2h-2zm0-4h2V7h-2z"/>
     </svg>
   `,
 
   // Pixelarticons: Chevron Down
   chevronDown: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Chevron Up
   chevronUp: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M13 8h-2v2h2V8Zm-2 2H9v2h2v-2Zm4 0h-2v2h2v-2Zm-6 2H7v2h2v-2Zm8 0h-2v2h2v-2ZM7 14H5v2h2v-2Zm12 0h-2v2h2v-2Z"/>
     </svg>
   `,
 
   // Pixelarticons: Checkbox
   checkbox: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
       <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2z"/>
     </svg>
   `,
 
   // Pixelarticons: Checkbox Checked
   checkboxOn: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-success">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-success">
       <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM7 12h2v2H7zm2 2h2v2H9zm2-2h2v2h-2zm2-2h2v2h-2zm2-2h2v2h-2z"/>
     </svg>
   `

@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const userTagsHtml = solvedUsers.slice(0, 3).map(u => `<span class="user-mini-tag">@${escapeHtml(u)}</span>`).join('');
       const moreUsersCount = solvedUsers.length > 3 ? `<span class="user-mini-tag">+${solvedUsers.length - 3}</span>` : '';
 
-      const checkIcon = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-1px;"><polyline points="20 6 9 17 4 12"/></svg>`;
+      const checkIcon = typeof HRIcons !== 'undefined' ? HRIcons.check(11) : `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
       item.innerHTML = `
         <div class="problem-item-top">
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${moreUsersCount}
           </div>
           <span class="solve-count-badge ${isSolved ? '' : 'unsolved'}">
-            ${isSolved ? `${checkIcon} ${solvedUsers.length}` : '—'}
+            ${isSolved ? `${checkIcon} <span>${solvedUsers.length}</span>` : '—'}
           </span>
         </div>
       `;
@@ -390,10 +390,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       codeViewerContainer.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
-              <polyline points="16 18 22 12 16 6"/>
-              <polyline points="8 6 2 12 8 18"/>
-            </svg>
+            ${typeof HRIcons !== 'undefined' ? HRIcons.workspace(32) : ''}
           </div>
           <h3>No Solution Available</h3>
           <p>No solution code found for the selected problem and user.</p>
@@ -423,23 +420,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       statementContainer.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
+            ${typeof HRIcons !== 'undefined' ? HRIcons.document(32) : ''}
           </div>
           <h3>Problem Statement</h3>
           <p>The problem statement has not been saved locally yet.</p>
           <div style="margin-top: 14px;">
-            <a href="https://www.hackerrank.com/challenges/${slug}/problem" target="_blank" rel="noopener noreferrer" class="btn btn-emerald">
+            <a href="https://www.hackerrank.com/challenges/${slug}/problem" target="_blank" rel="noopener noreferrer" class="btn btn-emerald" style="display: inline-flex; align-items: center; gap: 6px;">
               <span>Open Problem on HackerRank</span>
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                <polyline points="15 3 21 3 21 9"/>
-                <line x1="10" y1="14" x2="21" y2="3"/>
-              </svg>
+              ${typeof HRIcons !== 'undefined' ? HRIcons.external(13) : ''}
             </a>
           </div>
         </div>
@@ -459,10 +447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       diffViewerContainer.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="2" y="3" width="9" height="18" rx="1"/>
-              <rect x="13" y="3" width="9" height="18" rx="1"/>
-            </svg>
+            ${typeof HRIcons !== 'undefined' ? HRIcons.workspace(32) : ''}
           </div>
           <h3>Comparison Requires 2+ Solutions</h3>
           <p>This problem has ${solvedUsers.length} solution recorded. Fetch solutions from another user to compare them side-by-side.</p>

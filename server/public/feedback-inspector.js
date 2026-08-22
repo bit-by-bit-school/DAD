@@ -71,9 +71,9 @@
   topBanner.innerHTML = `
     <span style="display: flex; align-items: center; gap: 6px; cursor: move;" title="Click & Drag to reposition banner">
       <span style="color: #8b949e; font-size: 14px;">⋮⋮</span>
-      <span>🎯 <b>Inspector Active</b></span>
+      <span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <b>Inspector Active</b></span>
     </span>
-    <button id="feedback-view-all-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer; pointer-events: auto;">📋 View List</button>
+    <button id="feedback-view-all-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer; pointer-events: auto; display: flex; align-items: center; gap: 4px;">${typeof HRIcons !== 'undefined' ? HRIcons.list(12) : ''} <span>View List</span></button>
     <button id="feedback-exit-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer; pointer-events: auto;">Exit (Esc)</button>
   `;
   document.body.appendChild(topBanner);
@@ -101,7 +101,7 @@
     gap: 8px;
     transition: all 0.2s ease;
   `;
-  triggerBtn.innerHTML = `🎯 <span>Give Feedback (Alt+F)</span>`;
+  triggerBtn.innerHTML = `${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <span>Give Feedback (Alt+F)</span>`;
   triggerBtn.addEventListener('mouseenter', () => {
     triggerBtn.style.boxShadow = '0 0 25px rgba(0, 243, 255, 0.6)';
     triggerBtn.style.transform = 'scale(1.05)';
@@ -147,9 +147,9 @@
   modal.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h3 style="margin: 0; font-size: 16px; color: #00f3ff; display: flex; align-items: center; gap: 8px;">
-        🎯 Direct Browser Feedback
+        ${typeof HRIcons !== 'undefined' ? HRIcons.target(16) : ''} <span>Direct Browser Feedback</span>
       </h3>
-      <button id="feedback-modal-close" style="background: none; border: none; color: #8b949e; font-size: 18px; cursor: pointer;">✕</button>
+      <button id="feedback-modal-close" style="background: none; border: none; color: #8b949e; cursor: pointer; display: flex; align-items: center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
     <div style="background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; font-family: monospace; font-size: 11px; color: #79c0ff; word-break: break-all;">
@@ -161,10 +161,10 @@
     <div style="margin-bottom: 12px;">
       <label style="display: block; font-size: 12px; color: #8b949e; margin-bottom: 6px;">Category</label>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="fb-category-group">
-        <button type="button" class="fb-cat-btn active" data-val="UI / Style" style="background: rgba(0,243,255,0.15); border: 1px solid #00f3ff; color: #00f3ff; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer;">🎨 UI / Style</button>
-        <button type="button" class="fb-cat-btn" data-val="Bug" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer;">🐛 Bug</button>
-        <button type="button" class="fb-cat-btn" data-val="Improvement" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer;">💡 Improvement</button>
-        <button type="button" class="fb-cat-btn" data-val="Note" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer;">💬 Note</button>
+        <button type="button" class="fb-cat-btn active" data-val="UI / Style" style="background: rgba(0,243,255,0.15); border: 1px solid #00f3ff; color: #00f3ff; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.workspace(12) : ''} UI / Style</button>
+        <button type="button" class="fb-cat-btn" data-val="Bug" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.alert(12) : ''} Bug</button>
+        <button type="button" class="fb-cat-btn" data-val="Improvement" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.aiSpark(12) : ''} Improvement</button>
+        <button type="button" class="fb-cat-btn" data-val="Note" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.comment(12) : ''} Note</button>
       </div>
     </div>
 
@@ -175,7 +175,7 @@
 
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
       <button id="fb-btn-cancel" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
-      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 0 10px rgba(0,243,255,0.4);">🚀 Send to AI</button>
+      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 0 10px rgba(0,243,255,0.4); display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.lightning(13) : ''} <span>Send to AI</span></button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -206,7 +206,14 @@
   document.body.appendChild(toast);
 
   function showToast(msg) {
-    toast.innerHTML = `✅ ${msg}`;
+    toast.innerHTML = `<span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.check(14) : ''} <span>${msg}</span></span>`;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(100px)';
+    }, 3500);
+  }
     toast.style.opacity = '1';
     toast.style.transform = 'translateX(-50%) translateY(0)';
     setTimeout(() => {
@@ -306,14 +313,14 @@
       }
       triggerBtn.style.background = '#00f3ff';
       triggerBtn.style.color = '#0d1117';
-      triggerBtn.innerHTML = `🎯 <b>Inspecting... (Esc)</b>`;
+      triggerBtn.innerHTML = `<span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <b>Inspecting... (Esc)</b></span>`;
       document.body.style.cursor = 'crosshair';
     } else {
       topBanner.style.display = 'none';
       overlay.style.display = 'none';
       triggerBtn.style.background = '#0d1117';
       triggerBtn.style.color = '#00f3ff';
-      triggerBtn.innerHTML = `🎯 <span>Give Feedback (Alt+F)</span>`;
+      triggerBtn.innerHTML = `<span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <span>Give Feedback (Alt+F)</span></span>`;
       document.body.style.cursor = '';
       hoveredElement = null;
     }

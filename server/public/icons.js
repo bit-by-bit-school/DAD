@@ -4,25 +4,57 @@
  */
 
 const HRIcons = {
-  // 16-Segment Alphanumeric Display Logo
-  logo: (size = 20) => `
-    <svg viewBox="0 0 48 48" width="${size}" height="${size}" fill="none" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
-      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Digit 1 (Left, lower) -->
-        <g transform="translate(4, 14) scale(0.65)">
-          <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.2" stroke-width="1"/>
-          <path d="M6 2v14M6 16v14M6 30h12M18 30V16" stroke="var(--color-brand, #00E5FF)" stroke-width="2.2"/>
+  // Precision 6-Unit 3-Column Ascending Multi-Segment Display Logo (1:1 with Reference Photo)
+  logo: (size = 24) => `
+    <svg viewBox="0 0 72 72" width="${size}" height="${size}" fill="none" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+      <defs>
+        <!-- Single 16-Segment Display Cell Template -->
+        <g id="seg-cell-srv" transform="skewX(-8)">
+          <!-- Unlit skeleton segments (dark grid) -->
+          <g stroke="rgba(255, 255, 255, 0.14)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="2" y1="1" x2="10" y2="1"/>
+            <line x1="10" y1="1" x2="10" y2="9"/>
+            <line x1="10" y1="9" x2="10" y2="17"/>
+            <line x1="10" y1="17" x2="2" y2="17"/>
+            <line x1="2" y1="17" x2="2" y2="9"/>
+            <line x1="2" y1="9" x2="2" y2="1"/>
+            <line x1="2" y1="9" x2="10" y2="9"/>
+            <line x1="6" y1="1" x2="6" y2="9"/>
+            <line x1="6" y1="9" x2="6" y2="17"/>
+            <line x1="2" y1="1" x2="6" y2="9"/>
+            <line x1="10" y1="1" x2="6" y2="9"/>
+            <line x1="6" y1="9" x2="2" y2="17"/>
+            <line x1="6" y1="9" x2="10" y2="17"/>
+            <circle cx="12.5" cy="17" r="0.9" fill="rgba(255, 255, 255, 0.14)"/>
+          </g>
         </g>
-        <!-- Digit 2 (Center, mid) -->
-        <g transform="translate(15, 8) scale(0.65)">
-          <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.2" stroke-width="1"/>
-          <path d="M6 2h12M6 2v14M18 2v14M6 16h12M18 16v14M6 30h12" stroke="var(--color-brand, #00E5FF)" stroke-width="2.2"/>
-        </g>
-        <!-- Digit 3 (Right, high) -->
-        <g transform="translate(26, 2) scale(0.65)">
-          <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.2" stroke-width="1"/>
-          <path d="M6 2v14M6 16v14M18 2v14M18 16v14M6 2h12M6 16h12" stroke="var(--color-brand, #00E5FF)" stroke-width="2.2"/>
-        </g>
+      </defs>
+
+      <!-- Column 1 (Left: 2 Stacked Displays) -->
+      <g transform="translate(6, 26)">
+        <use href="#seg-cell-srv" x="0" y="0"/>
+        <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+        <use href="#seg-cell-srv" x="0" y="20"/>
+        <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+        <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
+      </g>
+
+      <!-- Column 2 (Middle: 2 Stacked Displays) -->
+      <g transform="translate(26, 14)">
+        <use href="#seg-cell-srv" x="0" y="0"/>
+        <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+        <use href="#seg-cell-srv" x="0" y="20"/>
+        <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+        <circle cx="14.5" cy="37" r="1.1" fill="#FFFFFF"/>
+      </g>
+
+      <!-- Column 3 (Right: 2 Stacked Displays) -->
+      <g transform="translate(46, 2)">
+        <use href="#seg-cell-srv" x="0" y="0"/>
+        <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
+        <use href="#seg-cell-srv" x="0" y="20"/>
+        <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
+        <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
       </g>
     </svg>
   `,
@@ -45,8 +77,15 @@ const HRIcons = {
 
   admin: (size = 16) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      <line x1="4" y1="21" x2="4" y2="14"/>
+      <line x1="4" y1="10" x2="4" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12" y2="3"/>
+      <line x1="20" y1="21" x2="20" y2="16"/>
+      <line x1="20" y1="12" x2="20" y2="3"/>
+      <line x1="1" y1="14" x2="7" y2="14"/>
+      <line x1="9" y1="8" x2="15" y2="8"/>
+      <line x1="17" y1="16" x2="23" y2="16"/>
     </svg>
   `,
 
@@ -79,15 +118,7 @@ const HRIcons = {
 
   filter: (size = 16) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <line x1="4" y1="21" x2="4" y2="14"/>
-      <line x1="4" y1="10" x2="4" y2="3"/>
-      <line x1="12" y1="21" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12" y2="3"/>
-      <line x1="20" y1="21" x2="20" y2="16"/>
-      <line x1="20" y1="12" x2="20" y2="3"/>
-      <line x1="1" y1="14" x2="7" y2="14"/>
-      <line x1="9" y1="8" x2="15" y2="8"/>
-      <line x1="17" y1="16" x2="23" y2="16"/>
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
     </svg>
   `,
 
@@ -113,7 +144,13 @@ const HRIcons = {
   `,
 
   star: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon hr-icon-star">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+  `,
+
+  starFilled: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" stroke="currentColor" stroke-width="1.5" class="hr-icon hr-icon-star-filled">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
     </svg>
   `,
@@ -127,6 +164,48 @@ const HRIcons = {
   aiSpark: (size = 14) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
       <path d="M12 3v18M3 12h18M5.636 5.636l12.728 12.728M18.364 5.636L5.636 18.364"/>
+    </svg>
+  `,
+
+  brain: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
+      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04zM14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
+    </svg>
+  `,
+
+  document: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  `,
+
+  target: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+  `,
+
+  discord: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
+      <path d="M18 6h0a14.5 14.5 0 0 0-4-1.2 11.5 11.5 0 0 0-.5 1.2 13.5 13.5 0 0 0-3 0 11.5 11.5 0 0 0-.5-1.2A14.5 14.5 0 0 0 6 6a15.8 15.8 0 0 0-2 9.5 14.5 14.5 0 0 0 4.5 2.3 11.5 11.5 0 0 0 1-1.6 9.4 9.4 0 0 1-1.6-.8l.4-.3a10.5 10.5 0 0 0 7.4 0l.4.3a9.4 9.4 0 0 1-1.6.8 11.5 11.5 0 0 0 1 1.6 14.5 14.5 0 0 0 4.5-2.3A15.8 15.8 0 0 0 18 6z"/>
+      <circle cx="9" cy="12" r="1.5" fill="currentColor"/>
+      <circle cx="15" cy="12" r="1.5" fill="currentColor"/>
+    </svg>
+  `,
+
+  list: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
+      <line x1="8" y1="6" x2="21" y2="6"/>
+      <line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/>
+      <line x1="3" y1="12" x2="3.01" y2="12"/>
+      <line x1="3" y1="18" x2="3.01" y2="18"/>
     </svg>
   `,
 
@@ -169,49 +248,10 @@ const HRIcons = {
     </svg>
   `,
 
-  database: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <ellipse cx="12" cy="5" rx="9" ry="3"/>
-      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-    </svg>
-  `,
-
   code: (size = 14) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
       <polyline points="16 18 22 12 16 6"/>
       <polyline points="8 6 2 12 8 18"/>
-    </svg>
-  `,
-
-  document: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/>
-      <line x1="16" y1="17" x2="8" y2="17"/>
-      <polyline points="10 9 9 9 8 9"/>
-    </svg>
-  `,
-
-  compare: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <rect x="2" y="3" width="9" height="18" rx="1"/>
-      <rect x="13" y="3" width="9" height="18" rx="1"/>
-    </svg>
-  `,
-
-  user: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-  `,
-
-  pin: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <line x1="12" y1="17" x2="12" y2="22"/>
-      <path d="M5 17h14v-2l-2-3V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v7l-2 3v2z"/>
     </svg>
   `,
 

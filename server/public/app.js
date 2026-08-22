@@ -401,9 +401,9 @@
 
           if (monacoSelectionBadge) {
             if (start === end) {
-              monacoSelectionBadge.textContent = `📍 Line ${start} selected`;
+              monacoSelectionBadge.textContent = `Line ${start} selected`;
             } else {
-              monacoSelectionBadge.textContent = `📍 Lines ${start} - ${end} selected (${end - start + 1} lines)`;
+              monacoSelectionBadge.textContent = `Lines ${start} - ${end} selected (${end - start + 1} lines)`;
             }
           }
 
@@ -462,7 +462,7 @@
         if (!this.domNode) {
           this.domNode = document.createElement('div');
           this.domNode.className = 'monaco-selection-tooltip';
-          this.domNode.innerHTML = `<button type="button" class="btn-tooltip-comment">💬 Add Comment</button>`;
+          this.domNode.innerHTML = `<button type="button" class="btn-tooltip-comment">${HRIcons.comment(13)} <span>Add Comment</span></button>`;
 
           this.domNode.querySelector('button').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -868,7 +868,7 @@
       const item = document.createElement('div');
       item.className = `notification-item ${n.isRead ? 'read' : 'unread'}`;
 
-      const icon = n.type === 'COMMENT' ? '💬' : '📑';
+      const icon = n.type === 'COMMENT' ? HRIcons.comment(14) : HRIcons.document(14);
       const timeAgo = formatTimeAgo(n.createdAt);
 
       item.innerHTML = `
@@ -931,7 +931,7 @@
     }
   }
 
-  function showRetroToast(message, icon = '🔔') {
+  function showRetroToast(message, iconSvg = null) {
     let container = document.querySelector('.toast-container');
     if (!container) {
       container = document.createElement('div');
@@ -939,10 +939,11 @@
       document.body.appendChild(container);
     }
 
+    const iconHtml = iconSvg || HRIcons.bell(16);
     const toast = document.createElement('div');
     toast.className = 'retro-toast';
     toast.innerHTML = `
-      <span style="font-size: 1.2rem;">${icon}</span>
+      <span class="toast-icon">${iconHtml}</span>
       <span>${escapeHtml(message)}</span>
     `;
 
@@ -1140,9 +1141,9 @@
     let html = '';
     for (let i = 1; i <= 5; i++) {
       if (i <= score) {
-        html += '<span class="star-icon filled">★</span>';
+        html += `<span class="star-icon filled">${HRIcons.starFilled(11)}</span>`;
       } else {
-        html += '<span class="star-icon empty">★</span>';
+        html += `<span class="star-icon empty">${HRIcons.star(11)}</span>`;
       }
     }
     return `<span class="star-rating">${html}</span>`;
@@ -1170,13 +1171,13 @@
 
       <div class="sol-ratings-summary">
         <div class="rating-badge" title="Cleverness: ${sol.clevernessAvg ? sol.clevernessAvg + '/5' : 'Unrated'}">
-          <span class="star-label-icon">🧠</span> ${cleverStarsHtml}
+          <span class="star-label-icon">${HRIcons.brain(12)}</span> ${cleverStarsHtml}
         </div>
         <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : 'Unrated'}">
-          <span class="star-label-icon">📖</span> ${readStarsHtml}
+          <span class="star-label-icon">${HRIcons.document(12)}</span> ${readStarsHtml}
         </div>
         <div class="rating-badge" style="margin-left: auto;" title="Reviews: ${reviewsCount}">
-          <span class="review-icon">💬</span> ${reviewsCount}
+          <span class="review-icon">${HRIcons.comment(12)}</span> <span class="segment-number">${reviewsCount}</span>
         </div>
       </div>
     `;
@@ -1301,7 +1302,7 @@
           options: {
             isWholeLine: true,
             glyphMarginClassName: 'monaco-comment-glyph-margin',
-            hoverMessage: { value: `💬 **@${c.user?.username || 'User'}**: ${c.content}` }
+            hoverMessage: { value: `**@${c.user?.username || 'User'}**: ${c.content}` }
           }
         });
       }
@@ -1380,11 +1381,11 @@
         const lineText = (c.endLine && c.endLine > c.startLine) 
           ? `Lines ${c.startLine}-${c.endLine}` 
           : `Line ${c.startLine}`;
-        lineBadgeHtml = `<button class="line-tag-badge" onclick="scrollToMonacoLines(${c.startLine}, ${c.endLine || c.startLine})" title="Jump to code line in editor">🎯 ${lineText}</button>`;
+        lineBadgeHtml = `<button class="line-tag-badge" onclick="scrollToMonacoLines(${c.startLine}, ${c.endLine || c.startLine})" title="Jump to code line in editor">${HRIcons.target(11)} ${lineText}</button>`;
       }
 
       const isAuthorOrAdmin = state.currentUser && (state.currentUser.id === c.userId || state.currentUser.role === 'ADMIN');
-      const deleteBtnHtml = isAuthorOrAdmin ? `<button class="btn-micro" style="color: var(--neon-pink); border-color: rgba(255,0,85,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` : '';
+      const deleteBtnHtml = isAuthorOrAdmin ? `<button class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` : '';
 
       item.innerHTML = `
         <div class="comment-header">
@@ -1632,8 +1633,8 @@
         }
 
         const titleText = isSelectedRange 
-          ? `💬 Lines ${sLine}-${lineNum} Code Review Thread`
-          : `💬 Line ${lineNum} Code Review Thread`;
+          ? `Lines ${sLine}-${lineNum} Code Review Thread`
+          : `Line ${lineNum} Code Review Thread`;
         const placeholderText = isSelectedRange
           ? `Write inline review comment on lines ${sLine}-${lineNum}...`
           : `Write inline review comment on line ${lineNum}...`;
@@ -1646,7 +1647,7 @@
         data.comments.forEach(c => {
           const isAuthorOrAdmin = state.currentUser && (state.currentUser.id === c.userId || state.currentUser.role === 'ADMIN');
           const deleteBtnHtml = isAuthorOrAdmin 
-            ? `<button class="btn-micro" style="color: var(--neon-pink); border-color: rgba(255,0,85,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` 
+            ? `<button class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` 
             : '';
 
           publishedCommentsHtml += `
@@ -1669,14 +1670,14 @@
             <div class="draft-comment-card" style="margin-bottom: 0.4rem;">
               <div class="draft-comment-header">
                 <div style="display: flex; align-items: center; gap: 0.4rem;">
-                  <span class="draft-badge">🤖 AI DRAFT</span>
-                  <span style="font-size: 0.72rem; color: var(--neon-pink); font-weight: 600;">${escapeHtml(d.type)}</span>
+                  <span class="draft-badge">${HRIcons.aiSpark(11)} AI DRAFT</span>
+                  <span style="font-size: 0.72rem; color: var(--color-brand); font-weight: 600;">${escapeHtml(d.type)}</span>
                 </div>
               </div>
               <div class="draft-comment-content">${escapeHtml(d.content)}</div>
               <div class="draft-comment-actions">
-                <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">❌ Reject</button>
-                <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">✅ Approve</button>
+                <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">${HRIcons.close(11)} Reject</button>
+                <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">${HRIcons.check(11)} Approve</button>
               </div>
             </div>
           `;
@@ -1694,8 +1695,11 @@
 
         zoneNode.innerHTML = `
           <div class="monaco-thread-header">
-            <span>${titleText}</span>
-            <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">✕ Close</button>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              ${HRIcons.comment(12)}
+              <span>${titleText}</span>
+            </div>
+            <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">Close</button>
           </div>
           ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
           ${draftCommentsHtml ? `<div style="margin-bottom: 0.5rem;">${draftCommentsHtml}</div>` : ''}
@@ -1802,15 +1806,15 @@
       card.innerHTML = `
         <div class="draft-comment-header">
           <div style="display: flex; align-items: center; gap: 0.4rem;">
-            <span class="draft-badge">🤖 AI DRAFT</span>
-            <button class="line-tag-badge" onclick="scrollToMonacoLines(${d.startLine}, ${d.endLine})">🎯 ${lineText}</button>
+            <span class="draft-badge">${HRIcons.aiSpark(11)} AI DRAFT</span>
+            <button class="line-tag-badge" onclick="scrollToMonacoLines(${d.startLine}, ${d.endLine})">${HRIcons.target(11)} ${lineText}</button>
           </div>
-          <span style="font-size: 0.7rem; color: var(--neon-pink);">${escapeHtml(d.type)}</span>
+          <span style="font-size: 0.7rem; color: var(--color-brand);">${escapeHtml(d.type)}</span>
         </div>
         <div class="draft-comment-content">${escapeHtml(d.content)}</div>
         <div class="draft-comment-actions">
-          <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">❌ Reject</button>
-          <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">✅ Approve</button>
+          <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">${HRIcons.close(11)} Reject</button>
+          <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">${HRIcons.check(11)} Approve</button>
         </div>
       `;
 
@@ -1835,7 +1839,7 @@
         options: {
           isWholeLine: true,
           glyphMarginClassName: 'monaco-draft-glyph-margin',
-          hoverMessage: { value: `🤖 **AI Draft (${d.type})**: ${d.content}` }
+          hoverMessage: { value: `**AI Draft (${d.type})**: ${d.content}` }
         }
       });
     });
@@ -1902,7 +1906,7 @@
   async function generateAiDraft() {
     if (!state.activeSolution) return alert('Please select a solution first');
 
-    aiDraftOutput.textContent = '⚡ Querying Gemini AI Assistant for automated complexity & edge-case analysis...';
+    aiDraftOutput.textContent = 'Querying Gemini AI Assistant for automated complexity & edge-case analysis...';
     if (aiDraftCommentsWrapper) aiDraftCommentsWrapper.style.display = 'none';
 
     try {
@@ -2034,7 +2038,7 @@
         <div>
           <div><strong>@${escapeHtml(u.username)}</strong> <span class="role-badge ${u.role.toLowerCase()}">${u.role}</span></div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Token: <code>${u.token}</code></div>
-          ${u.discordUsername ? `<div style="font-size: 0.7rem; color: #5865F2; font-weight: 600; margin-top: 2px;">👾 Discord: @${escapeHtml(u.discordUsername)}</div>` : ''}
+          ${u.discordUsername ? `<div style="font-size: 0.7rem; color: #5865F2; font-weight: 600; margin-top: 2px; display: flex; align-items: center; gap: 4px;">${HRIcons.discord(12)} Discord: @${escapeHtml(u.discordUsername)}</div>` : ''}
         </div>
         <button class="btn-retro btn-pink" style="font-size: 0.7rem; padding: 2px 6px;" onclick="copyToken('${u.token}')">Copy Token</button>
       `;
@@ -2114,7 +2118,7 @@
       card.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <div>
-            <strong style="color: var(--neon-pink);">👾 ${escapeHtml(item.discordUsername)}</strong>
+            <strong style="color: var(--neon-pink); display: flex; align-items: center; gap: 4px;">${HRIcons.discord(13)} ${escapeHtml(item.discordUsername)}</strong>
             <div style="font-size: 0.7rem; color: var(--text-muted);">ID: ${item.discordId}</div>
           </div>
           <span style="font-size: 0.7rem; color: var(--text-muted);">${new Date(item.loggedInAt).toLocaleDateString()}</span>

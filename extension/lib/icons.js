@@ -1,6 +1,6 @@
 /**
- * Purpose-Built SVG Icon Library - Lixie / 16-Segment Phosphor Aesthetic
- * Replaces all emoji icons with sharp, crisp, scalable vector glyphs.
+ * Purpose-Built Pixel Art SVG Icon Library (Pixelarticons + Pixel Icon Library)
+ * All icons rendered on a strict 24x24 pixel grid with currentColor fill.
  */
 
 const HRIcons = {
@@ -12,14 +12,12 @@ const HRIcons = {
         <g id="seg-cell" transform="skewX(-8)">
           <!-- Unlit skeleton segments (dark grid) -->
           <g stroke="rgba(255, 255, 255, 0.14)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Perimeter -->
             <line x1="2" y1="1" x2="10" y2="1"/>
             <line x1="10" y1="1" x2="10" y2="9"/>
             <line x1="10" y1="9" x2="10" y2="17"/>
             <line x1="10" y1="17" x2="2" y2="17"/>
             <line x1="2" y1="17" x2="2" y2="9"/>
             <line x1="2" y1="9" x2="2" y2="1"/>
-            <!-- Center Cross & Diagonals -->
             <line x1="2" y1="9" x2="10" y2="9"/>
             <line x1="6" y1="1" x2="6" y2="9"/>
             <line x1="6" y1="9" x2="6" y2="17"/>
@@ -27,7 +25,6 @@ const HRIcons = {
             <line x1="10" y1="1" x2="6" y2="9"/>
             <line x1="6" y1="9" x2="2" y2="17"/>
             <line x1="6" y1="9" x2="10" y2="17"/>
-            <!-- Unlit DP -->
             <circle cx="12.5" cy="17" r="0.9" fill="rgba(255, 255, 255, 0.14)"/>
           </g>
         </g>
@@ -36,9 +33,7 @@ const HRIcons = {
       <!-- Column 1 (Left: 2 Stacked Displays, lowest elevation) -->
       <g transform="translate(6, 26)">
         <use href="#seg-cell" x="0" y="0"/>
-        <!-- Lit Segments Top Digit -->
         <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-        <!-- Bottom Digit -->
         <use href="#seg-cell" x="0" y="20"/>
         <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
         <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
@@ -47,9 +42,7 @@ const HRIcons = {
       <!-- Column 2 (Middle: 2 Stacked Displays, mid elevation) -->
       <g transform="translate(26, 14)">
         <use href="#seg-cell" x="0" y="0"/>
-        <!-- Lit Segments Top Digit -->
         <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-        <!-- Bottom Digit -->
         <use href="#seg-cell" x="0" y="20"/>
         <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
         <circle cx="14.5" cy="37" r="1.1" fill="#FFFFFF"/>
@@ -58,9 +51,7 @@ const HRIcons = {
       <!-- Column 3 (Right: 2 Stacked Displays, highest elevation) -->
       <g transform="translate(46, 2)">
         <use href="#seg-cell" x="0" y="0"/>
-        <!-- Lit Segments Top Digit -->
         <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-        <!-- Bottom Digit -->
         <use href="#seg-cell" x="0" y="20"/>
         <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="round" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
         <circle cx="14.5" cy="37" r="1.1" fill="var(--color-brand, #00E5FF)"/>
@@ -68,210 +59,267 @@ const HRIcons = {
     </svg>
   `,
 
-  explorer: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
-      <line x1="8" y1="13" x2="16" y2="13"/>
+  // Pixelarticons: Folder (Explorer)
+  folder: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M4 4h6v2H4zm0 14h16v2H4zM20 8h2v10h-2zM2 6h2v12H2zm8 0h10v2H10z"/>
     </svg>
   `,
 
+  // Pixelarticons: Code / Workspace
   workspace: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <rect x="2" y="3" width="20" height="14" rx="2"/>
-      <line x1="8" y1="21" x2="16" y2="21"/>
-      <line x1="12" y1="17" x2="12" y2="21"/>
-      <path d="M7 8l3 3-3 3M13 14h4"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M11 18H9v-4h2v4Zm-4-1H5v-2h2v2Zm12-2v2h-2v-2h2ZM5 15H3v-2h2v2Zm16 0h-2v-2h2v2Zm-8-1h-2v-4h2v4ZM3 13H1v-2h2v2Zm20 0h-2v-2h2v2ZM5 11H3V9h2v2Zm16 0h-2V9h2v2Zm-6-1h-2V6h2v4ZM7 9H5V7h2v2Zm12 0h-2V7h2v2Z"/>
     </svg>
   `,
 
+  // Pixelarticons: Terminal
+  terminal: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM6 16h2v2H6zm2-2h2v2H8zm-2-2h2v2H6z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Sliders (Admin Settings)
   admin: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <line x1="4" y1="21" x2="4" y2="14"/>
-      <line x1="4" y1="10" x2="4" y2="3"/>
-      <line x1="12" y1="21" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12" y2="3"/>
-      <line x1="20" y1="21" x2="20" y2="16"/>
-      <line x1="20" y1="12" x2="20" y2="3"/>
-      <line x1="1" y1="14" x2="7" y2="14"/>
-      <line x1="9" y1="8" x2="15" y2="8"/>
-      <line x1="17" y1="16" x2="23" y2="16"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M8 14H7v6H5v-6H2v-2h6v2Zm5 6h-2V10h2v10Zm9-2h-3v2h-2v-2h-1v-2h6v2Zm-3-4h-2V4h2v10ZM7 10H5V4h2v6Zm6-4h2v2H9V6h2V4h2v2Z"/>
     </svg>
   `,
 
+  // Pixelarticons: Bell (Notification)
   bell: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M9 2h6v2H9zM7 4h2v2H7zm8 0h2v2h-2zM5 6h2v7H5zm12 0h2v7h-2zM3 13h2v4H3zm16 0h2v4h-2z"/>
+      <path d="M3 15h18v2H3zm5 3h2v2H8zm6 0h2v2h-2zm-4 2h4v2h-4z"/>
     </svg>
   `,
 
+  // Pixelarticons: Key (Auth)
   key: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M21 2l-2 2m-1.5 1.5L14 9l-3-3-4.5 4.5a5.5 5.5 0 1 0 7.78 7.78L22 10.5V6l-2-2z"/>
-      <circle cx="7.5" cy="16.5" r="1.5" fill="currentColor"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M11 18H3V16H11V18ZM23 15H21V18H17V16H19V13H21V11H11V8H13V9H23V15ZM3 16H1V8H3V16ZM17 16H15V15H13V16H11V13H17V16ZM9 14H5V10H9V14ZM11 8H3V6H11V8Z"/>
     </svg>
   `,
 
-  lightning: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  // Pixelarticons: Zap (Lightning / Fetch)
+  zap: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-brand">
+      <path d="M4 13h8v6h2v2h-2v2h-2v-8H2v-4h2v2Zm12 6h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-6-6h8v4h-2v-2h-8V5h-2V3h2V1h2v8Zm-8 2H4V9h2v2Zm2-2H6V7h2v2Zm2-2H8V5h2v2Z"/>
     </svg>
   `,
 
+  // Pixelarticons: Search
   search: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <circle cx="11" cy="11" r="8"/>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M22 22h-2v-2h2v2Zm-2-2h-2v-2h2v2Zm-6-2H6v-2h8v2Zm4 0h-2v-2h2v2ZM6 16H4v-2h2v2Zm10 0h-2v-2h2v2ZM4 14H2V6h2v8Zm14 0h-2V6h2v8ZM6 6H4V4h2v2Zm10 0h-2V4h2v2Zm-2-2H6V2h8v2Z"/>
     </svg>
   `,
 
+  // Pixelarticons: Filter
   filter: (size = 16) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M11 20H13V22H9V12H11V20ZM15 20H13V12H15V20ZM9 12H7V10H9V12ZM17 12H15V10H17V12ZM7 10H5V8H7V10ZM19 10H17V8H19V10ZM21 8H19V4H5V8H3V2H21V8Z"/>
     </svg>
   `,
 
-  check: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="hr-icon hr-icon-success">
-      <polyline points="20 6 9 17 4 12"/>
+  // Pixelarticons: Check (Success / Solved / Approved)
+  check: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-success">
+      <path d="M10 18H8v-2h2v2Zm-2-2H6v-2h2v2Zm4-2v2h-2v-2h2Zm-6 0H4v-2h2v2Zm8 0h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2V8h2v2Zm2-2h-2V6h2v2Z"/>
     </svg>
   `,
 
-  clock: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon hr-icon-attention">
-      <circle cx="12" cy="12" r="10"/>
-      <polyline points="12 6 12 12 16 14"/>
+  // Pixelarticons: Clock (Attention / Pending)
+  clock: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-attention">
+      <path d="M6 2h12v2H6zM2 6h2v12H2zm18 0h2v12h-2zm-2-2h2v2h-2zM4 4h2v2H4zm2 18h12v-2H6zm12-2h2v-2h-2zM4 20h2v-2H4zm7-14h2v7h-2zm2 7h2v2h-2zm2 2h2v2h-2z"/>
     </svg>
   `,
 
-  alert: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon hr-icon-critical">
-      <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
-      <line x1="12" y1="8" x2="12" y2="12"/>
-      <line x1="12" y1="16" x2="12.01" y2="16"/>
+  // Pixelarticons: Close (Critical / Reject / Dismiss)
+  close: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-critical">
+      <path d="M7 19H5V17H7V19ZM19 19H17V17H19V19ZM9 15V17H7V15H9ZM17 17H15V15H17V17ZM11 15H9V13H11V15ZM15 15H13V13H15V15ZM13 13H11V11H13V13ZM11 11H9V9H11V11ZM15 11H13V9H15V11ZM9 9H7V7H9V9ZM17 9H15V7H17V9ZM7 7H5V5H7V7ZM19 7H17V5H19V7Z"/>
     </svg>
   `,
 
+  // Pixelarticons: Star (Outline Rating)
   star: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon hr-icon-star">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-star">
+      <path d="M5 20H8V22H3V16H5V20ZM21 22H16V20H19V16H21V22ZM10 20H8V18H10V20ZM16 20H14V18H16V20ZM14 18H10V16H14V18ZM7 16H5V13H7V16ZM19 16H17V13H19V16ZM5 13H3V11H5V13ZM21 13H19V11H21V13ZM9 9H3V11H1V7H9V9ZM23 11H21V9H15V7H23V11ZM11 7H9V3H11V7ZM15 7H13V3H15V7ZM13 3H11V1H13V3Z"/>
     </svg>
   `,
 
+  // Pixelarticons: Star (Solid Filled Rating)
   starFilled: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" stroke="currentColor" stroke-width="1.5" class="hr-icon hr-icon-star-filled">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-star-filled">
+      <path d="M11 1h2v4h2v2h6v4h-2v2h2v7h-5v-2h-4v2H5v-7h2v-2H3V7h6V5h2V1z"/>
     </svg>
   `,
 
-  comment: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  // Pixelarticons: Message / Comment
+  comment: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M20 2H4v2h16zm0 14H6v2h14zm2-12h-2v12h2zM4 4H2v18h2zm2 14H4v2h2z"/>
     </svg>
   `,
 
-  aiSpark: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M12 3v18M3 12h18M5.636 5.636l12.728 12.728M18.364 5.636L5.636 18.364"/>
+  // Pixelarticons: Sparkle (AI Agent)
+  aiSpark: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-brand">
+      <path d="M11 1h2v4h-2zm0 22h2v-4h-2zM9 5h2v4H9zm0 14h2v-4H9zm4-14h2v4h-2zm0 14h2v-4h-2zM5 9h4v2H5zm14 0h-4v2h4zM1 11h4v2H1zm22 0h-4v2h4zM5 13h4v2H5zm14 0h-4v2h4z"/>
     </svg>
   `,
 
-  brain: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04zM14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
+  // Pixelarticons: Algorithm / CPU (Cleverness Metric)
+  brain: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M5 3h14v2H5zm0 16h14v2H5zM3 5h2v14H3zm16 0h2v14h-2zM9 7h6v2H9zm0 8h6v2H9zM7 9h2v6H7zm8 0h2v6h-2zm-4-8h2v2h-2zm0 20h2v2h-2zM1 11h2v2H1zm20 0h2v2h-2zm0-4h2v2h-2zm0 8h2v2h-2zM1 15h2v2H1zm0-8h2v2H1zm6-6h2v2H7zm8 0h2v2h-2zm0 20h2v2h-2zm-8 0h2v2H7z"/>
     </svg>
   `,
 
-  document: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/>
-      <line x1="16" y1="17" x2="8" y2="17"/>
+  // Pixelarticons: File-Text (Readability / Document)
+  document: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M6 4H4v16h2zm10-2H6v2h10zm4 4h-2v14h2zm-2 14H6v2h12zM16 4h2v2h-2zm-4 0h2v6h-2z"/>
+      <path d="M12 8h6v2h-6zm-4 8h8v2H8zm0-4h8v2H8zm0-4h2v2H8z"/>
     </svg>
   `,
 
-  target: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <circle cx="12" cy="12" r="10"/>
-      <circle cx="12" cy="12" r="6"/>
-      <circle cx="12" cy="12" r="2"/>
+  // Pixelarticons: Target / Line Badge
+  target: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M5 1h14v2H5zM3 3h2v2H3zm0 16h2v2H3zm16 0h2v2h-2zm0-16h2v2h-2zm2 2h2v14h-2zM5 21h14v2H5zM1 5h2v14H1zm8 0h6v2H9zM5 9h2v6H5zm4 8h6v2H9zm8-8h2v6h-2zm-6 0h2v2h-2zM7 7h2v2H7zm0 8h2v2H7zm8 0h2v2h-2zm0-8h2v2h-2zm-6 4h2v2H9zm2 2h2v2h-2zm2-2h2v2h-2z"/>
     </svg>
   `,
 
-  discord: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M18 6h0a14.5 14.5 0 0 0-4-1.2 11.5 11.5 0 0 0-.5 1.2 13.5 13.5 0 0 0-3 0 11.5 11.5 0 0 0-.5-1.2A14.5 14.5 0 0 0 6 6a15.8 15.8 0 0 0-2 9.5 14.5 14.5 0 0 0 4.5 2.3 11.5 11.5 0 0 0 1-1.6 9.4 9.4 0 0 1-1.6-.8l.4-.3a10.5 10.5 0 0 0 7.4 0l.4.3a9.4 9.4 0 0 1-1.6.8 11.5 11.5 0 0 0 1 1.6 14.5 14.5 0 0 0 4.5-2.3A15.8 15.8 0 0 0 18 6z"/>
-      <circle cx="9" cy="12" r="1.5" fill="currentColor"/>
-      <circle cx="15" cy="12" r="1.5" fill="currentColor"/>
+  // Pixelarticons: Discord (Community SSO)
+  discord: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M9 21H5v-2h4v2Zm10 0h-4v-2h4v2ZM5 19H3v-2h2v2Zm12-2h-2v2h-2v-2h-2v2H9v-2H7v-2h10v2Zm4 2h-2v-2h2v2ZM3 17H1V7h2v10Zm20 0h-2V7h2v10Zm-12-4H8v-3h3v3Zm5 0h-3v-3h3v3ZM5 7H3V5h2v2Zm10 0H9V5h6v2Zm6 0h-2V5h2v2ZM9 5H5V3h4v2Zm10 0h-4V3h4v2Z"/>
     </svg>
   `,
 
-  list: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <line x1="8" y1="6" x2="21" y2="6"/>
-      <line x1="8" y1="12" x2="21" y2="12"/>
-      <line x1="8" y1="18" x2="21" y2="18"/>
-      <line x1="3" y1="6" x2="3.01" y2="6"/>
-      <line x1="3" y1="12" x2="3.01" y2="12"/>
-      <line x1="3" y1="18" x2="3.01" y2="18"/>
+  // Pixelarticons: Bullet List (Table of Contents / Queue)
+  list: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M10 5h12v2H10zm0 4h8v2h-8zm0 4h12v2H10zm0 4h8v2h-8zm-4-6H4V9h2v2ZM4 9H2V7h2v2Zm4 0H6V7h2v2ZM6 7H4V5h2v2Zm-2 6h2v2H4zm0 4h2v2H4zm-2 0v-2h2v2zm4 0v-2h2v2z"/>
     </svg>
   `,
 
-  export: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="7 10 12 15 17 10"/>
-      <line x1="12" y1="15" x2="12" y2="3"/>
+  // Pixelarticons: Download (Export)
+  download: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M21 15v4h-2v-4zm-2 4v2H5v-2zM5 15v4H3v-4zm8-12v14h-2V3z"/>
+      <path d="M7 11v2h10v-2zm2 2v2h2v-2zm4 0v2h2v-2z"/>
+      <path d="M15 11v2h2v-2z"/>
     </svg>
   `,
 
-  import: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="17 8 12 3 7 8"/>
-      <line x1="12" y1="3" x2="12" y2="15"/>
+  // Pixelarticons: Upload (Import)
+  upload: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M19 21H5v-2h14v2ZM5 19H3v-4h2v4Zm16 0h-2v-4h2v4ZM13 5h2v2h2v2h-4v8h-2V9H7V7h2V5h2V3h2v2Z"/>
     </svg>
   `,
 
-  copy: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+  // Pixelarticons: Copy
+  copy: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M8 6h12v2H8zM4 2h12v2H4zm2 6h2v12H6zM2 4h2v12H2zm6 16h12v2H8zM20 8h2v12h-2zm-4-4h2v2h-2zM4 16h2v2H4z"/>
     </svg>
   `,
 
-  external: (size = 12) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-      <polyline points="15 3 21 3 21 9"/>
-      <line x1="10" y1="14" x2="21" y2="3"/>
+  // Pixelarticons: External Link
+  external: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M11 5H5v2h6V5ZM5 7H3v12h2V7Zm12 12H5v2h12v-2Zm2-6h-2v6h2v-6Zm-8 0H9v2h2v-2Zm2-2h-2v2h2v-2Zm2-2h-2v2h2V9Zm2-2h-2v2h2V7Zm2-2h-2v2h2V5Zm2-2h-2v8h2V3Z"/>
+      <path d="M21 3h-8v2h8V3Z"/>
     </svg>
   `,
 
-  sync: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <polyline points="23 4 23 10 17 10"/>
-      <polyline points="1 20 1 14 7 14"/>
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+  // Pixelarticons: Reload / Sync
+  sync: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M16 4h2v6h-2zm-2-2h2v2h-2zm0 2h2v8h-2zM4 8H2v5h2z"/>
+      <path d="M4 6h16v2H4zm4 14H6v-6h2zm2 2H8v-2h2zm0-2H8v-8h2zm10-4h2v-5h-2z"/>
+      <path d="M20 18H4v-2h16z"/>
     </svg>
   `,
 
-  code: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <polyline points="16 18 22 12 16 6"/>
-      <polyline points="8 6 2 12 8 18"/>
+  // Pixelarticons: User
+  user: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M9 2h6v2H9zm0 8h6v2H9zm6-6h2v6h-2zM7 4h2v6H7zM4 18h2v4H4zm14 0h2v4h-2zM8 14h8v2H8zm-2 2h2v2H6zm10 0h2v2h-2z"/>
     </svg>
   `,
 
-  close: (size = 14) => `
-    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hr-icon">
-      <line x1="18" y1="6" x2="6" y2="18"/>
-      <line x1="6" y1="6" x2="18" y2="18"/>
+  // Pixelarticons: Trash
+  trash: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M18 22H6V20H18V22ZM9 6H15V4H17V6H22V8H20V20H18V8H6V20H4V8H2V6H7V4H9V6ZM15 4H9V2H15V4Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Pencil / Edit
+  edit: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M4 16H6V18H8V20H10V22H2V14H4V16ZM12 20H10V18H12V20ZM14 18H12V16H14V18ZM10 16H8V14H10V16ZM16 16H14V14H16V16ZM6 14H4V12H6V14ZM12 14H10V12H12V14ZM18 14H16V12H18V14ZM8 12H6V10H8V12ZM14 12H12V10H14V12ZM20 12H18V10H20V12ZM10 10H8V8H10V10ZM18 10H16V8H18V10ZM22 10H20V8H22V10ZM12 8H10V6H12V8ZM16 8H14V6H16V8ZM20 8H18V6H20V8ZM14 6H12V4H14V6ZM18 6H16V4H18V6ZM16 4H14V2H16V4Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Eye
+  eye: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M16 20H8v-2h8v2Zm-8-2H4v-2h4v2Zm12 0h-4v-2h4v2ZM4 16H2v-2h2v2Zm10-6h-2v2h2v-2h2v4h-2v2h-4v-2H8v-4h2V8h4v2Zm8 6h-2v-2h2v2ZM2 14H0v-4h2v4Zm22 0h-2v-4h2v4ZM4 10H2V8h2v2Zm18 0h-2V8h2v2ZM8 8H4V6h4v2Zm12 0h-4V6h4v2Zm-4-2H8V4h8v2Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Git-Branch
+  gitBranch: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M4 14h4v2H4zm0 6h4v2H4zm-2-4h2v4H2zm6 0h2v4H8zm8-14h4v2h-4zm0 6h4v2h-4zm-2-4h2v4h-2zm6 0h2v4h-2zm-8 13h5v2h-5zm5-5h2v5h-2zM5 2h2v10H5z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Warning Diamond (Alert)
+  alert: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-attention">
+      <path d="M2 10h2v2H2zm0 4h2v-2H2zm20-4h-2v2h2zm0 4h-2v-2h2zM4 8h2v2H4zm0 8h2v-2H4zm16-8h-2v2h2zm0 8h-2v-2h2zM6 6h2v2H6zm0 12h2v-2H6zM18 6h-2v2h2zm0 12h-2v-2h2zM8 4h2v2H8zm0 16h2v-2H8zm8-16h-2v2h2zm0 16h-2v-2h2zM10 2h2v2h-2zm0 20h2v-2h-2zm4-20h-2v2h2zm0 20h-2v-2h2zm-3-5h2v-2h-2zm0-4h2V7h-2z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Chevron Down
+  chevronDown: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Chevron Up
+  chevronUp: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M13 8h-2v2h2V8Zm-2 2H9v2h2v-2Zm4 0h-2v2h2v-2Zm-6 2H7v2h2v-2Zm8 0h-2v2h2v-2ZM7 14H5v2h2v-2Zm12 0h-2v2h2v-2Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Checkbox
+  checkbox: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon">
+      <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Checkbox Checked
+  checkboxOn: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" class="hr-icon hr-icon-success">
+      <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM7 12h2v2H7zm2 2h2v2H9zm2-2h2v2h-2zm2-2h2v2h-2zm2-2h2v2h-2z"/>
     </svg>
   `
 };
 
+// CommonJS export if running in Node.js test environments
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = HRIcons;
 }

@@ -84,18 +84,18 @@
 
       <div class="header-right">
         <button id="header-fetch-btn" class="btn btn-emerald">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+            <path d="M4 13h8v6h2v2h-2v2h-2v-8H2v-4h2v2Zm12 6h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-6-6h8v4h-2v-2h-8V5h-2V3h2V1h2v8Zm-8 2H4V9h2v2Zm2-2H6V7h2v2Zm2-2H8V5h2v2Z"/>
           </svg>
           <span>Fetch User Solutions</span>
         </button>
 
         <div class="dropdown">
           <button id="export-btn" class="btn btn-outline">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+              <path d="M21 15v4h-2v-4zm-2 4v2H5v-2zM5 15v4H3v-4zm8-12v14h-2V3z"/>
+              <path d="M7 11v2h10v-2zm2 2v2h2v-2zm4 0v2h2v-2z"/>
+              <path d="M15 11v2h2v-2z"/>
             </svg>
             <span>Export / Backup</span>
           </button>
@@ -216,25 +216,21 @@
         <div class="viewer-tabs-bar">
           <div class="tab-group-left">
             <button id="tab-code-btn" class="view-tab active">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="16 18 22 12 16 6"/>
-                <polyline points="8 6 2 12 8 18"/>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                <path d="M11 18H9v-4h2v4Zm-4-1H5v-2h2v2Zm12-2v2h-2v-2h2ZM5 15H3v-2h2v2Zm16 0h-2v-2h2v2Zm-8-1h-2v-4h2v4ZM3 13H1v-2h2v2Zm20 0h-2v-2h2v2ZM5 11H3V9h2v2Zm16 0h-2V9h2v2Zm-6-1h-2V6h2v4ZM7 9H5V7h2v2Zm12 0h-2V7h2v2Z"/>
               </svg>
               <span>Solution Code</span>
             </button>
             <button id="tab-statement-btn" class="view-tab">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                <path d="M6 4H4v16h2zm10-2H6v2h10zm4 4h-2v14h2zm-2 14H6v2h12zM16 4h2v2h-2zm-4 0h2v6h-2z"/>
+                <path d="M12 8h6v2h-6zm-4 8h8v2H8zm0-4h8v2H8zm0-4h2v2H8z"/>
               </svg>
               <span>Problem Statement</span>
             </button>
             <button id="tab-comparison-btn" class="view-tab">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="9" height="18" rx="1"/>
-                <rect x="13" y="3" width="9" height="18" rx="1"/>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM11 6h2v12h-2z"/>
               </svg>
               <span>Compare Solutions</span>
             </button>
@@ -246,17 +242,16 @@
               <span id="active-code-lang" class="lang-tag">python</span>
               <span id="active-code-lines" class="lines-tag">0 lines</span>
               <button id="copy-code-btn" class="btn btn-sm btn-outline" title="Copy code to clipboard">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                  <path d="M8 6h12v2H8zM4 2h12v2H4zm2 6h2v12H6zM2 4h2v12H2zm6 16h12v2H8zM20 8h2v12h-2zm-4-4h2v2h-2zM4 16h2v2H4z"/>
                 </svg>
                 <span id="copy-btn-text">Copy Code</span>
               </button>
               <button id="download-code-btn" class="btn btn-sm btn-outline" title="Download solution file">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                  <path d="M21 15v4h-2v-4zm-2 4v2H5v-2zM5 15v4H3v-4zm8-12v14h-2V3z"/>
+                  <path d="M7 11v2h10v-2zm2 2v2h2v-2zm4 0v2h2v-2z"/>
+                  <path d="M15 11v2h2v-2z"/>
                 </svg>
                 <span>Download</span>
               </button>
@@ -304,12 +299,9 @@
         <!-- Empty State (when no problem selected) -->
         <div id="empty-state" class="empty-state hidden">
           <div class="empty-icon">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--text-dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
+              <path d="M6 4H4v16h2zm10-2H6v2h10zm4 4h-2v14h2zm-2 14H6v2h12zM16 4h2v2h-2zm-4 0h2v6h-2z"/>
+              <path d="M12 8h6v2h-6zm-4 8h8v2H8zm0-4h8v2H8zm0-4h2v2H8z"/>
             </svg>
           </div>
           <h3>No Problem Selected</h3>
@@ -324,12 +316,12 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <div class="modal-title-group">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--color-brand)" stroke-width="2">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: var(--color-brand);">
+            <path d="M4 13h8v6h2v2h-2v2h-2v-8H2v-4h2v2Zm12 6h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-6-6h8v4h-2v-2h-8V5h-2V3h2V1h2v8Zm-8 2H4V9h2v2Zm2-2H6V7h2v2Zm2-2H8V5h2v2Z"/>
           </svg>
           <h3>Fetch HackerRank Solutions</h3>
         </div>
-        <button id="close-fetch-modal-btn" class="modal-close-btn" style="display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button id="close-fetch-modal-btn" class="modal-close-btn" style="display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7 19H5V17H7V19ZM19 19H17V17H19V19ZM9 15V17H7V15H9ZM17 17H15V15H17V17ZM11 15H9V13H11V15ZM15 15H13V13H15V15ZM13 13H11V11H13V13ZM11 11H9V9H11V11ZM15 11H13V9H15V11ZM9 9H7V7H9V9ZM17 9H15V7H17V9ZM7 7H5V5H7V7ZM19 7H17V5H19V7Z"/></svg></button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">Enter a HackerRank username to download all their solved submissions. Ensure you are logged into HackerRank in your browser.</p>

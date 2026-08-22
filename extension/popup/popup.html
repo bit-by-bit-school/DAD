@@ -74,8 +74,8 @@
       <section class="card fetch-card">
         <div class="card-header">
           <div class="card-title-group">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-svg">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="card-header-svg">
+              <path d="M4 13h8v6h2v2h-2v2h-2v-8H2v-4h2v2Zm12 6h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-6-6h8v4h-2v-2h-8V5h-2V3h2V1h2v8Zm-8 2H4V9h2v2Zm2-2H6V7h2v2Zm2-2H8V5h2v2Z"/>
             </svg>
             <h2>Fetch User Solutions</h2>
           </div>
@@ -110,8 +110,8 @@
           <div class="button-row">
             <button type="submit" id="fetch-btn" class="btn btn-primary">
               <span class="btn-icon">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                  <path d="M4 13h8v6h2v2h-2v2h-2v-8H2v-4h2v2Zm12 6h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-6-6h8v4h-2v-2h-8V5h-2V3h2V1h2v8Zm-8 2H4V9h2v2Zm2-2H6V7h2v2Zm2-2H8V5h2v2Z"/>
                 </svg>
               </span>
               <span class="btn-label">Fetch Solutions</span>
@@ -125,7 +125,7 @@
         <!-- Progress Indicator (Hidden by default) -->
         <div id="progress-section" class="progress-section hidden">
           <div class="progress-info">
-            <span id="progress-status-text" class="progress-status">Starting download...</span>
+            <span id="progress-status-text" class="progress-status">Downloading...</span>
             <span id="progress-percent" class="progress-percent segment-font">0%</span>
           </div>
           <div class="progress-bar-track">
@@ -150,10 +150,10 @@
       <section class="card server-card">
         <div class="card-header">
           <div class="card-title-group">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-svg">
-              <polyline points="23 4 23 10 17 10"/>
-              <polyline points="1 20 1 14 7 14"/>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="card-header-svg">
+              <path d="M16 4h2v6h-2zm-2-2h2v2h-2zm0 2h2v8h-2zM4 8H2v5h2z"/>
+              <path d="M4 6h16v2H4zm4 14H6v-6h2zm2 2H8v-2h2zm0-2H8v-8h2zm10-4h2v-5h-2z"/>
+              <path d="M20 18H4v-2h16z"/>
             </svg>
             <h2>Local Server Auto-Sync</h2>
           </div>
@@ -164,8 +164,8 @@
             <label for="server-token-input">Server Auth Token</label>
             <div class="input-wrapper">
               <span class="input-icon">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 2l-2 2m-1.5 1.5L14 9l-3-3-4.5 4.5a5.5 5.5 0 1 0 7.78 7.78L22 10.5V6l-2-2z"/>
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                  <path d="M11 18H3V16H11V18ZM23 15H21V18H17V16H19V13H21V11H11V8H13V9H23V15ZM3 16H1V8H3V16ZM17 16H15V15H13V16H11V13H17V16ZM9 14H5V10H9V14ZM11 8H3V6H11V8Z"/>
                 </svg>
               </span>
               <input 
@@ -188,10 +188,8 @@
       <section class="card stats-card">
         <div class="card-header">
           <div class="card-title-group">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-svg">
-              <ellipse cx="12" cy="5" rx="9" ry="3"/>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="card-header-svg">
+              <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2z"/>
             </svg>
             <h2>Storage Matrix</h2>
           </div>
@@ -218,11 +216,8 @@
     <!-- Footer Action -->
     <footer class="popup-footer">
       <button id="open-dashboard-btn" class="btn btn-full btn-accent">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
-          <path d="M7 8l3 3-3 3M13 14h4"/>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+          <path d="M11 18H9v-4h2v4Zm-4-1H5v-2h2v2Zm12-2v2h-2v-2h2ZM5 15H3v-2h2v2Zm16 0h-2v-2h2v2Zm-8-1h-2v-4h2v4ZM3 13H1v-2h2v2Zm20 0h-2v-2h2v2ZM5 11H3V9h2v2Zm16 0h-2V9h2v2Zm-6-1h-2V6h2v4ZM7 9H5V7h2v2Zm12 0h-2V7h2v2Z"/>
         </svg>
         <span>Open Solutions Workspace</span>
       </button>

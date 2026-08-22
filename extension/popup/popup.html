@@ -11,9 +11,23 @@
     <!-- Header -->
     <header class="popup-header">
       <div class="brand">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-            <path d="M4 4h4v6h8V4h4v16h-4v-6H8v6H4V4z"/>
+        <div class="logo-icon" id="popup-logo-icon">
+          <!-- 16-Segment Logo -->
+          <svg viewBox="0 0 48 48" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+            <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <g transform="translate(4, 14) scale(0.65)">
+                <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.25" stroke-width="1"/>
+                <path d="M6 2v14M6 16v14M6 30h12M18 30V16" stroke="var(--color-brand)" stroke-width="2.2"/>
+              </g>
+              <g transform="translate(15, 8) scale(0.65)">
+                <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.25" stroke-width="1"/>
+                <path d="M6 2h12M6 2v14M18 2v14M6 16h12M18 16v14M6 30h12" stroke="var(--color-brand)" stroke-width="2.2"/>
+              </g>
+              <g transform="translate(26, 2) scale(0.65)">
+                <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.25" stroke-width="1"/>
+                <path d="M6 2v14M6 16v14M18 2v14M18 16v14M6 2h12M6 16h12" stroke="var(--color-brand)" stroke-width="2.2"/>
+              </g>
+            </g>
           </svg>
         </div>
         <div class="brand-text">
@@ -32,8 +46,13 @@
       <!-- Fetch Card -->
       <section class="card fetch-card">
         <div class="card-header">
-          <h2>Fetch User Solutions</h2>
-          <span class="card-hint">Download code from HackerRank</span>
+          <div class="card-title-group">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-svg">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            <h2>Fetch User Solutions</h2>
+          </div>
+          <span class="card-hint">Download code</span>
         </div>
 
         <form id="fetch-form" class="fetch-form">
@@ -46,7 +65,7 @@
                 id="username-input" 
                 placeholder="e.g. nmeera2024" 
                 autocomplete="off" 
-                spellcheck="false"
+                spellcheck="false" 
                 required
               />
             </div>
@@ -63,7 +82,11 @@
           <!-- Action Buttons -->
           <div class="button-row">
             <button type="submit" id="fetch-btn" class="btn btn-primary">
-              <span class="btn-icon">⚡</span>
+              <span class="btn-icon">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </span>
               <span class="btn-label">Fetch Solutions</span>
             </button>
             <button type="button" id="cancel-btn" class="btn btn-secondary hidden">
@@ -76,7 +99,7 @@
         <div id="progress-section" class="progress-section hidden">
           <div class="progress-info">
             <span id="progress-status-text" class="progress-status">Starting download...</span>
-            <span id="progress-percent" class="progress-percent">0%</span>
+            <span id="progress-percent" class="progress-percent segment-font">0%</span>
           </div>
           <div class="progress-bar-track">
             <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
@@ -99,45 +122,66 @@
       <!-- Local Backend Server Sync Section -->
       <section class="card server-card">
         <div class="card-header">
-          <h2>🌐 Local Server Auto-Sync</h2>
+          <div class="card-title-group">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-svg">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            <h2>Local Server Auto-Sync</h2>
+          </div>
           <span id="sync-status-badge" class="card-hint">Offline / Unset</span>
         </div>
-        <div class="server-sync-form" style="margin-top: 10px;">
-          <div class="input-group" style="margin-bottom: 8px;">
-            <label for="server-token-input" style="font-size: 11px;">Server Auth Token</label>
-            <input 
-              type="password" 
-              id="server-token-input" 
-              placeholder="e.g. hr_admin_master_token_2026" 
-              style="width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #fff; font-size: 12px;"
-            />
+        <div class="server-sync-form">
+          <div class="input-group">
+            <label for="server-token-input">Server Auth Token</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 2l-2 2m-1.5 1.5L14 9l-3-3-4.5 4.5a5.5 5.5 0 1 0 7.78 7.78L22 10.5V6l-2-2z"/>
+                </svg>
+              </span>
+              <input 
+                type="password" 
+                id="server-token-input" 
+                placeholder="e.g. hr_admin_master_token_2026" 
+                autocomplete="off"
+              />
+            </div>
           </div>
-          <div class="button-row" style="gap: 6px;">
-            <button type="button" id="save-token-btn" class="btn btn-secondary" style="flex: 1; font-size: 12px; padding: 6px;">Save Token</button>
-            <button type="button" id="sync-now-btn" class="btn btn-primary" style="flex: 1; font-size: 12px; padding: 6px; background: #00EA64; color: #000;">Sync Now</button>
+          <div class="button-row">
+            <button type="button" id="save-token-btn" class="btn btn-secondary">Save Token</button>
+            <button type="button" id="sync-now-btn" class="btn btn-emerald">Sync Now</button>
           </div>
-          <div id="sync-alert" class="alert hidden" style="margin-top: 8px; font-size: 11px;"></div>
+          <div id="sync-alert" class="alert hidden"></div>
         </div>
       </section>
 
       <!-- Database Summary Card -->
       <section class="card stats-card">
         <div class="card-header">
-          <h2>Storage Database</h2>
-          <span id="db-status-label" class="card-hint">Loaded from local storage</span>
+          <div class="card-title-group">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-svg">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </svg>
+            <h2>Storage Matrix</h2>
+          </div>
+          <span id="db-status-label" class="card-hint">Local storage</span>
         </div>
 
         <div class="metric-grid">
           <div class="metric-box">
-            <span id="metric-total-problems" class="metric-value">442</span>
+            <span id="metric-total-problems" class="metric-value segment-font">442</span>
             <span class="metric-label">Problems</span>
           </div>
           <div class="metric-box">
-            <span id="metric-total-solutions" class="metric-value">404</span>
+            <span id="metric-total-solutions" class="metric-value segment-font text-emerald">404</span>
             <span class="metric-label">Solutions</span>
           </div>
           <div class="metric-box">
-            <span id="metric-total-users" class="metric-value">6</span>
+            <span id="metric-total-users" class="metric-value segment-font text-brand">6</span>
             <span class="metric-label">Users</span>
           </div>
         </div>
@@ -147,10 +191,13 @@
     <!-- Footer Action -->
     <footer class="popup-footer">
       <button id="open-dashboard-btn" class="btn btn-full btn-accent">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+          <path d="M7 8l3 3-3 3M13 14h4"/>
         </svg>
-        <span>Open Local Server Dashboard</span>
+        <span>Open Solutions Workspace</span>
       </button>
     </footer>
   </div>
@@ -161,6 +208,7 @@
   <script src="../lib/storage.js"></script>
   <script src="../lib/api.js"></script>
   <script src="../lib/sync.js"></script>
+  <script src="../lib/icons.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

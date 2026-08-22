@@ -227,7 +227,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } finally {
       fetchBtn.disabled = false;
-      fetchBtn.innerHTML = '<span class="btn-icon">⚡</span><span class="btn-label">Fetch Solutions</span>';
+      fetchBtn.innerHTML = `
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </span>
+        <span class="btn-label">Fetch Solutions</span>
+      `;
       cancelBtn.classList.add('hidden');
       currentChallengeLabel.textContent = 'Completed';
     }

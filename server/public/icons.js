@@ -251,6 +251,13 @@ const HRIcons = {
     </svg>
   `,
 
+  // Pixelarticons: Link / Anchor (Shareable Deep Link)
+  link: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
+      <path d="M14 3h7v2h-7z M19 5h2v7h-2z M12 12h7v2h-7z M12 5h2v2h-2z M9 9h6v2H9z M5 10h7v2H5z M3 12h2v7H3z M3 19h7v2H3z M10 12h2v7h-2z"/>
+    </svg>
+  `,
+
   // Pixelarticons: External Link
   external: (size = 14) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">

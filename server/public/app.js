@@ -269,6 +269,11 @@
       if (activeSubtabEl) {
         newParams.set('subtab', activeSubtabEl.id.replace('subtab-', ''));
       }
+
+      const commentId = options.commentId !== undefined ? options.commentId : params.get('commentId');
+      if (commentId) {
+        newParams.set('commentId', commentId);
+      }
     }
 
     if (filterSearch && filterSearch.value.trim()) {
@@ -345,6 +350,7 @@
     }
 
     const solutionId = params.get('solutionId') || params.get('solution') || params.get('id');
+    const commentId = params.get('commentId') || params.get('comment');
     const tabParam = params.get('tab') || (solutionId ? 'detail' : 'explorer');
     const targetTabId = tabParam.startsWith('tab-') ? tabParam : `tab-${tabParam}`;
 
@@ -352,6 +358,11 @@
 
     if (solutionId) {
       await openSolutionDetail(solutionId, false);
+      if (commentId) {
+        setTimeout(() => {
+          scrollToAndHighlightComment(commentId);
+        }, 250);
+      }
     }
 
     const subtabParam = params.get('subtab');
@@ -1254,7 +1265,7 @@
       // Switch tab and update URL
       activateTab('tab-detail', false);
       if (updateUrl) {
-        updateUrlState({ solutionId: id, tab: 'tab-detail' });
+        updateUrlState({ solutionId: id, tab: 'tab-detail', commentId: null });
       }
     } catch (err) {
       alert('Failed to load solution details: ' + err.message);
@@ -1341,6 +1352,84 @@
     }
   }
   window.replyToComment = replyToComment;
+
+  // Copy Deep Link to Comment
+  function copyCommentLink(commentId, event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    if (!commentId || !state.activeSolution) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'detail');
+    url.searchParams.set('solutionId', state.activeSolution.id);
+    url.searchParams.set('commentId', commentId);
+
+    const fullUrl = url.toString();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        showRetroToast('COMMENT LINK COPIED TO CLIPBOARD', HRIcons.link ? HRIcons.link(16) : null);
+      }).catch(() => {
+        prompt('Copy comment link:', fullUrl);
+      });
+    } else {
+      prompt('Copy comment link:', fullUrl);
+    }
+
+    updateUrlState({ commentId, replace: true });
+
+    if (event && event.currentTarget) {
+      const btn = event.currentTarget;
+      btn.classList.add('copied');
+      setTimeout(() => btn.classList.remove('copied'), 1500);
+    }
+
+    scrollToAndHighlightComment(commentId);
+  }
+  window.copyCommentLink = copyCommentLink;
+
+  // Scroll and highlight deep-linked comment
+  function scrollToAndHighlightComment(commentId) {
+    if (!commentId || !state.activeSolution) return;
+    const comments = state.activeSolution.comments || [];
+    const targetComment = comments.find(c => c.id === commentId);
+
+    if (targetComment && targetComment.startLine) {
+      const sLine = parseInt(targetComment.startLine);
+      const eLine = parseInt(targetComment.endLine) || sLine;
+
+      state.collapsedZones.delete(eLine);
+      updateMonacoViewZones();
+
+      setTimeout(() => {
+        scrollToMonacoLines(sLine, eLine);
+
+        const zoneItem = document.querySelector(`.monaco-thread-item[data-comment-id="${commentId}"]`);
+        if (zoneItem) {
+          zoneItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          zoneItem.classList.remove('comment-highlight-pulse');
+          void zoneItem.offsetWidth;
+          zoneItem.classList.add('comment-highlight-pulse');
+        }
+      }, 150);
+    }
+
+    // Ensure Comments subtab is active in sidebar
+    activateSidebarSubtab('subtab-comments', false);
+
+    setTimeout(() => {
+      const sidebarItem = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+      if (sidebarItem) {
+        sidebarItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        sidebarItem.classList.remove('comment-highlight-pulse');
+        void sidebarItem.offsetWidth;
+        sidebarItem.classList.add('comment-highlight-pulse');
+      }
+    }, 120);
+  }
+  window.scrollToAndHighlightComment = scrollToAndHighlightComment;
 
   // Monaco line decorations for line-targeted code review comments (Glyph margin indicator only by default)
   function updateMonacoDecorations(comments) {
@@ -1455,6 +1544,9 @@
         <div class="comment-header">
           <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
             <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
+            <button type="button" class="btn-comment-copy-link" onclick="copyCommentLink('${c.id}', event)" title="Copy link to comment">
+              ${HRIcons.link(12)}
+            </button>
             ${lineBadgeHtml}
           </div>
           <div style="display: flex; align-items: center; gap: 0.4rem;">
@@ -1465,6 +1557,8 @@
         </div>
         <div style="color: #fff; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(c.content)}</div>
       `;
+      item.setAttribute('data-comment-id', c.id);
+      item.id = `comment-${c.id}`;
 
       if (c.startLine) {
         item.addEventListener('mouseenter', () => highlightMonacoLines(c.startLine, c.endLine || c.startLine, false));
@@ -1740,9 +1834,14 @@
           const replyItemBtnHtml = `<button type="button" class="btn-micro btn-item-reply" data-line="${lineNum}" data-user="${escapeHtml(c.user?.username || 'User')}" style="color: var(--neon-cyan); border-color: rgba(0,243,255,0.3); font-size: 0.65rem;">Reply</button>`;
 
           publishedCommentsHtml += `
-            <div class="monaco-thread-item">
+            <div class="monaco-thread-item" data-comment-id="${c.id}" id="monaco-comment-${c.id}">
               <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem; color: var(--text-muted);">
-                <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
+                  <button type="button" class="btn-comment-copy-link" onclick="copyCommentLink('${c.id}', event)" title="Copy link to comment">
+                    ${HRIcons.link(12)}
+                  </button>
+                </div>
                 <div style="display: flex; gap: 0.4rem; align-items: center;">
                   <span>${new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   ${replyItemBtnHtml}

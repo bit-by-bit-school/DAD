@@ -1115,6 +1115,7 @@ textarea.form-control {
   gap: 0.6rem;
 }
 
+.comment-item,
 .comment-card {
   background: var(--bg-dark);
   border: 1px solid var(--border-color);
@@ -1122,15 +1123,96 @@ textarea.form-control {
   box-shadow: 2px 2px 0px #000;
   padding: 0.65rem;
   font-size: 0.82rem;
+  margin-bottom: 0.6rem;
+  position: relative;
+  transition: border-color 0.12s ease;
 }
 
+.comment-item:hover,
+.comment-card:hover {
+  border-color: var(--color-brand);
+}
+
+.comment-header,
 .comment-card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.68rem;
   color: var(--text-dim);
   margin-bottom: 0.35rem;
   font-family: var(--font-pixel);
+}
+
+/* Comment Link Copy Button & Hover Affordance */
+.btn-comment-copy-link {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  padding: 1px 3px;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.comment-item:hover .btn-comment-copy-link,
+.comment-header:hover .btn-comment-copy-link,
+.monaco-thread-item:hover .btn-comment-copy-link,
+.btn-comment-copy-link:focus,
+.btn-comment-copy-link:active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn-comment-copy-link:hover {
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+  background: var(--color-brand-dim);
+  box-shadow: 1px 1px 0px #000, 0 0 6px var(--color-brand-glow);
+}
+
+.btn-comment-copy-link.copied {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  color: var(--role-success) !important;
+  border-color: var(--role-success) !important;
+  background: var(--role-success-dim) !important;
+  box-shadow: 1px 1px 0px #000, 0 0 8px var(--role-success-glow) !important;
+}
+
+/* Comment Deep-Link Highlight Pulse Animation */
+@keyframes commentHighlightGlow {
+  0% {
+    box-shadow: 0 0 0px var(--color-brand-glow), inset 0 0 0px var(--color-brand-glow);
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-dim);
+  }
+  25% {
+    box-shadow: 0 0 16px var(--color-brand-glow), 3px 3px 0px #000, inset 0 0 12px var(--color-brand-glow);
+    border-color: var(--color-brand);
+    background-color: rgba(0, 229, 255, 0.2);
+  }
+  60% {
+    box-shadow: 0 0 10px var(--color-brand-glow), 2px 2px 0px #000, inset 0 0 6px var(--color-brand-glow);
+    border-color: var(--color-brand);
+    background-color: rgba(0, 229, 255, 0.1);
+  }
+  100% {
+    box-shadow: 2px 2px 0px #000;
+    border-color: var(--border-color);
+    background-color: var(--bg-dark);
+  }
+}
+
+.comment-highlight-pulse {
+  animation: commentHighlightGlow 2.5s ease-out forwards !important;
+  border-color: var(--color-brand) !important;
 }
 
 .comment-line-badge {

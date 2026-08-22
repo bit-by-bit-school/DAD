@@ -190,8 +190,10 @@
   const commentInput = document.getElementById('comment-input');
   const btnPostComment = document.getElementById('btn-post-comment');
   const commentsContainer = document.getElementById('comments-container');
+  const adminAiAssistantPanel = document.getElementById('admin-ai-assistant-panel');
   const btnGenerateAiDraft = document.getElementById('btn-generate-ai-draft');
   const aiDraftOutput = document.getElementById('ai-draft-output');
+  const adminReviewPublisherBox = document.getElementById('admin-review-publisher-box');
   const reviewStatusSelect = document.getElementById('review-status-select');
   const adminReviewNotes = document.getElementById('admin-review-notes');
   const btnPublishReviewRound = document.getElementById('btn-publish-review-round');
@@ -743,6 +745,34 @@
     }
     if (!isAdmin && document.getElementById('tab-admin')?.classList.contains('active')) {
       document.getElementById('nav-explorer-btn')?.click();
+    }
+
+    // AI Review Assistant & Review Round Publisher panels
+    if (adminAiAssistantPanel) {
+      adminAiAssistantPanel.style.display = isAdmin ? 'block' : 'none';
+    }
+    if (adminReviewPublisherBox) {
+      adminReviewPublisherBox.style.display = isAdmin ? 'block' : 'none';
+    }
+
+    // Subtab navigation label
+    const reviewsTabBtnSpan = document.querySelector('.sidebar-tab-btn[data-subtab="subtab-reviews"] span');
+    if (reviewsTabBtnSpan) {
+      reviewsTabBtnSpan.textContent = isAdmin ? 'AI & Admin Reviews' : 'Review History';
+    }
+
+    // If not admin, purge draft comments state and decorations
+    if (!isAdmin) {
+      state.activeDraftComments = [];
+      if (typeof updateMonacoDraftDecorations === 'function') updateMonacoDraftDecorations();
+      if (typeof renderAiDraftComments === 'function') renderAiDraftComments();
+    }
+
+    // Refresh active solution workspace views with permission filters
+    if (state.activeSolution) {
+      renderComments(state.activeSolution.comments || []);
+      renderReviewRoundsTimeline(state.activeSolution.reviewRounds || []);
+      if (typeof updateMonacoViewZones === 'function') updateMonacoViewZones();
     }
   }
 
@@ -1413,7 +1443,11 @@
         lineBadgeHtml = `<button class="line-tag-badge" onclick="scrollToMonacoLines(${c.startLine}, ${c.endLine || c.startLine})" title="Jump to code line in editor">${HRIcons.target(11)} ${lineText}</button>`;
       }
 
-      const isAuthorOrAdmin = state.currentUser && (state.currentUser.id === c.userId || state.currentUser.role === 'ADMIN');
+      const isAuthorOrAdmin = state.currentUser && state.currentUser.username !== 'Guest' && (
+        (state.currentUser.id && (state.currentUser.id === c.userId || (c.user && state.currentUser.id === c.user.id))) ||
+        (state.currentUser.username && (state.currentUser.username === c.user?.username)) ||
+        state.currentUser.role === 'ADMIN'
+      );
       const deleteBtnHtml = isAuthorOrAdmin ? `<button class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` : '';
       const replyBtnHtml = `<button class="btn-micro" style="color: var(--neon-cyan); border-color: rgba(0,243,255,0.3); font-size: 0.65rem;" onclick="replyToComment('${c.id}', '${escapeHtml(c.user?.username || 'User')}', ${c.startLine || 'null'}, ${c.endLine || 'null'})">Reply</button>`;
 
@@ -1501,8 +1535,13 @@
   function renderReviewRoundsTimeline(rounds) {
     if (!reviewRoundsTimeline) return;
 
-    if (rounds.length === 0) {
-      reviewRoundsTimeline.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">No review rounds recorded yet. Use the Gemini AI Assistant above to start Round 1.</div>';
+    const isAdmin = state.currentUser && state.currentUser.role === 'ADMIN';
+
+    if (!rounds || rounds.length === 0) {
+      const emptyMsg = isAdmin
+        ? 'No review rounds recorded yet. Use the Gemini AI Assistant above to start Round 1.'
+        : 'No official review rounds recorded yet.';
+      reviewRoundsTimeline.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">${emptyMsg}</div>`;
       return;
     }
 
@@ -1620,7 +1659,7 @@
     if (!state.editor || typeof monaco === 'undefined') return;
 
     const comments = state.activeSolution?.comments || [];
-    const drafts = state.activeDraftComments || [];
+    const drafts = (state.currentUser && state.currentUser.role === 'ADMIN') ? (state.activeDraftComments || []) : [];
 
     // Collect all line numbers that need an embedded ViewZone
     const lineMap = new Map();
@@ -1690,7 +1729,11 @@
         // Build HTML content for thread
         let publishedCommentsHtml = '';
         data.comments.forEach(c => {
-          const isAuthorOrAdmin = state.currentUser && (state.currentUser.id === c.userId || state.currentUser.role === 'ADMIN');
+          const isAuthorOrAdmin = state.currentUser && state.currentUser.username !== 'Guest' && (
+            (state.currentUser.id && (state.currentUser.id === c.userId || (c.user && state.currentUser.id === c.user.id))) ||
+            (state.currentUser.username && (state.currentUser.username === c.user?.username)) ||
+            state.currentUser.role === 'ADMIN'
+          );
           const deleteBtnHtml = isAuthorOrAdmin 
             ? `<button type="button" class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` 
             : '';
@@ -1927,6 +1970,11 @@
   function renderAiDraftComments() {
     if (!aiDraftCommentsWrapper || !aiDraftCommentsList) return;
 
+    if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
+      aiDraftCommentsWrapper.style.display = 'none';
+      return;
+    }
+
     const pendingDrafts = state.activeDraftComments || [];
     if (draftCommentsCount) draftCommentsCount.textContent = pendingDrafts.length;
 
@@ -1972,6 +2020,13 @@
 
   function updateMonacoDraftDecorations() {
     if (!state.editor || typeof monaco === 'undefined') return;
+
+    if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
+      if (state.editorDraftDecorations && state.editorDraftDecorations.length > 0) {
+        state.editorDraftDecorations = state.editor.deltaDecorations(state.editorDraftDecorations, []);
+      }
+      return;
+    }
 
     const newDraftDecorations = [];
     (state.activeDraftComments || []).forEach(d => {
@@ -2048,10 +2103,8 @@
 
   async function generateAiDraft() {
     if (!state.activeSolution) return alert('Please select a solution first');
-    if (!state.currentToken || state.currentUser?.username === 'Guest') {
-      alert('Please log in with a user or admin token to generate AI reviews.');
-      if (openAuthModalBtn) openAuthModalBtn.click();
-      return;
+    if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
+      return alert('Only administrators can generate AI code review drafts.');
     }
 
     aiDraftOutput.textContent = 'Querying Gemini AI Assistant for automated complexity & edge-case analysis...';

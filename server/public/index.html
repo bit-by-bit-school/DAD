@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HackerRank Solutions Hub // Retro Digital Dashboard</title>
+  <title>HackerRank Solutions Hub // Lixie Instrument Dashboard</title>
   <link rel="stylesheet" href="retro-digital.css">
   <!-- Monaco Editor CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
@@ -14,26 +14,68 @@
   <header class="header">
     <div class="header-container">
       <div class="brand-section">
-        <div class="brand-logo">⚡ HACKERRANK_HUB</div>
+        <div class="brand-logo">
+          <!-- 16-Segment Logo -->
+          <svg viewBox="0 0 48 48" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+            <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <g transform="translate(4, 14) scale(0.65)">
+                <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.25" stroke-width="1"/>
+                <path d="M6 2v14M6 16v14M6 30h12M18 30V16" stroke="var(--color-brand)" stroke-width="2.2"/>
+              </g>
+              <g transform="translate(15, 8) scale(0.65)">
+                <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.25" stroke-width="1"/>
+                <path d="M6 2h12M6 2v14M18 2v14M6 16h12M18 16v14M6 30h12" stroke="var(--color-brand)" stroke-width="2.2"/>
+              </g>
+              <g transform="translate(26, 2) scale(0.65)">
+                <path d="M6 2h12M18 2v14M18 16v14M18 30H6M6 30V16M6 16V2M6 16h12M6 2l12 14M18 2L6 16M6 16l12 14M18 16L6 30" opacity="0.25" stroke-width="1"/>
+                <path d="M6 2v14M6 16v14M18 2v14M18 16v14M6 2h12M6 16h12" stroke="var(--color-brand)" stroke-width="2.2"/>
+              </g>
+            </g>
+          </svg>
+          <span class="brand-text">HACKERRANK_HUB</span>
+        </div>
       </div>
 
       <nav class="nav-links">
-        <button id="nav-explorer-btn" class="nav-btn active" data-tab="tab-explorer">📂 Solution Explorer</button>
-        <button id="nav-detail-btn" class="nav-btn" data-tab="tab-detail">💻 Solution & Review Workspace</button>
-        <button id="nav-admin-btn" class="nav-btn" data-tab="tab-admin" style="display: none;">⚙️ Admin Hub</button>
+        <button id="nav-explorer-btn" class="nav-btn active" data-tab="tab-explorer">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+          </svg>
+          <span>Solution Explorer</span>
+        </button>
+        <button id="nav-detail-btn" class="nav-btn" data-tab="tab-detail">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+            <path d="M7 8l3 3-3 3M13 14h4"/>
+          </svg>
+          <span>Review Workspace</span>
+        </button>
+        <button id="nav-admin-btn" class="nav-btn" data-tab="tab-admin" style="display: none;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Admin Control</span>
+        </button>
       </nav>
 
       <div class="user-widget">
         <!-- Notification Widget -->
         <div id="notification-wrapper" class="notification-wrapper">
           <button id="notification-bell-btn" class="bell-btn" title="Notifications">
-            🔔
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
             <span id="notification-badge" class="notification-badge hidden">0</span>
           </button>
           <div id="notification-dropdown" class="notification-dropdown hidden">
             <div class="notification-dropdown-header">
               <div class="notification-dropdown-title">
-                <span>🔔 Notifications</span>
+                <span>Notifications</span>
                 <span id="notification-count-sub" class="notification-count-sub">0 unread</span>
               </div>
               <button id="btn-mark-all-read" class="btn-micro">Mark all as read</button>
@@ -48,7 +90,12 @@
           <span id="active-user-name">Guest User</span>
           <span id="active-user-role" class="role-badge user">USER</span>
         </div>
-        <button id="open-auth-modal-btn" class="btn-retro">🔑 Switch Token / Login</button>
+        <button id="open-auth-modal-btn" class="btn-retro">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 2l-2 2m-1.5 1.5L14 9l-3-3-4.5 4.5a5.5 5.5 0 1 0 7.78 7.78L22 10.5V6l-2-2z"/>
+          </svg>
+          <span>Switch Token / Login</span>
+        </button>
       </div>
     </div>
   </header>
@@ -60,8 +107,14 @@
     <section id="tab-explorer" class="tab-content active">
       <div class="glass-panel">
         <div class="panel-title">
-          <span>🔍 Filter Solutions Database</span>
-          <span id="solutions-count-badge" style="font-size: 0.85rem; color: var(--neon-cyan);">0 Solutions Found</span>
+          <div class="panel-title-group">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--color-brand)" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span>Filter Solutions Database</span>
+          </div>
+          <span id="solutions-count-badge" class="count-badge segment-number">0 Solutions Found</span>
         </div>
         <div class="filter-grid">
           <div class="form-group">
@@ -130,7 +183,7 @@
             <span id="detail-review-status-badge" class="role-badge user" style="display: none;">NO REVIEW</span>
           </div>
           <div style="font-size: 0.85rem; color: var(--text-muted);">
-            Submitted by: <strong id="detail-user-name" style="color: var(--neon-cyan);">--</strong>
+            Submitted by: <strong id="detail-user-name" style="color: var(--color-brand);">--</strong>
           </div>
         </div>
 
@@ -139,7 +192,7 @@
           <div>
             <div class="editor-toolbar">
               <div class="editor-selection-info">
-                <span id="monaco-selection-badge">📍 Select code line(s) to add inline review comment</span>
+                <span id="monaco-selection-badge">Select code line(s) to add inline review comment</span>
               </div>
             </div>
             <div id="monaco-editor" class="editor-container"></div>
@@ -149,16 +202,31 @@
           <div>
             <!-- Sidebar Navigation Sub-tabs -->
             <div class="sidebar-tabs">
-              <button class="sidebar-tab-btn active" data-subtab="subtab-comments">💬 Comments & Line Reviews</button>
-              <button class="sidebar-tab-btn" data-subtab="subtab-reviews">🤖 AI & Admin Reviews</button>
-              <button class="sidebar-tab-btn" data-subtab="subtab-ratings">⭐ Ratings</button>
+              <button class="sidebar-tab-btn active" data-subtab="subtab-comments">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>Comments &amp; Line Reviews</span>
+              </button>
+              <button class="sidebar-tab-btn" data-subtab="subtab-reviews">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3v18M3 12h18M5.636 5.636l12.728 12.728M18.364 5.636L5.636 18.364"/>
+                </svg>
+                <span>AI &amp; Admin Reviews</span>
+              </button>
+              <button class="sidebar-tab-btn" data-subtab="subtab-ratings">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span>Ratings</span>
+              </button>
             </div>
 
             <!-- Subtab 1: Code Review & Discussion Comments -->
             <div id="subtab-comments" class="sidebar-subtab-content active">
               <div class="glass-panel" style="padding: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                  <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin: 0;">💬 Code Review & Discussion</h3>
+                  <h3 style="font-size: 0.95rem; color: var(--color-brand); margin: 0;">Code Review &amp; Discussion</h3>
                   <div class="comment-filter-pills">
                     <button class="pill-btn active" data-filter="all">All</button>
                     <button class="pill-btn" data-filter="line">Line Reviews</button>
@@ -171,9 +239,9 @@
                 </div>
 
                 <!-- Post Comment Box -->
-                <div class="form-group" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
+                <div class="form-group" style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--neon-cyan);">💬 Add General Solution Comment</label>
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-brand);">Add General Solution Comment</label>
                   </div>
                   <textarea id="comment-input" class="form-control" rows="3" placeholder="Write a general review comment for this solution... (Line reviews can be added directly on code lines in the editor)"></textarea>
                   <button id="btn-post-comment" class="btn-retro btn-green" style="margin-top: 0.5rem; width: 100%; font-size: 0.8rem;">Post Comment</button>
@@ -186,18 +254,23 @@
               <!-- AI Review Assistant -->
               <div class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                  <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin: 0;">⚡ Gemini AI Review Assistant</h3>
-                  <button id="btn-generate-ai-draft" class="btn-retro btn-pink" style="font-size: 0.75rem; padding: 4px 8px;">Generate AI Draft</button>
+                  <div class="panel-sub-title">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-brand)" stroke-width="2">
+                      <path d="M12 3v18M3 12h18M5.636 5.636l12.728 12.728M18.364 5.636L5.636 18.364"/>
+                    </svg>
+                    <h3 style="font-size: 0.95rem; color: var(--color-brand); margin: 0;">Gemini AI Review Assistant</h3>
+                  </div>
+                  <button id="btn-generate-ai-draft" class="btn-retro btn-cyan" style="font-size: 0.75rem; padding: 4px 8px;">Generate AI Draft</button>
                 </div>
-                <div id="ai-draft-output" class="form-control" style="height: 140px; overflow-y: auto; white-space: pre-wrap; font-size: 0.78rem; background: rgba(0,0,0,0.4); margin-bottom: 0.75rem;">
+                <div id="ai-draft-output" class="form-control" style="height: 140px; overflow-y: auto; white-space: pre-wrap; font-size: 0.78rem; background: var(--bg-input); margin-bottom: 0.75rem;">
                   Click "Generate AI Draft" to query Gemini AI for automated time/space complexity analysis, edge cases, and code suggestions.
                 </div>
 
                 <!-- AI Draft Line Comments Section -->
-                <div id="ai-draft-comments-wrapper" style="display: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
+                <div id="ai-draft-comments-wrapper" style="display: none; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--neon-pink);">
-                      🤖 AI Draft Line Comments (<span id="draft-comments-count">0</span>)
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--color-brand);">
+                      AI Draft Line Comments (<span id="draft-comments-count">0</span>)
                     </div>
                     <div style="display: flex; gap: 0.4rem;">
                       <button type="button" id="btn-approve-all-drafts" class="btn-approve" style="font-size: 0.68rem; padding: 2px 6px;">Approve All</button>
@@ -212,13 +285,13 @@
 
               <!-- Admin Review Round Publisher -->
               <div id="admin-review-publisher-box" class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
-                <h3 style="font-size: 0.95rem; color: var(--neon-green); margin-bottom: 0.75rem;">✍️ Admin Code Review Decision</h3>
+                <h3 style="font-size: 0.95rem; color: var(--role-success); margin-bottom: 0.75rem;">Admin Code Review Decision</h3>
                 <div class="form-group" style="margin-bottom: 0.75rem;">
                   <label style="font-size: 0.8rem;">Review Status</label>
                   <select id="review-status-select" class="form-control" style="font-size: 0.8rem;">
-                    <option value="APPROVED">✅ APPROVED (Passes Code Review)</option>
-                    <option value="CHANGES_REQUESTED">⚠️ CHANGES REQUESTED (Needs Refactoring)</option>
-                    <option value="DRAFT">📝 DRAFT WORK IN PROGRESS</option>
+                    <option value="APPROVED">APPROVED (Passes Code Review)</option>
+                    <option value="CHANGES_REQUESTED">CHANGES REQUESTED (Needs Refactoring)</option>
+                    <option value="DRAFT">DRAFT WORK IN PROGRESS</option>
                   </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 0.75rem;">
@@ -230,7 +303,7 @@
 
               <!-- Review Rounds Timeline -->
               <div class="glass-panel" style="padding: 1rem;">
-                <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">📜 Review Rounds History</h3>
+                <h3 style="font-size: 0.95rem; color: var(--color-brand); margin-bottom: 0.75rem;">Review Rounds History</h3>
                 <div id="review-rounds-timeline" class="timeline">
                   <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No review rounds recorded yet.</div>
                 </div>
@@ -240,17 +313,17 @@
             <!-- Subtab 3: Ratings Panel -->
             <div id="subtab-ratings" class="sidebar-subtab-content">
               <div class="glass-panel" style="padding: 1rem;">
-                <h3 style="font-size: 0.95rem; color: var(--neon-cyan); margin-bottom: 0.75rem;">⭐ Community Ratings</h3>
+                <h3 style="font-size: 0.95rem; color: var(--color-brand); margin-bottom: 0.75rem;">Community Ratings</h3>
                 
                 <!-- Aggregates -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: var(--radius-sm);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; background: var(--bg-input); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
                   <div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">Cleverness</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-amber);" id="avg-cleverness-val">-- / 5</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--role-attention); font-family: var(--font-segment);" id="avg-cleverness-val">-- / 5</div>
                   </div>
                   <div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">Readability</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--neon-green);" id="avg-readability-val">-- / 5</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--role-success); font-family: var(--font-segment);" id="avg-readability-val">-- / 5</div>
                   </div>
                 </div>
 
@@ -304,7 +377,12 @@
           <!-- Token Generator Panel -->
           <div class="glass-panel">
             <div class="panel-title">
-              <span>🔑 Generate User Tokens</span>
+              <div class="panel-title-group">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--color-brand)" stroke-width="2">
+                  <path d="M21 2l-2 2m-1.5 1.5L14 9l-3-3-4.5 4.5a5.5 5.5 0 1 0 7.78 7.78L22 10.5V6l-2-2z"/>
+                </svg>
+                <span>Generate User Tokens</span>
+              </div>
             </div>
             
             <form id="form-create-token" style="margin-bottom: 1.25rem;">
@@ -314,7 +392,7 @@
               </div>
               <div class="form-group" style="margin-bottom: 0.75rem;">
                 <label for="token-discord-input">Discord Username / Handle <span style="font-weight: normal; color: var(--text-muted);">(Optional pre-mapping)</span></label>
-                <input type="text" id="token-discord-input" class="form-control" placeholder="e.g. alex_dev or alex#1234">
+                <input type="text" id="token-discord-input" class="form-control" placeholder="e.g. alex_dev">
               </div>
               <div class="form-group" style="margin-bottom: 0.75rem;">
                 <label for="token-role-select">User Role</label>
@@ -326,7 +404,7 @@
               <button type="submit" class="btn-retro btn-green" style="width: 100%;">Generate Access Token</button>
             </form>
 
-            <h4 style="font-size: 0.9rem; color: var(--neon-cyan); margin-bottom: 0.5rem;">Registered Users & Tokens</h4>
+            <h4 style="font-size: 0.9rem; color: var(--color-brand); margin-bottom: 0.5rem;">Registered Users &amp; Tokens</h4>
             <div id="admin-users-list" style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
               <!-- Dynamically populated -->
             </div>
@@ -335,16 +413,21 @@
           <!-- Discord OAuth Mapping Panel -->
           <div class="glass-panel">
             <div class="panel-title">
-              <span>👾 Discord OAuth Account Mapping</span>
+              <div class="panel-title-group">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--color-brand)" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                </svg>
+                <span>Discord OAuth Account Mapping</span>
+              </div>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
               Pre-assign Discord usernames in advance or map pending Discord logins to user profiles.
             </p>
 
             <!-- Advance Pre-Mapping Form -->
-            <form id="form-advance-discord-map" style="background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(88,101,242,0.3); margin-bottom: 1.25rem;">
-              <h4 style="font-size: 0.85rem; color: #5865F2; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                ➕ Pre-Assign Discord Username in Advance
+            <form id="form-advance-discord-map" style="background: var(--bg-input); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1.25rem;">
+              <h4 style="font-size: 0.85rem; color: var(--color-brand); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                Pre-Assign Discord Username
               </h4>
               <div class="form-group" style="margin-bottom: 0.5rem;">
                 <label for="advance-map-user-select" style="font-size: 0.75rem;">Select Registered User Profile</label>
@@ -354,14 +437,14 @@
               </div>
               <div class="form-group" style="margin-bottom: 0.6rem;">
                 <label for="advance-map-discord-username" style="font-size: 0.75rem;">Discord Username / Tag</label>
-                <input type="text" id="advance-map-discord-username" class="form-control" placeholder="e.g. cyber_samurai or user#0000" style="font-size: 0.75rem;" required>
+                <input type="text" id="advance-map-discord-username" class="form-control" placeholder="e.g. cyber_samurai" style="font-size: 0.75rem;" required>
               </div>
-              <button type="submit" class="btn-retro" style="width: 100%; font-size: 0.75rem; padding: 4px 8px; background: rgba(88,101,242,0.2); border-color: #5865F2; color: #7289da;">
-                💾 Save Discord Pre-Mapping
+              <button type="submit" class="btn-retro" style="width: 100%; font-size: 0.75rem; padding: 4px 8px; background: var(--bg-card); border-color: var(--border-color); color: var(--text-bright);">
+                Save Discord Pre-Mapping
               </button>
             </form>
 
-            <h4 style="font-size: 0.85rem; color: var(--neon-cyan); margin-bottom: 0.5rem;">Pending / Unmapped Logins</h4>
+            <h4 style="font-size: 0.85rem; color: var(--color-brand); margin-bottom: 0.5rem;">Pending / Unmapped Logins</h4>
             <div id="unmapped-discord-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
               <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">No pending Discord sign-ins to map.</div>
             </div>
@@ -377,7 +460,12 @@
   <div id="auth-modal" class="modal-overlay">
     <div class="modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="color: var(--neon-cyan); font-size: 1.1rem;">🔑 Authenticate / Switch Token</h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--color-brand)" stroke-width="2">
+            <path d="M21 2l-2 2m-1.5 1.5L14 9l-3-3-4.5 4.5a5.5 5.5 0 1 0 7.78 7.78L22 10.5V6l-2-2z"/>
+          </svg>
+          <h3 style="color: var(--color-brand); font-size: 1.05rem;">Authenticate / Switch Token</h3>
+        </div>
         <button id="close-auth-modal-btn" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">✕</button>
       </div>
 
@@ -388,18 +476,20 @@
       </div>
       <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
         <button id="btn-login-token" class="btn-retro btn-green" style="flex: 1;">Login with Token</button>
-        <button id="btn-logout-token" class="btn-retro" style="background: rgba(255, 60, 60, 0.2); border-color: #ff4444; color: #ff6666;">Logout</button>
+        <button id="btn-logout-token" class="btn-retro btn-danger">Logout</button>
       </div>
 
       <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">— OR SIGN IN WITH DISCORD —</div>
 
       <!-- Discord OAuth Sign-In -->
-      <a id="btn-discord-login" href="/api/auth/discord/login" class="btn-retro" style="display: block; text-align: center; text-decoration: none; background: #5865F2; color: #fff; border-color: #5865F2;">
-        👾 Sign in with Discord
+      <a id="btn-discord-login" href="/api/auth/discord/login" class="btn-retro" style="display: block; text-align: center; text-decoration: none; background: var(--bg-card); color: var(--text-bright); border-color: var(--border-color);">
+        Sign in with Discord
       </a>
     </div>
   </div>
 
+  <!-- Icons Library -->
+  <script src="icons.js"></script>
   <!-- App Script -->
   <script src="app.js"></script>
   <!-- Interactive Feedback Inspector -->

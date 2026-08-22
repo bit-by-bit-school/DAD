@@ -3,7 +3,7 @@
    Authentic Pixelated / Segmented Low-Cognitive-Load Dark Instrument Theme
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600;700&family=Share+Tech+Mono&family=Silkscreen:wght@400;700&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600;700&family=Share+Tech+Mono&family=Silkscreen&family=VT323&display=swap');
 
 :root {
   /* Surfaces */
@@ -104,6 +104,41 @@
   vertical-align: middle;
 }
 
+/* Pixel Font Anti-Bloat & Legibility Enforcement (Never use synthetic bold on bitmap fonts) */
+.brand-logo,
+.brand-text,
+.nav-btn,
+.user-tag,
+.role-badge,
+.notification-badge,
+.panel-title,
+.form-group label,
+.multiselect-btn,
+.sol-title,
+.card-title,
+.lang-tag,
+.btn-retro,
+.btn-green,
+.btn-cyan,
+.btn-danger,
+.btn-micro,
+.btn-approve,
+.btn-reject,
+.line-tag-badge,
+.editor-toolbar,
+.sidebar-tab-btn,
+.pill-btn,
+.comment-card-header,
+.rating-feedback-label,
+.monaco-thread-header,
+.btn-tooltip-comment,
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
 /* Utilities */
 .hidden {
   display: none !important;
@@ -166,9 +201,9 @@ body::before {
   gap: 10px;
   font-family: var(--font-pixel);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--text-bright);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .brand-text {
@@ -210,7 +245,8 @@ body::before {
   background: var(--color-brand-dim);
   border-color: var(--color-brand);
   color: var(--color-brand);
-  font-weight: 700;
+  font-weight: 400;
+  letter-spacing: 0.6px;
   box-shadow: 2px 2px 0px #000, 0 0 12px var(--color-brand-glow);
 }
 
@@ -236,11 +272,12 @@ body::before {
 
 .role-badge {
   font-size: 0.62rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: var(--font-pixel);
   padding: 1px 5px;
   border-radius: 0 !important;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   box-shadow: 1px 1px 0px #000;
 }
 
@@ -487,14 +524,15 @@ body::before {
 
 .panel-title {
   font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-bright);
+  font-weight: 400;
+  color: var(--color-brand);
+  text-shadow: 0 0 8px var(--color-brand-glow);
   margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-pixel);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
@@ -538,11 +576,11 @@ body::before {
 .form-group label {
   display: block;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--text-muted);
   margin-bottom: 0.35rem;
   font-family: var(--font-pixel);
-  letter-spacing: 0.4px;
+  letter-spacing: 0.6px;
 }
 
 .form-control {
@@ -718,12 +756,13 @@ textarea.form-control {
 }
 
 .sol-title, .card-title {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--text-bright);
-  line-height: 1.35;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #FFFFFF;
+  line-height: 1.4;
   font-family: var(--font-pixel);
-  letter-spacing: 0.3px;
+  letter-spacing: 0.8px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.25);
 }
 
 .card-badges {
@@ -829,9 +868,9 @@ textarea.form-control {
   color: var(--text-main);
   font-family: var(--font-pixel);
   font-size: 0.72rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.75px;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 400;
   padding: 0.45rem 0.9rem;
   border-radius: 0 !important;
   box-shadow: 2px 2px 0px #000, inset 1px 1px 0px rgba(255, 255, 255, 0.15);
@@ -860,8 +899,9 @@ textarea.form-control {
   background: var(--role-success) !important;
   color: #080A0F !important;
   border-color: var(--role-success) !important;
-  font-weight: 700;
-  box-shadow: 2px 2px 0px #000, inset 1px 1px 0px rgba(255, 255, 255, 0.2) !important;
+  font-weight: 400;
+  letter-spacing: 0.75px;
+  box-shadow: 2px 2px 0px #000, inset 1px 1px 0px rgba(255, 255, 255, 0.4) !important;
 }
 
 .btn-green:hover {
@@ -873,8 +913,9 @@ textarea.form-control {
   background: var(--color-brand) !important;
   color: #080A0F !important;
   border-color: var(--color-brand) !important;
-  font-weight: 700;
-  box-shadow: 2px 2px 0px #000, inset 1px 1px 0px rgba(255, 255, 255, 0.2) !important;
+  font-weight: 400;
+  letter-spacing: 0.75px;
+  box-shadow: 2px 2px 0px #000, inset 1px 1px 0px rgba(255, 255, 255, 0.4) !important;
 }
 
 .btn-cyan:hover {
@@ -1007,9 +1048,9 @@ textarea.form-control {
   color: var(--text-dim);
   font-size: 0.68rem;
   font-family: var(--font-pixel);
-  letter-spacing: 0.4px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 400;
   padding: 0.45rem 0.5rem;
   border-radius: 0 !important;
   box-shadow: 2px 2px 0px #000;
@@ -1030,7 +1071,7 @@ textarea.form-control {
   background: var(--color-brand-dim);
   border-color: var(--color-brand);
   color: var(--color-brand);
-  font-weight: 700;
+  font-weight: 400;
   box-shadow: 2px 2px 0px #000, 0 0 10px var(--color-brand-glow);
 }
 
@@ -1239,11 +1280,12 @@ textarea.form-control {
   justify-content: space-between;
   align-items: center;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: var(--font-pixel);
-  letter-spacing: 0.4px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--color-brand);
+  text-shadow: 0 0 6px var(--color-brand-glow);
   padding-bottom: 0.35rem;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -1306,9 +1348,9 @@ textarea.form-control {
   color: #080B10;
   border: none;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: var(--font-pixel);
-  letter-spacing: 0.4px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 0 !important;

@@ -177,7 +177,7 @@
 
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
       <button id="fb-btn-cancel" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 14px; border-radius: 0px; box-shadow: 2px 2px 0px #000; cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase;">CANCEL</button>
-      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 6px 16px; border-radius: 0px; box-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,243,255,0.4); cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' && HRIcons.zap ? HRIcons.zap(13) : ''} <span>SEND TO AI</span></button>
+      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 400; letter-spacing: 0.6px; padding: 6px 16px; border-radius: 0px; box-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,243,255,0.4); cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' && HRIcons.zap ? HRIcons.zap(13) : ''} <span>SEND TO AI</span></button>
     </div>
   `;
   document.body.appendChild(modal);

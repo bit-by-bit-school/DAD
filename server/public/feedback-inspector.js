@@ -17,7 +17,7 @@
     border: 2px solid #00f3ff;
     background: rgba(0, 243, 255, 0.15);
     box-shadow: 0 0 15px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0, 243, 255, 0.2);
-    border-radius: 4px;
+    border-radius: 0px !important;
     z-index: 999998;
     display: none;
     transition: all 0.08s ease-out;
@@ -31,13 +31,13 @@
     left: 0;
     background: #00f3ff;
     color: #0d1117;
-    font-family: monospace;
-    font-size: 11px;
+    font-family: var(--font-pixel, monospace);
+    font-size: 10px;
     font-weight: 700;
     padding: 2px 6px;
-    border-radius: 3px;
+    border-radius: 0px !important;
     white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 0px #000;
   `;
   overlay.appendChild(tagBadge);
   document.body.appendChild(overlay);
@@ -50,15 +50,15 @@
     top: 12px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(13, 17, 23, 0.95);
-    border: 1px solid #00f3ff;
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.35);
+    background: rgba(13, 17, 23, 0.96);
+    border: 2px solid #00f3ff;
+    box-shadow: 4px 4px 0px #000, 0 0 20px rgba(0, 243, 255, 0.35);
     color: #00f3ff;
     padding: 6px 14px;
-    border-radius: 30px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
+    border-radius: 0px !important;
+    font-family: var(--font-pixel, monospace);
+    font-size: 11px;
+    font-weight: 700;
     z-index: 999999;
     display: none;
     align-items: center;
@@ -70,11 +70,11 @@
   `;
   topBanner.innerHTML = `
     <span style="display: flex; align-items: center; gap: 6px; cursor: move;" title="Click & Drag to reposition banner">
-      <span style="color: #8b949e; font-size: 14px;">⋮⋮</span>
-      <span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <b>Inspector Active</b></span>
+      <span style="color: #8b949e; font-size: 12px;">⋮⋮</span>
+      <span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <span>INSPECTOR ACTIVE</span></span>
     </span>
-    <button id="feedback-view-all-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer; pointer-events: auto; display: flex; align-items: center; gap: 4px;">${typeof HRIcons !== 'undefined' ? HRIcons.list(12) : ''} <span>View List</span></button>
-    <button id="feedback-exit-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 11px; cursor: pointer; pointer-events: auto;">Exit (Esc)</button>
+    <button id="feedback-view-all-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 0px; box-shadow: 2px 2px 0px #000; padding: 3px 8px; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; pointer-events: auto; display: flex; align-items: center; gap: 4px;">${typeof HRIcons !== 'undefined' ? HRIcons.list(12) : ''} <span>LIST</span></button>
+    <button id="feedback-exit-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 0px; box-shadow: 2px 2px 0px #000; padding: 3px 8px; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; pointer-events: auto;">EXIT (ESC)</button>
   `;
   document.body.appendChild(topBanner);
 
@@ -87,28 +87,30 @@
     right: 20px;
     background: #0d1117;
     color: #00f3ff;
-    border: 1px solid #00f3ff;
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.35);
-    border-radius: 30px;
-    padding: 10px 18px;
-    font-family: inherit;
-    font-size: 13px;
+    border: 2px solid #00f3ff;
+    box-shadow: 4px 4px 0px #000, 0 0 15px rgba(0, 243, 255, 0.35);
+    border-radius: 0px !important;
+    padding: 8px 16px;
+    font-family: var(--font-pixel, monospace);
+    font-size: 11px;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
     z-index: 999990;
     display: none;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
   `;
   triggerBtn.innerHTML = `${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <span>Give Feedback (Alt+F)</span>`;
   triggerBtn.addEventListener('mouseenter', () => {
-    triggerBtn.style.boxShadow = '0 0 25px rgba(0, 243, 255, 0.6)';
-    triggerBtn.style.transform = 'scale(1.05)';
+    triggerBtn.style.boxShadow = '4px 4px 0px #000, 0 0 25px rgba(0, 243, 255, 0.6)';
+    triggerBtn.style.transform = 'translate(-1px, -1px)';
   });
   triggerBtn.addEventListener('mouseleave', () => {
-    triggerBtn.style.boxShadow = '0 0 15px rgba(0, 243, 255, 0.35)';
-    triggerBtn.style.transform = 'scale(1)';
+    triggerBtn.style.boxShadow = '4px 4px 0px #000, 0 0 15px rgba(0, 243, 255, 0.35)';
+    triggerBtn.style.transform = 'none';
   });
   document.body.appendChild(triggerBtn);
 
@@ -124,7 +126,7 @@
     }
   };
 
-  // Feedback Modal
+  // Feedback Submission Modal
   const modal = document.createElement('div');
   modal.id = 'feedback-inspector-modal';
   modal.style.cssText = `
@@ -135,47 +137,47 @@
     width: 480px;
     max-width: 90vw;
     background: #0f141c;
-    border: 1px solid #00f3ff;
-    box-shadow: 0 0 35px rgba(0, 243, 255, 0.3), 0 20px 40px rgba(0,0,0,0.8);
-    border-radius: 12px;
+    border: 2px solid #00f3ff;
+    box-shadow: 6px 6px 0px #000, 0 0 35px rgba(0, 243, 255, 0.3);
+    border-radius: 0px !important;
     padding: 20px;
     z-index: 1000000;
     display: none;
-    font-family: inherit;
+    font-family: var(--font-sans, sans-serif);
     color: #e6edf3;
   `;
   modal.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <h3 style="margin: 0; font-size: 16px; color: #00f3ff; display: flex; align-items: center; gap: 8px;">
+      <h3 style="margin: 0; font-size: 13px; font-family: var(--font-pixel, monospace); color: #00f3ff; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px; text-transform: uppercase;">
         ${typeof HRIcons !== 'undefined' ? HRIcons.target(16) : ''} <span>Direct Browser Feedback</span>
       </h3>
       <button id="feedback-modal-close" style="background: none; border: none; color: #8b949e; cursor: pointer; display: flex; align-items: center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
-    <div style="background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; font-family: monospace; font-size: 11px; color: #79c0ff; word-break: break-all;">
-      <div style="color: #8b949e; margin-bottom: 3px;">SELECTED ELEMENT:</div>
+    <div style="background: #161b22; border: 1px solid #30363d; border-radius: 0px; box-shadow: inset 2px 2px 0px #000; padding: 8px 12px; margin-bottom: 14px; font-family: var(--font-segment, monospace); font-size: 11px; color: #79c0ff; word-break: break-all;">
+      <div style="color: #8b949e; font-family: var(--font-pixel, monospace); font-size: 10px; margin-bottom: 3px;">SELECTED ELEMENT:</div>
       <div id="fb-element-preview" style="font-weight: bold;"></div>
       <div id="fb-element-text" style="color: #c9d1d9; margin-top: 4px; font-style: italic; max-height: 40px; overflow: hidden;"></div>
     </div>
 
     <div style="margin-bottom: 12px;">
-      <label style="display: block; font-size: 12px; color: #8b949e; margin-bottom: 6px;">Category</label>
+      <label style="display: block; font-size: 10px; font-family: var(--font-pixel, monospace); color: #8b949e; margin-bottom: 6px; letter-spacing: 0.4px;">CATEGORY</label>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="fb-category-group">
-        <button type="button" class="fb-cat-btn active" data-val="UI / Style" style="background: rgba(0,243,255,0.15); border: 1px solid #00f3ff; color: #00f3ff; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.workspace(12) : ''} UI / Style</button>
-        <button type="button" class="fb-cat-btn" data-val="Bug" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.alert(12) : ''} Bug</button>
-        <button type="button" class="fb-cat-btn" data-val="Improvement" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.aiSpark(12) : ''} Improvement</button>
-        <button type="button" class="fb-cat-btn" data-val="Note" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.comment(12) : ''} Note</button>
+        <button type="button" class="fb-cat-btn active" data-val="UI / Style" style="background: rgba(0,243,255,0.15); border: 1px solid #00f3ff; color: #00f3ff; padding: 4px 10px; border-radius: 0px; box-shadow: 2px 2px 0px #000; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.workspace(12) : ''} UI / STYLE</button>
+        <button type="button" class="fb-cat-btn" data-val="Bug" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 0px; box-shadow: 2px 2px 0px #000; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.alert(12) : ''} BUG</button>
+        <button type="button" class="fb-cat-btn" data-val="Improvement" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 0px; box-shadow: 2px 2px 0px #000; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.aiSpark(12) : ''} IMPROVEMENT</button>
+        <button type="button" class="fb-cat-btn" data-val="Note" style="background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 10px; border-radius: 0px; box-shadow: 2px 2px 0px #000; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; display: flex; align-items: center; gap: 5px;">${typeof HRIcons !== 'undefined' ? HRIcons.comment(12) : ''} NOTE</button>
       </div>
     </div>
 
     <div style="margin-bottom: 16px;">
-      <label style="display: block; font-size: 12px; color: #8b949e; margin-bottom: 6px;">Your Feedback / Request</label>
-      <textarea id="fb-comment-input" rows="4" placeholder="e.g. Make this button neon purple, change font size to 14px, fix alignment, etc." style="width: 100%; box-sizing: border-box; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; padding: 10px; font-family: inherit; font-size: 13px; resize: vertical; outline: none;"></textarea>
+      <label style="display: block; font-size: 10px; font-family: var(--font-pixel, monospace); color: #8b949e; margin-bottom: 6px; letter-spacing: 0.4px;">YOUR FEEDBACK / REQUEST</label>
+      <textarea id="fb-comment-input" rows="4" placeholder="e.g. Make this button neon purple, change font size to 14px, fix alignment, etc." style="width: 100%; box-sizing: border-box; background: #0d1117; border: 1px solid #30363d; border-radius: 0px; box-shadow: inset 2px 2px 0px #000; color: #fff; padding: 10px; font-family: var(--font-segment, monospace); font-size: 13px; resize: vertical; outline: none;"></textarea>
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
-      <button id="fb-btn-cancel" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
-      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 0 10px rgba(0,243,255,0.4); display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' && HRIcons.zap ? HRIcons.zap(13) : ''} <span>Send to AI</span></button>
+      <button id="fb-btn-cancel" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 14px; border-radius: 0px; box-shadow: 2px 2px 0px #000; cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase;">CANCEL</button>
+      <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 700; padding: 6px 16px; border-radius: 0px; box-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,243,255,0.4); cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' && HRIcons.zap ? HRIcons.zap(13) : ''} <span>SEND TO AI</span></button>
     </div>
   `;
   document.body.appendChild(modal);
@@ -189,12 +191,13 @@
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: #0d1117;
-    border: 1px solid #2ea043;
+    border: 2px solid #2ea043;
     color: #3fb950;
-    box-shadow: 0 0 20px rgba(46, 160, 67, 0.4);
+    box-shadow: 4px 4px 0px #000, 0 0 20px rgba(46, 160, 67, 0.4);
+    border-radius: 0px !important;
     padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 13px;
+    font-family: var(--font-pixel, monospace);
+    font-size: 11px;
     font-weight: 600;
     z-index: 1000001;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);

@@ -4,57 +4,65 @@
  */
 
 const HRIcons = {
-  // Precision 6-Unit 3-Column Ascending Multi-Segment Display Logo (1:1 with Reference Photo)
-  logo: (size = 24) => `
-    <svg viewBox="0 0 72 72" width="${size}" height="${size}" fill="none" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+  // Authentic 3-Cell 16-Segment Alphanumeric Display Logo spelling "H R H"
+  logo: (size = 26) => `
+    <svg viewBox="0 0 70 28" width="${Math.round(size * 2.5)}" height="${size}" fill="none" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
       <defs>
         <!-- Single 16-Segment Display Cell Template -->
-        <g id="seg-cell" transform="skewX(-8)">
+        <g id="seg-cell" transform="skewX(-7)">
           <!-- Unlit skeleton segments (dark grid) -->
-          <g stroke="rgba(255, 255, 255, 0.14)" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter">
-            <line x1="2" y1="1" x2="10" y2="1"/>
-            <line x1="10" y1="1" x2="10" y2="9"/>
-            <line x1="10" y1="9" x2="10" y2="17"/>
-            <line x1="10" y1="17" x2="2" y2="17"/>
-            <line x1="2" y1="17" x2="2" y2="9"/>
-            <line x1="2" y1="9" x2="2" y2="1"/>
-            <line x1="2" y1="9" x2="10" y2="9"/>
-            <line x1="6" y1="1" x2="6" y2="9"/>
-            <line x1="6" y1="9" x2="6" y2="17"/>
-            <line x1="2" y1="1" x2="6" y2="9"/>
-            <line x1="10" y1="1" x2="6" y2="9"/>
-            <line x1="6" y1="9" x2="2" y2="17"/>
-            <line x1="6" y1="9" x2="10" y2="17"/>
-            <rect x="12" y="16" width="2" height="2" fill="rgba(255, 255, 255, 0.14)"/>
+          <g stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter">
+            <line x1="2" y1="2" x2="16" y2="2"/>
+            <line x1="16" y1="2" x2="16" y2="13"/>
+            <line x1="16" y1="13" x2="16" y2="24"/>
+            <line x1="16" y1="24" x2="2" y2="24"/>
+            <line x1="2" y1="24" x2="2" y2="13"/>
+            <line x1="2" y1="13" x2="2" y2="2"/>
+            <line x1="2" y1="13" x2="16" y2="13"/>
+            <line x1="9" y1="2" x2="9" y2="13"/>
+            <line x1="9" y1="13" x2="9" y2="24"/>
+            <line x1="2" y1="2" x2="9" y2="13"/>
+            <line x1="16" y1="2" x2="9" y2="13"/>
+            <line x1="9" y1="13" x2="2" y2="24"/>
+            <line x1="9" y1="13" x2="16" y2="24"/>
+            <rect x="18" y="23" width="1.5" height="1.5" fill="rgba(255, 255, 255, 0.12)"/>
           </g>
         </g>
       </defs>
 
-      <!-- Column 1 (Left: 2 Stacked Displays, lowest elevation) -->
-      <g transform="translate(6, 26)">
+      <!-- Letter 1: 'H' (Cyan Phosphor) -->
+      <g transform="translate(3, 1)">
         <use href="#seg-cell" x="0" y="0"/>
-        <path d="M4 1v8M4 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-        <use href="#seg-cell" x="0" y="20"/>
-        <path d="M4 21h8M4 21v8M12 29v8M4 37h8M4 29h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-        <rect x="14" y="36" width="2" height="2" fill="var(--color-brand, #00E5FF)"/>
+        <g stroke="var(--color-brand, #00E5FF)" stroke-width="2.2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))" transform="skewX(-7)">
+          <line x1="2" y1="2" x2="2" y2="24"/>
+          <line x1="16" y1="2" x2="16" y2="24"/>
+          <line x1="2" y1="13" x2="16" y2="13"/>
+        </g>
+        <rect x="18" y="23" width="1.5" height="1.5" fill="var(--color-brand, #00E5FF)" transform="skewX(-7)"/>
       </g>
 
-      <!-- Column 2 (Middle: 2 Stacked Displays, mid elevation) -->
-      <g transform="translate(26, 14)">
+      <!-- Letter 2: 'R' (White Phosphor) -->
+      <g transform="translate(26, 1)">
         <use href="#seg-cell" x="0" y="0"/>
-        <path d="M4 1v8M4 9h8M12 9v8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-        <use href="#seg-cell" x="0" y="20"/>
-        <path d="M4 21h8M12 21v8M4 29h8M4 29v8M4 37h8M12 29v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-        <rect x="14" y="36" width="2" height="2" fill="#FFFFFF"/>
+        <g stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)" transform="skewX(-7)">
+          <line x1="2" y1="2" x2="2" y2="24"/>
+          <line x1="2" y1="2" x2="16" y2="2"/>
+          <line x1="16" y1="2" x2="16" y2="13"/>
+          <line x1="2" y1="13" x2="16" y2="13"/>
+          <line x1="9" y1="13" x2="16" y2="24"/>
+        </g>
+        <rect x="18" y="23" width="1.5" height="1.5" fill="#FFFFFF" transform="skewX(-7)"/>
       </g>
 
-      <!-- Column 3 (Right: 2 Stacked Displays, highest elevation) -->
-      <g transform="translate(46, 2)">
+      <!-- Letter 3: 'H' (Cyan Phosphor) -->
+      <g transform="translate(49, 1)">
         <use href="#seg-cell" x="0" y="0"/>
-        <path d="M4 1v8M4 9v8M12 1v8M12 9v8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)"/>
-        <use href="#seg-cell" x="0" y="20"/>
-        <path d="M4 21h8M4 21v8M4 29h8M12 29v8M4 37h8" stroke="var(--color-brand, #00E5FF)" stroke-width="2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))"/>
-        <rect x="14" y="36" width="2" height="2" fill="var(--color-brand, #00E5FF)"/>
+        <g stroke="var(--color-brand, #00E5FF)" stroke-width="2.2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))" transform="skewX(-7)">
+          <line x1="2" y1="2" x2="2" y2="24"/>
+          <line x1="16" y1="2" x2="16" y2="24"/>
+          <line x1="2" y1="13" x2="16" y2="13"/>
+        </g>
+        <rect x="18" y="23" width="1.5" height="1.5" fill="var(--color-brand, #00E5FF)" transform="skewX(-7)"/>
       </g>
     </svg>
   `,

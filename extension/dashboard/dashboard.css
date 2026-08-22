@@ -74,17 +74,17 @@ body {
   flex-direction: column;
 }
 
-/* Subtle CRT Background Texture */
+/* CRT Scanline & Chromatic Filter */
 body::before {
-  content: "";
+  content: " ";
+  display: block;
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: 
-    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
-  background-size: 32px 32px;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  z-index: 999;
+  background-size: 100% 3px, 6px 100%;
   pointer-events: none;
-  z-index: 1;
+  opacity: 0.6;
 }
 
 /* Custom Retro Pixel Phosphor Scrollbars */

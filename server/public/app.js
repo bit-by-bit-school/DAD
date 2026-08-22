@@ -232,7 +232,6 @@
     await multiselectUser.init();
     await verifyAuth();
     initNotificationSystem();
-    virtualGrid.init();
     setupInfiniteScroll();
 
     await restoreStateFromUrl();
@@ -977,102 +976,47 @@
     return date.toLocaleDateString();
   }
 
-  // DOM Virtualization Controller (Virtual Window)
-  const virtualGrid = {
-    cardMinWidth: 320,
-    cardGap: 20, // 1.25rem = 20px
-    estimatedRowHeight: 145,
-    overscanRows: 2,
-    rafId: null,
-
-    init() {
-      window.addEventListener('scroll', () => this.onScroll(), { passive: true });
-      window.addEventListener('resize', () => this.onScroll(), { passive: true });
-    },
-
-    onScroll() {
-      if (this.rafId) cancelAnimationFrame(this.rafId);
-      this.rafId = requestAnimationFrame(() => {
-        this.render();
-      });
-    },
-
-    render() {
-      if (!solutionsGrid) return;
-
-      if (state.solutions.length === 0) {
-        if (!state.isLoading) {
-          solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No solutions match the specified filters.</div>';
-        }
-        return;
-      }
-
-      const totalItems = state.solutions.length;
-      const gridWidth = solutionsGrid.clientWidth || 1200;
-      
-      const columnsCount = Math.max(1, Math.floor((gridWidth + this.cardGap) / (this.cardMinWidth + this.cardGap)));
-      const totalRows = Math.ceil(totalItems / columnsCount);
-
-      let rowHeight = this.estimatedRowHeight;
-      const sampleCard = solutionsGrid.querySelector('.solution-card');
-      if (sampleCard && sampleCard.offsetHeight > 50) {
-        rowHeight = sampleCard.offsetHeight + this.cardGap;
-        this.estimatedRowHeight = rowHeight;
-      }
-
-      const gridRect = solutionsGrid.getBoundingClientRect();
-      const gridTopAbsolute = gridRect.top + window.scrollY;
-      const relativeScrollTop = Math.max(0, window.scrollY - gridTopAbsolute);
-      const viewportHeight = window.innerHeight;
-
-      const visibleStartRow = Math.max(0, Math.floor(relativeScrollTop / rowHeight) - this.overscanRows);
-      const visibleEndRow = Math.min(totalRows - 1, Math.ceil((relativeScrollTop + viewportHeight) / rowHeight) + this.overscanRows);
-
-      const startIndex = visibleStartRow * columnsCount;
-      const endIndex = Math.min(totalItems, (visibleEndRow + 1) * columnsCount);
-
-      const topHeight = visibleStartRow * rowHeight;
-      const bottomHeight = Math.max(0, (totalRows - (visibleEndRow + 1)) * rowHeight);
-
-      solutionsGrid.innerHTML = '';
-
-      if (topHeight > 0) {
-        const topSpacer = document.createElement('div');
-        topSpacer.className = 'virtual-spacer';
-        topSpacer.style.height = `${topHeight}px`;
-        solutionsGrid.appendChild(topSpacer);
-      }
-
-      const visibleSlice = state.solutions.slice(startIndex, endIndex);
-      visibleSlice.forEach(sol => {
-        solutionsGrid.appendChild(createSolutionCard(sol));
-      });
-
-      if (bottomHeight > 0) {
-        const bottomSpacer = document.createElement('div');
-        bottomSpacer.className = 'virtual-spacer';
-        bottomSpacer.style.height = `${bottomHeight}px`;
-        solutionsGrid.appendChild(bottomSpacer);
-      }
+  // Solutions Grid Renderer
+  function renderSolutionsGrid(solutions) {
+    if (!solutionsGrid) return;
+    if (!solutions || solutions.length === 0) {
+      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No solutions match the specified filters.</div>';
+      return;
     }
-  };
+    solutionsGrid.innerHTML = '';
+    solutions.forEach(sol => {
+      solutionsGrid.appendChild(createSolutionCard(sol));
+    });
+  }
+
+  function appendSolutionsGrid(newSolutions) {
+    if (!solutionsGrid || !newSolutions) return;
+    newSolutions.forEach(sol => {
+      solutionsGrid.appendChild(createSolutionCard(sol));
+    });
+  }
 
   // Infinite Scroll Observer Setup
+  let infiniteScrollObserver = null;
   function setupInfiniteScroll() {
     if (!infiniteScrollSentinel) return;
 
-    const observer = new IntersectionObserver((entries) => {
+    if (infiniteScrollObserver) {
+      infiniteScrollObserver.disconnect();
+    }
+
+    infiniteScrollObserver = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if (entry.isIntersecting && state.hasMore && !state.isLoading) {
         loadSolutions({ append: true });
       }
     }, {
       root: null,
-      rootMargin: '300px',
-      threshold: 0.1
+      rootMargin: '400px',
+      threshold: 0.05
     });
 
-    observer.observe(infiniteScrollSentinel);
+    infiniteScrollObserver.observe(infiniteScrollSentinel);
   }
 
   // Fetch Solutions (Infinite Scroll / Offset API)
@@ -1086,7 +1030,7 @@
       state.offset = 0;
       state.hasMore = true;
       state.solutions = [];
-      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center;">Loading solutions...</div>';
+      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);"><div class="spinner-retro" style="margin-bottom: 8px;"></div><br>Loading solutions...</div>';
       if (infiniteScrollSentinel) infiniteScrollSentinel.classList.add('hidden');
     } else {
       if (infiniteScrollSentinel) infiniteScrollSentinel.classList.remove('hidden');
@@ -1096,12 +1040,14 @@
     params.append('offset', state.offset);
     params.append('limit', state.limit);
 
-    if (filterSearch.value.trim()) params.append('search', filterSearch.value.trim());
-    if (filterLanguage.value) params.append('language', filterLanguage.value);
+    if (filterSearch && filterSearch.value.trim()) params.append('search', filterSearch.value.trim());
+    if (filterLanguage && filterLanguage.value) params.append('language', filterLanguage.value);
 
-    const selectedUsers = multiselectUser.getSelectedUsernames();
-    if (selectedUsers.length > 0 && selectedUsers.length < multiselectUser.usersList.length) {
-      params.append('usernames', selectedUsers.join(','));
+    if (multiselectUser) {
+      const selectedUsers = multiselectUser.getSelectedUsernames();
+      if (selectedUsers.length > 0 && selectedUsers.length < multiselectUser.usersList.length) {
+        params.append('usernames', selectedUsers.join(','));
+      }
     }
 
     try {
@@ -1111,21 +1057,24 @@
       const newSolutions = data.solutions || [];
       const pagination = data.pagination || {};
 
-      state.totalCount = pagination.total || 0;
+      state.totalCount = pagination.total !== undefined ? pagination.total : (state.solutions.length + newSolutions.length);
       state.hasMore = Boolean(pagination.hasMore);
       state.offset = pagination.nextOffset !== undefined ? pagination.nextOffset : (state.offset + newSolutions.length);
 
       if (!append) {
         state.solutions = newSolutions;
+        renderSolutionsGrid(state.solutions);
       } else {
         state.solutions.push(...newSolutions);
+        appendSolutionsGrid(newSolutions);
       }
 
-      virtualGrid.render();
-      solutionsCountBadge.textContent = `Loaded ${state.solutions.length} / ${state.totalCount} Solutions`;
+      if (solutionsCountBadge) {
+        solutionsCountBadge.textContent = `Loaded ${state.solutions.length} / ${state.totalCount} Solutions`;
+      }
     } catch (err) {
       if (!append) {
-        solutionsGrid.innerHTML = `<div class="glass-panel" style="grid-column: 1 / -1; color: var(--neon-pink);">Failed to load solutions: ${err.message}</div>`;
+        solutionsGrid.innerHTML = `<div class="glass-panel" style="grid-column: 1 / -1; color: var(--role-critical);">Failed to load solutions: ${err.message}</div>`;
       }
     } finally {
       state.isLoading = false;

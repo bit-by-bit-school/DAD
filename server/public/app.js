@@ -203,12 +203,22 @@
   const btnPostComment = document.getElementById('btn-post-comment');
   const commentsContainer = document.getElementById('comments-container');
   const adminAiAssistantPanel = document.getElementById('admin-ai-assistant-panel');
-  const btnGenerateAiDraft = document.getElementById('btn-generate-ai-draft');
-  const aiDraftOutput = document.getElementById('ai-draft-output');
+  const btnCopyReviewPrompt = document.getElementById('btn-copy-review-prompt');
+  const btnTogglePromptPreview = document.getElementById('btn-toggle-prompt-preview');
+  const promptPreviewDrawer = document.getElementById('prompt-preview-drawer');
+  const llmReviewInput = document.getElementById('llm-review-input');
+  const btnImportLlmReview = document.getElementById('btn-import-llm-review');
+  const parsedReviewCard = document.getElementById('parsed-review-card');
+  const parsedMetricsContainer = document.getElementById('parsed-metrics-container');
+  const parsedReviewSummary = document.getElementById('parsed-review-summary');
+  const parsedReviewDetails = document.getElementById('parsed-review-details');
   const adminReviewPublisherBox = document.getElementById('admin-review-publisher-box');
+  const adminReviewRoundTitle = document.getElementById('admin-review-round-title');
+  const reviewRoundNumberBadge = document.getElementById('review-round-number-badge');
   const reviewStatusSelect = document.getElementById('review-status-select');
   const adminReviewNotes = document.getElementById('admin-review-notes');
   const btnPublishReviewRound = document.getElementById('btn-publish-review-round');
+  const btnPublishReviewRoundText = document.getElementById('btn-publish-review-round-text');
   const reviewRoundsTimeline = document.getElementById('review-rounds-timeline');
 
   // AI Draft Line Comments DOM
@@ -630,11 +640,16 @@
       });
     }
 
-    // AI Draft Generator
-    btnGenerateAiDraft.addEventListener('click', generateAiDraft);
+    // LLM Prompt Copy & Structured Import
+    if (btnCopyReviewPrompt) btnCopyReviewPrompt.addEventListener('click', copyReviewPrompt);
+    if (btnTogglePromptPreview) btnTogglePromptPreview.addEventListener('click', togglePromptPreview);
+    if (btnImportLlmReview) btnImportLlmReview.addEventListener('click', processLlmReviewResponse);
+    if (btnApproveAllDrafts) btnApproveAllDrafts.addEventListener('click', approveAllDraftComments);
+    if (btnRejectAllDrafts) btnRejectAllDrafts.addEventListener('click', rejectAllDraftComments);
 
-    // Publish Review Round
-    btnPublishReviewRound.addEventListener('click', publishReviewRound);
+    // Publish Review Round & Status Change
+    if (reviewStatusSelect) reviewStatusSelect.addEventListener('change', updateReviewRoundPublisherUI);
+    if (btnPublishReviewRound) btnPublishReviewRound.addEventListener('click', publishReviewRound);
 
     // Admin Token Form & Edit Drawer
     if (formCreateToken) formCreateToken.addEventListener('submit', createToken);
@@ -1347,12 +1362,20 @@
       state.activeInlineLine = null;
       state.collapsedZones.clear();
       closeInlineCommentBox();
+      if (promptPreviewDrawer) {
+        promptPreviewDrawer.style.display = 'none';
+        promptPreviewDrawer.textContent = '';
+      }
+      if (llmReviewInput) llmReviewInput.value = '';
+      if (parsedReviewCard) parsedReviewCard.style.display = 'none';
+      if (adminReviewNotes) adminReviewNotes.value = '';
       renderAiDraftComments();
       updateMonacoDraftDecorations();
       updateMonacoViewZones();
 
       renderComments(sol.comments || []);
       renderReviewRoundsTimeline(sol.reviewRounds || []);
+      updateReviewRoundPublisherUI();
 
       // Switch tab and update URL
       activateTab('tab-detail', false);
@@ -1661,6 +1684,59 @@
     });
   }
 
+  async function reloadSolutionComments(solutionId) {
+    if (!solutionId) return;
+    try {
+      const res = await fetch(`/api/solutions/${solutionId}`, {
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.solution) {
+        state.activeSolution.comments = data.solution.comments || [];
+        state.activeSolution.reviewRounds = data.solution.reviewRounds || [];
+        renderComments(state.activeSolution.comments);
+        renderReviewRoundsTimeline(state.activeSolution.reviewRounds);
+        updateReviewRoundPublisherUI();
+        updateMonacoDecorations(state.activeSolution.comments);
+        updateMonacoDraftDecorations();
+        updateMonacoViewZones();
+      }
+    } catch (err) {
+      console.error('Failed to reload solution comments:', err);
+    }
+  }
+
+  function updateReviewRoundPublisherUI() {
+    if (!state.activeSolution) return;
+    const nextRound = (state.activeSolution.reviewRounds?.length || 0) + 1;
+    const status = reviewStatusSelect ? reviewStatusSelect.value : 'APPROVED';
+
+    if (reviewRoundNumberBadge) {
+      reviewRoundNumberBadge.textContent = `ROUND ${nextRound}`;
+    }
+
+    if (btnPublishReviewRound) {
+      btnPublishReviewRound.classList.remove('btn-green', 'btn-amber', 'btn-attention', 'btn-cyan');
+      let statusLabel = 'Approved';
+      if (status === 'CHANGES_REQUESTED') {
+        btnPublishReviewRound.classList.add('btn-amber');
+        statusLabel = 'Changes Requested';
+      } else if (status === 'DRAFT') {
+        btnPublishReviewRound.classList.add('btn-cyan');
+        statusLabel = 'Draft';
+      } else {
+        btnPublishReviewRound.classList.add('btn-green');
+        statusLabel = 'Approved';
+      }
+
+      if (btnPublishReviewRoundText) {
+        btnPublishReviewRoundText.textContent = `Publish Review Round #${nextRound} (${statusLabel})`;
+      } else {
+        btnPublishReviewRound.innerHTML = `${HRIcons.check(13)} <span>Publish Review Round #${nextRound} (${statusLabel})</span>`;
+      }
+    }
+  }
+
   window.deleteComment = async function(commentId) {
     if (!confirm('Are you sure you want to delete this comment?')) return;
     try {
@@ -1670,7 +1746,7 @@
       });
       if (res.ok) {
         if (state.activeSolution) {
-          await openSolutionDetail(state.activeSolution.id);
+          await reloadSolutionComments(state.activeSolution.id);
         }
       } else {
         const data = await res.json();
@@ -1708,7 +1784,8 @@
       const data = await res.json();
       if (res.ok) {
         commentInput.value = '';
-        await openSolutionDetail(state.activeSolution.id);
+        await reloadSolutionComments(state.activeSolution.id);
+        showRetroToast('Comment posted successfully!', HRIcons.check(16));
       } else {
         alert('Failed to post comment: ' + data.error);
       }
@@ -1725,7 +1802,7 @@
 
     if (!rounds || rounds.length === 0) {
       const emptyMsg = isAdmin
-        ? 'No review rounds recorded yet. Use the Gemini AI Assistant above to start Round 1.'
+        ? 'No review rounds recorded yet. Generate or paste an LLM code review above to start Round 1.'
         : 'No official review rounds recorded yet.';
       reviewRoundsTimeline.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">${emptyMsg}</div>`;
       return;
@@ -1736,9 +1813,9 @@
       const item = document.createElement('div');
       item.className = `timeline-item ${r.status.toLowerCase()}`;
       
-      let parsedGemini = null;
+      let parsedReview = null;
       try {
-        if (r.geminiDraft) parsedGemini = typeof r.geminiDraft === 'string' ? JSON.parse(r.geminiDraft) : r.geminiDraft;
+        if (r.geminiDraft) parsedReview = typeof r.geminiDraft === 'string' ? JSON.parse(r.geminiDraft) : r.geminiDraft;
       } catch (e) {}
 
       item.innerHTML = `
@@ -1750,7 +1827,7 @@
         <div style="color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.4rem; white-space: pre-wrap;">
           ${escapeHtml(r.adminNotes)}
         </div>
-        ${parsedGemini && (typeof parsedGemini === 'string' ? parsedGemini : parsedGemini.complexity) ? `<div style="font-size: 0.75rem; color: var(--neon-cyan); background: rgba(0,243,255,0.05); padding: 4px; border-radius: 3px; font-family: monospace;">Gemini AI Draft Included</div>` : ''}
+        ${parsedReview && (typeof parsedReview === 'string' ? parsedReview : parsedReview.complexity) ? `<div style="font-size: 0.75rem; color: var(--color-brand); background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); padding: 4px 6px; border-radius: 3px; font-family: monospace;">Structured LLM Review Included</div>` : ''}
       `;
       reviewRoundsTimeline.appendChild(item);
     });
@@ -1831,7 +1908,8 @@
       if (res.ok) {
         state.activeInlineLine = null;
         state.collapsedZones.delete(num);
-        await openSolutionDetail(state.activeSolution.id);
+        await reloadSolutionComments(state.activeSolution.id);
+        showRetroToast('Inline review comment posted!', HRIcons.check(16));
       } else {
         alert('Failed to post inline comment: ' + data.error);
       }
@@ -1893,7 +1971,7 @@
         const data = lineMap.get(lineNum);
         const hasDraft = data.drafts.length > 0;
         const hasCommentsOrDrafts = data.comments.length > 0 || data.drafts.length > 0;
-        const isInputActive = (state.activeInlineLine === lineNum) || !hasCommentsOrDrafts;
+        const isInputActive = (state.activeInlineLine === lineNum);
 
         let isSelectedRange = false;
         let sLine = lineNum;
@@ -2256,10 +2334,9 @@
 
       if (res.ok) {
         state.activeDraftComments = (state.activeDraftComments || []).filter(d => d.id !== draftId);
+        await reloadSolutionComments(state.activeSolution.id);
         renderAiDraftComments();
-        updateMonacoDraftDecorations();
-        updateMonacoViewZones();
-        await openSolutionDetail(state.activeSolution.id);
+        showRetroToast('Line comment approved & published to solution thread!', HRIcons.check(16));
       } else {
         const data = await res.json();
         alert('Failed to approve draft comment: ' + data.error);
@@ -2277,12 +2354,31 @@
   };
 
   async function approveAllDraftComments() {
-    if (!state.activeDraftComments || state.activeDraftComments.length === 0) return;
+    if (!state.activeDraftComments || state.activeDraftComments.length === 0 || !state.activeSolution) return;
     const draftsToApprove = [...state.activeDraftComments];
 
     for (const draft of draftsToApprove) {
-      await window.approveDraftComment(draft.id);
+      try {
+        await fetch(`/api/solutions/${state.activeSolution.id}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.currentToken}`
+          },
+          body: JSON.stringify({
+            content: `[AI Review] ${draft.content}`,
+            startLine: draft.startLine,
+            endLine: draft.endLine
+          })
+        });
+      } catch (e) {
+        console.error('Failed to post draft comment:', e);
+      }
     }
+    state.activeDraftComments = [];
+    await reloadSolutionComments(state.activeSolution.id);
+    renderAiDraftComments();
+    showRetroToast('All draft comments approved & published!', HRIcons.check(16));
   }
 
   function rejectAllDraftComments() {
@@ -2290,100 +2386,259 @@
     renderAiDraftComments();
     updateMonacoDraftDecorations();
     updateMonacoViewZones();
+    showRetroToast('All draft comments dismissed.', HRIcons.close(16));
   }
 
-  async function generateAiDraft() {
+  async function fetchReviewPromptText() {
+    if (!state.activeSolution) return null;
+    try {
+      const res = await fetch(`/api/solutions/${state.activeSolution.id}/review/prompt`, {
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.prompt) {
+        return data.prompt;
+      }
+    } catch (e) {
+      console.warn('Failed to fetch prompt from server:', e);
+    }
+    // Fallback client prompt generator
+    return buildClientReviewPrompt();
+  }
+
+  function buildClientReviewPrompt() {
+    if (!state.activeSolution) return '';
+    const sol = state.activeSolution;
+    const nextRound = (sol.reviewRounds?.length || 0) + 1;
+    return `You are a senior software engineer conducting Code Review Round #${nextRound} for a HackerRank submission.
+Be very concise, sacrifice grammar for brevity.
+
+Problem: ${sol.challengeTitle} (${sol.challengeSlug})
+Language: ${sol.language}
+Author: @${sol.user?.username || 'user'}
+
+Code:
+\`\`\`${sol.language}
+${sol.code}
+\`\`\`
+
+Please review the code and respond strictly with JSON:
+\`\`\`json
+{
+  "status": "APPROVED",
+  "complexity": "Time: O(...), Space: O(...)",
+  "clevernessScore": 4,
+  "readabilityScore": 5,
+  "summary": "Concise evaluation summary",
+  "strengths": ["Key strength 1"],
+  "edgeCases": "Boundary analysis",
+  "suggestions": ["Improvement suggestion 1"],
+  "adminNotes": "Decision notes for Round #${nextRound}",
+  "lineComments": [
+    {
+      "startLine": 1,
+      "endLine": 1,
+      "type": "SUGGESTION",
+      "content": "Specific inline comment"
+    }
+  ]
+}
+\`\`\``;
+  }
+
+  async function copyReviewPrompt() {
     if (!state.activeSolution) return alert('Please select a solution first');
-    if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
-      return alert('Only administrators can generate AI code review drafts.');
+    const origHtml = btnCopyReviewPrompt ? btnCopyReviewPrompt.innerHTML : '';
+    if (btnCopyReviewPrompt) {
+      btnCopyReviewPrompt.innerHTML = `${HRIcons.check(14)} <span>Generating...</span>`;
     }
 
-    aiDraftOutput.textContent = 'Querying Gemini AI Assistant for automated complexity & edge-case analysis...';
-    if (aiDraftCommentsWrapper) aiDraftCommentsWrapper.style.display = 'none';
+    const promptText = await fetchReviewPromptText();
+    if (!promptText) {
+      if (btnCopyReviewPrompt) btnCopyReviewPrompt.innerHTML = origHtml;
+      return alert('Failed to generate review prompt.');
+    }
 
     try {
-      const res = await fetch(`/api/solutions/${state.activeSolution.id}/review/draft`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${state.currentToken}`
-        }
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        let draftObj = data.parsedDraft;
-        if (!draftObj || typeof draftObj !== 'object') {
-          try {
-            const match = (data.draft || '').match(/\{[\s\S]*\}/);
-            if (match) draftObj = JSON.parse(match[0]);
-          } catch (e) {}
-        }
-
-        if (draftObj && typeof draftObj === 'object') {
-          let formattedText = '';
-          if (draftObj.complexity && draftObj.complexity !== 'Unknown') {
-            formattedText += `[Complexity] ${draftObj.complexity}\n`;
-          }
-          if (draftObj.clevernessScore || draftObj.readabilityScore) {
-            formattedText += `[Rating Estimate] Cleverness ${draftObj.clevernessScore || '-'}/5, Readability ${draftObj.readabilityScore || '-'}/5\n\n`;
-          }
-          if (draftObj.summary) {
-            formattedText += `[Summary]\n${draftObj.summary}\n\n`;
-          }
-          if (Array.isArray(draftObj.strengths) && draftObj.strengths.length > 0) {
-            formattedText += `[Strengths]\n${draftObj.strengths.map(s => `- ${s}`).join('\n')}\n\n`;
-          }
-          if (draftObj.edgeCases) {
-            formattedText += `[Edge Cases & Boundaries]\n${draftObj.edgeCases}\n\n`;
-          }
-          if (Array.isArray(draftObj.suggestions) && draftObj.suggestions.length > 0) {
-            formattedText += `[Recommendations]\n${draftObj.suggestions.map(s => `- ${s}`).join('\n')}\n`;
-          }
-          if (draftObj.error) {
-            formattedText += `\n[Notice: ${draftObj.error}]`;
-          }
-          aiDraftOutput.textContent = formattedText.trim() || data.draft;
-        } else {
-          aiDraftOutput.textContent = data.draft;
-        }
-
-        if (adminReviewNotes) {
-          adminReviewNotes.value = `Gemini AI Review Notes:\n${aiDraftOutput.textContent}`;
-        }
-
-        // Parse line-targeted draft comments
-        const parsed = data.parsedDraft;
-        let draftComments = [];
-        if (parsed && Array.isArray(parsed.lineComments)) {
-          draftComments = parsed.lineComments;
-        } else {
-          try {
-            const match = data.draft.match(/\{[\s\S]*\}/);
-            if (match) {
-              const obj = JSON.parse(match[0]);
-              if (Array.isArray(obj.lineComments)) draftComments = obj.lineComments;
-            }
-          } catch (e) {}
-        }
-
-        state.activeDraftComments = draftComments.map((c, idx) => ({
-          id: `draft_${Date.now()}_${idx}`,
-          startLine: parseInt(c.startLine) || 1,
-          endLine: parseInt(c.endLine) || parseInt(c.startLine) || 1,
-          type: c.type || 'SUGGESTION',
-          content: c.content || 'AI review suggestion'
-        }));
-
-        renderAiDraftComments();
-        updateMonacoDraftDecorations();
-        updateMonacoViewZones();
-      } else {
-        aiDraftOutput.textContent = `Error: ${data.error}`;
+      await navigator.clipboard.writeText(promptText);
+      if (btnCopyReviewPrompt) {
+        btnCopyReviewPrompt.innerHTML = `${HRIcons.check(14)} <span>Copied to Clipboard!</span>`;
+        btnCopyReviewPrompt.classList.remove('btn-cyan');
+        btnCopyReviewPrompt.classList.add('btn-green');
       }
+
+      showRetroToast('Review prompt copied! Paste into any LLM (ChatGPT, Claude, Gemini, DeepSeek).', HRIcons.copy(16));
+
+      if (promptPreviewDrawer) {
+        promptPreviewDrawer.textContent = promptText;
+      }
+
+      setTimeout(() => {
+        if (btnCopyReviewPrompt) {
+          btnCopyReviewPrompt.innerHTML = origHtml;
+          btnCopyReviewPrompt.classList.remove('btn-green');
+          btnCopyReviewPrompt.classList.add('btn-cyan');
+        }
+      }, 3000);
     } catch (err) {
-      aiDraftOutput.textContent = `Failed to generate draft: ${err.message}`;
+      if (btnCopyReviewPrompt) btnCopyReviewPrompt.innerHTML = origHtml;
+      if (promptPreviewDrawer) {
+        promptPreviewDrawer.style.display = 'block';
+        promptPreviewDrawer.textContent = promptText;
+      }
+      alert('Prompt generated! Please select and copy the text from the preview box below.');
     }
+  }
+
+  async function togglePromptPreview() {
+    if (!promptPreviewDrawer) return;
+    const isHidden = promptPreviewDrawer.style.display === 'none';
+    if (isHidden) {
+      if (!promptPreviewDrawer.textContent) {
+        const text = await fetchReviewPromptText();
+        promptPreviewDrawer.textContent = text || 'No prompt available.';
+      }
+      promptPreviewDrawer.style.display = 'block';
+    } else {
+      promptPreviewDrawer.style.display = 'none';
+    }
+  }
+
+  function processLlmReviewResponse() {
+    if (!llmReviewInput) return;
+    const raw = llmReviewInput.value.trim();
+    if (!raw) return alert('Please paste the LLM response text in the box before applying.');
+
+    let parsedObj = null;
+
+    // Try extracting from markdown code block ```json ... ``` or ``` ... ```
+    const codeBlockMatch = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch && codeBlockMatch[1]) {
+      try {
+        parsedObj = JSON.parse(codeBlockMatch[1].trim());
+      } catch (e) {}
+    }
+
+    // If not matched, try parsing entire text as JSON
+    if (!parsedObj) {
+      try {
+        parsedObj = JSON.parse(raw);
+      } catch (e) {}
+    }
+
+    // If still not parsed, try finding first '{' and last '}'
+    if (!parsedObj) {
+      const firstBrace = raw.indexOf('{');
+      const lastBrace = raw.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        try {
+          parsedObj = JSON.parse(raw.substring(firstBrace, lastBrace + 1));
+        } catch (e) {}
+      }
+    }
+
+    if (!parsedObj || typeof parsedObj !== 'object') {
+      return alert('Could not parse valid JSON from the pasted LLM response. Please ensure the response includes the JSON schema block.');
+    }
+
+    // Extract fields
+    const status = (parsedObj.status || '').toUpperCase();
+    if (reviewStatusSelect) {
+      if (status === 'APPROVED' || status === 'CHANGES_REQUESTED' || status === 'DRAFT') {
+        reviewStatusSelect.value = status;
+      } else {
+        reviewStatusSelect.value = 'APPROVED';
+      }
+    }
+
+    // Build formatted summary and notes
+    let notesText = '';
+    if (parsedObj.summary) {
+      notesText += `[Summary]\n${parsedObj.summary}\n\n`;
+    }
+    if (parsedObj.complexity) {
+      notesText += `[Complexity]\n${parsedObj.complexity}\n\n`;
+    }
+    if (Array.isArray(parsedObj.strengths) && parsedObj.strengths.length > 0) {
+      notesText += `[Strengths]\n${parsedObj.strengths.map(s => `- ${s}`).join('\n')}\n\n`;
+    }
+    if (parsedObj.edgeCases) {
+      notesText += `[Edge Cases & Boundary Analysis]\n${parsedObj.edgeCases}\n\n`;
+    }
+    if (Array.isArray(parsedObj.suggestions) && parsedObj.suggestions.length > 0) {
+      notesText += `[Recommendations]\n${parsedObj.suggestions.map(s => `- ${s}`).join('\n')}\n\n`;
+    }
+    if (parsedObj.adminNotes) {
+      notesText += `[Review Decision Notes]\n${parsedObj.adminNotes}\n`;
+    }
+
+    if (adminReviewNotes) {
+      adminReviewNotes.value = notesText.trim() || raw;
+    }
+
+    state.lastImportedReview = parsedObj;
+
+    // Render Parsed Review Card
+    if (parsedReviewCard) {
+      parsedReviewCard.style.display = 'block';
+
+      if (parsedMetricsContainer) {
+        let metricsHtml = '';
+        if (parsedObj.complexity) {
+          metricsHtml += `<span class="review-metric-pill cyan">${escapeHtml(parsedObj.complexity)}</span>`;
+        }
+        if (parsedObj.clevernessScore) {
+          metricsHtml += `<span class="review-metric-pill warning">Clever: ${parsedObj.clevernessScore}/5</span>`;
+        }
+        if (parsedObj.readabilityScore) {
+          metricsHtml += `<span class="review-metric-pill success">Readable: ${parsedObj.readabilityScore}/5</span>`;
+        }
+        if (parsedObj.status) {
+          const isAppr = parsedObj.status === 'APPROVED';
+          metricsHtml += `<span class="review-metric-pill ${isAppr ? 'success' : 'warning'}">${escapeHtml(parsedObj.status)}</span>`;
+        }
+        parsedMetricsContainer.innerHTML = metricsHtml;
+      }
+
+      if (parsedReviewSummary) {
+        parsedReviewSummary.textContent = parsedObj.summary || 'Structured review imported successfully.';
+      }
+
+      if (parsedReviewDetails) {
+        let detailsHtml = '';
+        if (Array.isArray(parsedObj.strengths) && parsedObj.strengths.length > 0) {
+          detailsHtml += `<div style="margin-bottom: 4px;"><strong style="color: var(--role-success);">Strengths:</strong> ${parsedObj.strengths.map(s => escapeHtml(s)).join('; ')}</div>`;
+        }
+        if (parsedObj.edgeCases) {
+          detailsHtml += `<div style="margin-bottom: 4px;"><strong style="color: var(--role-attention);">Edge Cases:</strong> ${escapeHtml(parsedObj.edgeCases)}</div>`;
+        }
+        if (Array.isArray(parsedObj.suggestions) && parsedObj.suggestions.length > 0) {
+          detailsHtml += `<div><strong style="color: var(--color-brand);">Suggestions:</strong> ${parsedObj.suggestions.map(s => escapeHtml(s)).join('; ')}</div>`;
+        }
+        parsedReviewDetails.innerHTML = detailsHtml;
+      }
+    }
+
+    // Process Line Comments
+    let draftComments = [];
+    if (Array.isArray(parsedObj.lineComments)) {
+      draftComments = parsedObj.lineComments;
+    }
+
+    state.activeDraftComments = draftComments.map((c, idx) => ({
+      id: `draft_${Date.now()}_${idx}`,
+      startLine: parseInt(c.startLine) || 1,
+      endLine: parseInt(c.endLine) || parseInt(c.startLine) || 1,
+      type: c.type || 'SUGGESTION',
+      content: c.content || 'LLM review suggestion'
+    }));
+
+    updateReviewRoundPublisherUI();
+    renderAiDraftComments();
+    updateMonacoDraftDecorations();
+    updateMonacoViewZones();
+
+    showRetroToast(`LLM Review parsed! ${state.activeDraftComments.length} line comments and decision notes loaded.`, HRIcons.check(16));
   }
 
   async function publishReviewRound() {
@@ -2414,102 +2669,24 @@
           roundNumber: nextRoundNumber,
           status,
           adminNotes,
-          geminiDraft: aiDraftOutput.textContent
+          reviewDraft: state.lastImportedReview || adminNotes
         })
       });
 
       const data = await res.json();
       if (res.ok) {
-        alert(`Published Review Round ${nextRoundNumber} successfully!`);
+        showRetroToast(`Published Review Round #${nextRoundNumber} (${status})!`, HRIcons.check(16));
         adminReviewNotes.value = '';
-        await openSolutionDetail(state.activeSolution.id);
+        if (llmReviewInput) llmReviewInput.value = '';
+        if (parsedReviewCard) parsedReviewCard.style.display = 'none';
+        state.lastImportedReview = null;
+        await reloadSolutionComments(state.activeSolution.id);
       } else {
         alert('Failed to publish review: ' + data.error);
       }
     } catch (err) {
       alert('Error publishing review: ' + err.message);
     }
-  }
-
-  // Tech/Science/Programming Vocabulary for Token Generation
-  const TechAdverbs = [
-    'recursively', 'dynamically', 'asynchronously', 'concurrently', 'statically',
-    'cryptographically', 'deterministically', 'atomically', 'linearly', 'logarithmically',
-    'algorithmically', 'heuristically', 'seamlessly', 'robustly', 'programmatically',
-    'iteratively', 'polymorphically', 'declaratively', 'imperatively', 'securely',
-    'efficiently', 'automatically', 'systematically', 'serially', 'infinitely',
-    'digitally', 'optically', 'syntactically', 'semantically', 'topologically',
-    'orthogonally', 'symbolically', 'continuously', 'natively', 'densely',
-    'computationally', 'kinetically', 'magnetically', 'quantumly', 'structurally',
-    'modularly', 'relationaly', 'spatially', 'temporally', 'vectorially'
-  ];
-
-  const TechVerbs = [
-    'compile', 'execute', 'render', 'parse', 'deploy',
-    'optimize', 'traverse', 'mutate', 'serialize', 'deserialize',
-    'encrypt', 'decrypt', 'synthesize', 'allocate', 'calibrate',
-    'refactor', 'benchmark', 'stream', 'pipeline', 'index',
-    'bootstrap', 'dispatch', 'synchronize', 'orchestrate', 'tokenize',
-    'cache', 'compute', 'resolve', 'deconstruct', 'propagate',
-    'transform', 'override', 'vectorize', 'interpolate', 'compress',
-    'validate', 'integrate', 'iterate', 'amplify', 'decode',
-    'encode', 'simulate', 'transpile', 'isolate', 'instantiate',
-    'intercept', 'sanitize', 'rebalance', 'streamline'
-  ];
-
-  const TechAdjectives = [
-    'quantum', 'neural', 'binary', 'atomic', 'cyber',
-    'matrix', 'reactive', 'modular', 'immutable', 'distributed',
-    'polymorphic', 'recursive', 'asynchronous', 'deterministic', 'cryptographic',
-    'algorithmic', 'syntactic', 'semantic', 'topological', 'orthogonal',
-    'hexadecimal', 'kinetic', 'magnetic', 'photonic', 'prismatic',
-    'synaptic', 'isometric', 'heuristic', 'stateless', 'concurrent',
-    'monolithic', 'vectorized', 'spectral', 'dynamic', 'relational',
-    'temporal', 'discrete', 'stochastic', 'cellular', 'resonant',
-    'scalar', 'infinite', 'hypersonic', 'faultless', 'isomorphic',
-    'declarative', 'parallel', 'hyperbolic', 'cybernetic'
-  ];
-
-  const TechNouns = [
-    'kernel', 'syntax', 'tensor', 'matrix', 'qubit',
-    'daemon', 'flux', 'algorithm', 'vector', 'buffer',
-    'socket', 'pipeline', 'node', 'cluster', 'lattice',
-    'lambda', 'schema', 'protocol', 'bytecode', 'stack',
-    'heap', 'thread', 'mutex', 'semaphore', 'compiler',
-    'parser', 'runtime', 'register', 'packet', 'router',
-    'operand', 'monad', 'closure', 'proxy', 'gateway',
-    'nexus', 'automaton', 'circuit', 'transistor', 'neuron',
-    'prism', 'photon', 'plasma', 'catalyst', 'isotope',
-    'frequency', 'wavelet', 'topology', 'entropy', 'manifold',
-    'hypervisor', 'payload', 'interface', 'module', 'iterator',
-    'checksum', 'hyperplane', 'coroutine', 'microkernel', 'subroutine'
-  ];
-
-  function pickRandomWord(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  function generateClientTechToken() {
-    const pattern = Math.floor(Math.random() * 10);
-    let words = [];
-    switch (pattern) {
-      case 0: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
-      case 1: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
-      case 2: words = [pickRandomWord(TechVerbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
-      case 3: words = [pickRandomWord(TechAdjectives), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
-      case 4: words = [pickRandomWord(TechAdjectives), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
-      case 5: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechVerbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
-      case 6: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
-      case 7: words = [pickRandomWord(TechVerbs), pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
-      case 8: words = [pickRandomWord(TechAdjectives), pickRandomWord(TechNouns), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
-      case 9: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
-      default: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
-    }
-    const clean = Array.from(new Set(words.map(w => (w || '').trim().toLowerCase()).filter(Boolean)));
-    if (clean.length < 3) {
-      return `${pickRandomWord(TechAdverbs)}-${pickRandomWord(TechVerbs)}-${pickRandomWord(TechNouns)}`;
-    }
-    return clean.join('-');
   }
 
   function updateTokenWordCountBadge() {
@@ -2528,10 +2705,20 @@
     }
   }
 
-  function shuffleFormToken() {
+  async function shuffleFormToken() {
     if (!tokenCustomInput) return;
-    tokenCustomInput.value = generateClientTechToken();
-    updateTokenWordCountBadge();
+    try {
+      const res = await fetch('/api/admin/tokens/generate', {
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (data && data.token) {
+        tokenCustomInput.value = data.token;
+        updateTokenWordCountBadge();
+      }
+    } catch (err) {
+      console.error('Error fetching token suggestion:', err);
+    }
   }
 
   // ADMIN CONTROL PANEL
@@ -2545,7 +2732,7 @@
     if (adminDashboardBody) adminDashboardBody.style.display = 'block';
 
     if (tokenCustomInput && !tokenCustomInput.value.trim()) {
-      shuffleFormToken();
+      await shuffleFormToken();
     }
 
     await loadAdminUsers();
@@ -2658,11 +2845,21 @@
     badge.style.color = (count >= 3 && count <= 4) ? 'var(--role-success)' : 'var(--role-attention)';
   };
 
-  window.shuffleInlineUserToken = function(userId) {
+  window.shuffleInlineUserToken = async function(userId) {
     const input = document.getElementById(`user-token-input-${userId}`);
     if (!input) return;
-    input.value = generateClientTechToken();
-    window.updateInlineTokenWordCount(userId);
+    try {
+      const res = await fetch('/api/admin/tokens/generate', {
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (data && data.token) {
+        input.value = data.token;
+        window.updateInlineTokenWordCount(userId);
+      }
+    } catch (err) {
+      console.error('Error fetching token suggestion:', err);
+    }
   };
 
   window.saveUserToken = async function(userId, username) {
@@ -2736,7 +2933,7 @@
         tokenUsernameInput.value = '';
         if (tokenDiscordInput) tokenDiscordInput.value = '';
         if (tokenCustomInput) {
-          shuffleFormToken();
+          await shuffleFormToken();
         }
         await loadAdminUsers();
       } else {

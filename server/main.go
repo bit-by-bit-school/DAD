@@ -114,7 +114,7 @@ func main() {
 
 			// Code Reviews
 			r.Get("/{id}/reviews", handlers.GetReviewsHandler)
-			r.Post("/{id}/review/draft", handlers.GenerateReviewDraftHandler)
+			r.Get("/{id}/review/prompt", handlers.GetReviewPromptHandler)
 			r.Post("/{id}/review/publish", handlers.PublishReviewHandler)
 		})
 

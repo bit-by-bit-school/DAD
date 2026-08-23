@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 	"hackerrank-server/services"
 )
 
+// GetReviewsHandler returns all recorded review rounds for a solution
 func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	solutionID := chi.URLParam(r, "id")
@@ -23,49 +25,48 @@ func GetReviewsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"rounds": rounds})
 }
 
-func GenerateReviewDraftHandler(w http.ResponseWriter, r *http.Request) {
+// GetReviewPromptHandler generates a comprehensive, context-aware LLM review prompt
+// containing problem statement, stripped solution code (without input plumbing), and previous rounds/comments.
+func GetReviewPromptHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	solutionID := chi.URLParam(r, "id")
-	currentUser, _ := GetUserFromContext(r.Context())
-
-	if currentUser.Role != "ADMIN" {
-		w.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Only admins can generate code review drafts."})
-		return
-	}
 
 	var sol models.Solution
-	if err := db.DB.Preload("ReviewRounds", func(db *gorm.DB) *gorm.DB {
-		return db.Order("roundNumber asc")
-	}).Where("id = ?", solutionID).First(&sol).Error; err != nil {
+	if err := db.DB.
+		Preload("User").
+		Preload("ReviewRounds", func(db *gorm.DB) *gorm.DB {
+			return db.Order("roundNumber asc").Preload("Reviewer")
+		}).
+		Preload("Comments", func(db *gorm.DB) *gorm.DB {
+			return db.Order("createdAt asc").Preload("User")
+		}).
+		Where("id = ?", solutionID).First(&sol).Error; err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Solution not found"})
 		return
 	}
 
-	draftText := services.GenerateCodeReviewDraft(services.GeminiReviewInput{
-		ChallengeTitle:  sol.ChallengeTitle,
-		Language:        sol.Language,
-		Code:            sol.Code,
-		PreviousReviews: sol.ReviewRounds,
-	})
+	problemDetails := services.GetProblemDetails(sol.ChallengeSlug)
+	promptText := services.BuildReviewPrompt(sol, problemDetails)
+	cleanedCode, startLineOffset := services.StripInputPlumbing(sol.Code, sol.Language)
 
-	var parsedDraft interface{}
-	if err := json.Unmarshal([]byte(draftText), &parsedDraft); err != nil {
-		parsedDraft = map[string]interface{}{
-			"summary":      draftText,
-			"lineComments": []interface{}{},
-		}
-	}
+	origLines := strings.Split(strings.ReplaceAll(sol.Code, "\r\n", "\n"), "\n")
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"success":         true,
-		"nextRoundNumber": len(sol.ReviewRounds) + 1,
-		"draft":           draftText,
-		"parsedDraft":     parsedDraft,
+		"success":          true,
+		"prompt":           promptText,
+		"challengeTitle":   sol.ChallengeTitle,
+		"challengeSlug":    sol.ChallengeSlug,
+		"language":         sol.Language,
+		"cleanedCode":      cleanedCode,
+		"startLineOffset":  startLineOffset,
+		"totalLines":       len(origLines),
+		"nextRoundNumber":  len(sol.ReviewRounds) + 1,
+		"problemStatement": services.HTMLToPlainText(problemDetails.StatementHTML),
 	})
 }
 
+// PublishReviewHandler records or updates an official code review round decision
 func PublishReviewHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	solutionID := chi.URLParam(r, "id")
@@ -81,10 +82,11 @@ func PublishReviewHandler(w http.ResponseWriter, r *http.Request) {
 		RoundNumber interface{} `json:"roundNumber"`
 		Status      string      `json:"status"`
 		AdminNotes  string      `json:"adminNotes"`
-		GeminiDraft interface{} `json:"geminiDraft"`
+		ReviewDraft interface{} `json:"reviewDraft"`
+		GeminiDraft interface{} `json:"geminiDraft"` // Backward compatibility
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil || len(payload.AdminNotes) == 0 {
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil || len(strings.TrimSpace(payload.AdminNotes)) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Admin notes/feedback are required to publish a review round."})
 		return
@@ -113,8 +115,13 @@ func PublishReviewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var draftStr *string
-	if payload.GeminiDraft != nil {
-		switch v := payload.GeminiDraft.(type) {
+	draftInput := payload.ReviewDraft
+	if draftInput == nil {
+		draftInput = payload.GeminiDraft
+	}
+
+	if draftInput != nil {
+		switch v := draftInput.(type) {
 		case string:
 			draftStr = &v
 		default:

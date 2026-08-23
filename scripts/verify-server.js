@@ -122,17 +122,40 @@ async function runVerification() {
     });
     console.log('   ✅ Line Range Comment Posted:', lineCommentRes.comment.content, `(Lines ${lineCommentRes.comment.startLine}-${lineCommentRes.comment.endLine})`);
 
-    // 7. Test Gemini Code Review Draft & Publishing Round 1
-    console.log('\n7️⃣ Testing Gemini AI Review Draft & Round 1 Publishing...');
-    const draftRes = await request(`${BASE_URL}/api/solutions/${firstSol.id}/review/draft`, {
-      method: 'POST',
+    // 7. Test LLM Code Review Prompt Generation & Publishing Round 1
+    console.log('\n7️⃣ Testing LLM Code Review Prompt Generation & Round 1 Publishing...');
+    const promptRes = await request(`${BASE_URL}/api/solutions/${firstSol.id}/review/prompt`, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${ADMIN_TOKEN}`
-      },
-      body: JSON.stringify({})
+      }
     });
-    console.log('   ✅ Gemini Draft Status: Draft generated successfully!');
+    console.log('   ✅ Prompt Generation Status:', promptRes.success, 'Next Round #:', promptRes.nextRoundNumber);
+    console.log('   Cleaned Code (without I/O plumbing):\n', promptRes.cleanedCode.split('\n').map(l => '      ' + l).join('\n'));
+
+    if (!promptRes.prompt.includes('Required JSON Schema') || !promptRes.cleanedCode) {
+      throw new Error('Review prompt generation did not include required JSON schema or cleaned code.');
+    }
+
+    const mockLlmResponse = {
+      status: 'APPROVED',
+      complexity: 'Time: O(1), Space: O(1)',
+      clevernessScore: 5,
+      readabilityScore: 5,
+      summary: 'Optimal implementation with clear, concise arithmetic logic.',
+      strengths: ['Direct mathematical return', 'Constant time O(1)'],
+      edgeCases: 'Handles zero and negative integers smoothly within standard bounds.',
+      suggestions: ['Add type hints or docstring for clarity'],
+      adminNotes: 'Round 1 Review: Time complexity is optimal O(1). Approved!',
+      lineComments: [
+        {
+          startLine: promptRes.startLineOffset,
+          endLine: promptRes.startLineOffset,
+          type: 'PRAISE',
+          content: 'Clean and optimal return expression!'
+        }
+      ]
+    };
 
     const publishRes = await request(`${BASE_URL}/api/solutions/${firstSol.id}/review/publish`, {
       method: 'POST',
@@ -142,12 +165,12 @@ async function runVerification() {
       },
       body: JSON.stringify({
         roundNumber: 1,
-        status: 'APPROVED',
-        adminNotes: 'Round 1 Review: Time complexity is optimal O(1). Approved!',
-        geminiDraft: draftRes.draft
+        status: mockLlmResponse.status,
+        adminNotes: mockLlmResponse.adminNotes,
+        reviewDraft: mockLlmResponse
       })
     });
-    console.log('   ✅ Code Review Round 1 Published:', publishRes.reviewRound.status);
+    console.log('   ✅ Code Review Round 1 Published:', publishRes.reviewRound.status, 'Round #:', publishRes.reviewRound.roundNumber);
 
     // 8. Test Admin User Token Generation
     console.log('\n8️⃣ Testing Admin User Token Creation (/api/admin/tokens)...');

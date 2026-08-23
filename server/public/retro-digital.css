@@ -998,6 +998,22 @@ select option,
   box-shadow: 2px 2px 0px #000, 0 0 12px var(--color-brand-glow) !important;
 }
 
+.btn-amber,
+.btn-attention {
+  background: var(--role-attention) !important;
+  color: #080A0F !important;
+  border-color: var(--role-attention) !important;
+  font-weight: 400;
+  letter-spacing: 0.75px;
+  box-shadow: 2px 2px 0px #000, inset 1px 1px 0px rgba(255, 255, 255, 0.4) !important;
+}
+
+.btn-amber:hover,
+.btn-attention:hover {
+  background: #FBBF24 !important;
+  box-shadow: 2px 2px 0px #000, 0 0 12px var(--role-attention-glow) !important;
+}
+
 .btn-danger {
   background: var(--role-critical-dim) !important;
   border-color: rgba(239, 68, 68, 0.4) !important;
@@ -1800,6 +1816,87 @@ select option,
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ==========================================================================
+   LLM Code Review Workflow (Prompt Copy & Structured Import)
+   ========================================================================== */
+.prompt-hero-box {
+  background: rgba(0, 229, 255, 0.04);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.prompt-hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.prompt-preview-drawer {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  max-height: 220px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  padding: 0.6rem;
+  white-space: pre-wrap;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.llm-import-box {
+  background: rgba(16, 185, 129, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.parsed-review-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.review-metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+}
+
+.review-metric-pill.success {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: var(--role-success);
+}
+
+.review-metric-pill.cyan {
+  border-color: rgba(0, 229, 255, 0.4);
+  color: var(--color-brand);
+}
+
+.review-metric-pill.warning {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: var(--role-attention);
+}
+
 
 
 

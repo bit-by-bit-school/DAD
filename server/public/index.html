@@ -321,28 +321,71 @@
               </div>
             </div>
 
-            <!-- Subtab 3: AI Draft & Admin Review Rounds -->
+            <!-- Subtab 3: LLM Code Review & Admin Review Rounds -->
             <div id="subtab-reviews" class="sidebar-subtab-content">
-              <!-- AI Review Assistant -->
+              <!-- LLM Prompt & Review Assistant -->
               <div id="admin-ai-assistant-panel" class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                  <div class="panel-sub-title">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div class="panel-sub-title" style="display: flex; align-items: center; gap: 6px;">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-brand)" stroke-width="2">
                       <path d="M12 3v18M3 12h18M5.636 5.636l12.728 12.728M18.364 5.636L5.636 18.364"/>
                     </svg>
-                    <h3 style="font-size: 0.95rem; color: var(--color-brand); margin: 0;">Gemini AI Review Assistant</h3>
+                    <h3 style="font-size: 0.95rem; color: var(--color-brand); margin: 0;">LLM Code Review Assistant</h3>
                   </div>
-                  <button id="btn-generate-ai-draft" class="btn-retro btn-cyan" style="font-size: 0.75rem; padding: 4px 8px;">Generate AI Draft</button>
+                  <span class="role-badge" style="font-size: 0.65rem; background: rgba(0,229,255,0.1); color: var(--color-brand); border-color: rgba(0,229,255,0.3);">PROMPT &amp; IMPORT</span>
                 </div>
-                <div id="ai-draft-output" class="form-control" style="height: 140px; overflow-y: auto; white-space: pre-wrap; font-size: 0.78rem; background: var(--bg-input); margin-bottom: 0.75rem;">
-                  Click "Generate AI Draft" to query Gemini AI for automated time/space complexity analysis, edge cases, and code suggestions.
+
+                <!-- 1. Copy Prompt Box -->
+                <div class="prompt-hero-box">
+                  <div class="prompt-hero-header">
+                    <div>
+                      <div style="font-size: 0.82rem; font-weight: 600; color: var(--color-brand);">1. Generate Evaluation Prompt</div>
+                      <div style="font-size: 0.72rem; color: var(--text-muted);">Includes problem statement, clean solution code (no I/O plumbing), past review rounds, and JSON schema.</div>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      <button type="button" id="btn-toggle-prompt-preview" class="btn-micro" title="Toggle prompt text preview">
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" shape-rendering="crispEdges" class="hr-icon"><path d="M2 12h2v2H2zm2 2h2v2H4zm2 2h12v2H6zm12-2h2v-2h-2zm2-2h2v-2h-2zm-2-2h-2V8h2zm-2-2H8V6h8zm-8 2H6v2h2zm2 2H8v2h2zm2 2h-2v-2h2zm2-2h-2v-2h2zm-2-2h-2v2h2z"/></svg>
+                        <span>Preview</span>
+                      </button>
+                      <button type="button" id="btn-copy-review-prompt" class="btn-retro btn-cyan" style="font-size: 0.75rem; padding: 4px 10px;">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" shape-rendering="crispEdges" class="hr-icon"><path d="M8 6h12v2H8zM4 2h12v2H4zm2 6h2v12H6zM2 4h2v12H2zm6 16h12v2H8zM20 8h2v12h-2zm-4-4h2v2h-2zM4 16h2v2H4z"/></svg>
+                        <span>Copy Prompt for LLM</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div id="prompt-preview-drawer" class="prompt-preview-drawer" style="display: none;"></div>
+                </div>
+
+                <!-- 2. Paste & Apply LLM Response Box -->
+                <div class="llm-import-box">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <div>
+                      <div style="font-size: 0.82rem; font-weight: 600; color: var(--role-success);">2. Paste LLM Review Response</div>
+                      <div style="font-size: 0.72rem; color: var(--text-muted);">Paste the structured answer from ChatGPT, Claude, Gemini, DeepSeek, etc.</div>
+                    </div>
+                  </div>
+                  <textarea id="llm-review-input" class="form-control font-mono" rows="4" placeholder="Paste LLM structured JSON or markdown code block here..." style="font-size: 0.76rem; background: var(--bg-input); margin-bottom: 0.5rem;"></textarea>
+                  <button type="button" id="btn-import-llm-review" class="btn-retro btn-green" style="width: 100%; font-size: 0.78rem; padding: 5px;">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" shape-rendering="crispEdges" class="hr-icon"><path d="M11 1h2v4h-2zm0 22h2v-4h-2zM9 5h2v4H9zm0 14h2v-4H9zm4-14h2v4h-2zm0 14h2v-4h-2zM5 9h4v2H5zm14 0h-4v2h4zM1 11h4v2H1zm22 0h-4v2h4zM5 13h4v2H5zm14 0h-4v2h4z"/></svg>
+                    <span>Process &amp; Apply Review</span>
+                  </button>
+                </div>
+
+                <!-- Structured Review Highlights (Rendered upon parse) -->
+                <div id="parsed-review-card" class="parsed-review-card" style="display: none;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="color: var(--color-brand); font-size: 0.85rem;">Parsed Review Highlights</strong>
+                    <div id="parsed-metrics-container" style="display: flex; gap: 0.35rem; flex-wrap: wrap;"></div>
+                  </div>
+                  <div id="parsed-review-summary" style="font-size: 0.78rem; color: var(--text-bright); line-height: 1.4; margin-bottom: 0.5rem; white-space: pre-wrap;"></div>
+                  <div id="parsed-review-details" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;"></div>
                 </div>
 
                 <!-- AI Draft Line Comments Section -->
                 <div id="ai-draft-comments-wrapper" style="display: none; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <div style="font-size: 0.8rem; font-weight: 600; color: var(--color-brand);">
-                      AI Draft Line Comments (<span id="draft-comments-count">0</span>)
+                      Imported Draft Line Comments (<span id="draft-comments-count">0</span>)
                     </div>
                     <div style="display: flex; gap: 0.4rem;">
                       <button type="button" id="btn-approve-all-drafts" class="btn-approve" style="font-size: 0.68rem; padding: 2px 6px;">Approve All</button>
@@ -357,20 +400,27 @@
 
               <!-- Admin Review Round Publisher -->
               <div id="admin-review-publisher-box" class="glass-panel" style="padding: 1rem; margin-bottom: 1rem;">
-                <h3 style="font-size: 0.95rem; color: var(--role-success); margin-bottom: 0.75rem;">Admin Code Review Decision</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <h3 id="admin-review-round-title" style="font-size: 0.95rem; color: var(--role-success); margin: 0;">Code Review Round Decision</h3>
+                  <span id="review-round-number-badge" class="role-badge" style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.15); color: var(--role-success); border-color: rgba(16, 185, 129, 0.3);">ROUND 1</span>
+                </div>
                 <div class="form-group" style="margin-bottom: 0.75rem;">
-                  <label style="font-size: 0.8rem;">Review Status</label>
+                  <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">Review Round Verdict / Status</label>
                   <select id="review-status-select" class="form-control" style="font-size: 0.8rem;">
-                    <option value="APPROVED">APPROVED (Passes Code Review)</option>
-                    <option value="CHANGES_REQUESTED">CHANGES REQUESTED (Needs Refactoring)</option>
-                    <option value="DRAFT">DRAFT WORK IN PROGRESS</option>
+                    <option value="APPROVED">APPROVED (Solution Passes Review)</option>
+                    <option value="CHANGES_REQUESTED">CHANGES REQUESTED (Needs Refactoring / Optimization)</option>
+                    <option value="DRAFT">DRAFT (Preliminary Notes / Work in Progress)</option>
                   </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 0.75rem;">
-                  <label style="font-size: 0.8rem;">Admin Feedback / Summary Notes</label>
-                  <textarea id="admin-review-notes" class="form-control" rows="3" placeholder="Enter code review round decision notes..." style="font-size: 0.8rem;"></textarea>
+                  <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">Review Round Summary Notes &amp; Justification</label>
+                  <textarea id="admin-review-notes" class="form-control font-mono" rows="3" placeholder="Enter official code review round decision notes..." style="font-size: 0.78rem;"></textarea>
                 </div>
-                <button id="btn-publish-review-round" class="btn-retro btn-green" style="width: 100%; font-size: 0.8rem;">Publish Review Round</button>
+                <button id="btn-publish-review-round" class="btn-retro btn-green" style="width: 100%; font-size: 0.8rem; padding: 6px;">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" shape-rendering="crispEdges" class="hr-icon"><path d="M10 18H8v-2h2v2Zm-2-2H6v-2h2v2Zm4-2v2h-2v-2h2Zm-6 0H4v-2h2v2Zm8 0h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2V8h2v2Zm2-2h-2V6h2v2Z"/></svg>
+                  <span id="btn-publish-review-round-text">Publish Review Round #1 (Approved)</span>
+                </button>
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; text-align: center;">Line comment approvals are saved directly to the code thread. Publishing this round records the official review milestone.</div>
               </div>
 
               <!-- Review Rounds Timeline -->

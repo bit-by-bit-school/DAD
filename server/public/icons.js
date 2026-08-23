@@ -343,6 +343,20 @@ const HRIcons = {
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon hr-icon-success">
       <path d="M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM7 12h2v2H7zm2 2h2v2H9zm2-2h2v2h-2zm2-2h2v2h-2zm2-2h2v2h-2z"/>
     </svg>
+  `,
+
+  // Pixelarticons: Shuffle (Official halfmage/pixelarticons)
+  shuffle: (size = 16) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
+      <path d="M10 19H2v-2h8v2Zm12 0h-8v-2h8v2Zm-10-2h-2v-6h2v6Zm6-10h2v2h2v2h-2v2h-2v2h-2v-4h-4V9h4V5h2v2ZM8 11H2V9h6v2Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Dice (High-Contrast 5-Pip Pixel Die)
+  dice: (size = 18) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
+      <path d="M2 2h20v20H2V2Zm3 3v14h14V5H5Zm2 2h3v3H7V7Zm7 0h3v3h-3V7Zm-4 3h4v4h-4v-4ZM7 14h3v3H7v-3Zm7 0h3v3h-3v-3Z"/>
+    </svg>
   `
 };
 

@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"hackerrank-server/db"
 	"hackerrank-server/models"
+	"hackerrank-server/services"
 )
 
 func AdminGetUsersHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,6 +61,14 @@ func AdminGetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"users": result})
 }
 
+func AdminGetTokenSuggestionHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	suggestedToken := services.GenerateUniqueTechToken(db.DB)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"token": suggestedToken,
+	})
+}
+
 func AdminGenerateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -69,6 +76,7 @@ func AdminGenerateTokenHandler(w http.ResponseWriter, r *http.Request) {
 		Username        string  `json:"username"`
 		Role            string  `json:"role"`
 		DiscordUsername *string `json:"discordUsername"`
+		Token           *string `json:"token"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil || strings.TrimSpace(payload.Username) == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -82,14 +90,24 @@ func AdminGenerateTokenHandler(w http.ResponseWriter, r *http.Request) {
 		role = "ADMIN"
 	}
 
-	bytes := make([]byte, 16)
-	rand.Read(bytes)
-	token := "hr_" + hex.EncodeToString(bytes)
+	var token string
+	if payload.Token != nil && strings.TrimSpace(*payload.Token) != "" {
+		token = strings.TrimSpace(*payload.Token)
+	} else {
+		token = services.GenerateUniqueTechToken(db.DB)
+	}
 
 	var existing models.User
 	if db.DB.Where("username = ?", username).First(&existing).Error == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Username \"%s\" already exists.", username)})
+		return
+	}
+
+	var existingToken models.User
+	if db.DB.Where("token = ?", token).First(&existingToken).Error == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Token \"%s\" is already assigned to @%s. Please choose or shuffle a different token.", token, existingToken.Username)})
 		return
 	}
 
@@ -114,6 +132,53 @@ func AdminGenerateTokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"user":    user,
+	})
+}
+
+func AdminUpdateUserTokenHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	targetID := chi.URLParam(r, "id")
+
+	var user models.User
+	if err := db.DB.Where("id = ?", targetID).First(&user).Error; err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})
+		return
+	}
+
+	var payload struct {
+		Token *string `json:"token"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		return
+	}
+
+	var newToken string
+	if payload.Token != nil && strings.TrimSpace(*payload.Token) != "" {
+		newToken = strings.TrimSpace(*payload.Token)
+	} else {
+		newToken = services.GenerateUniqueTechToken(db.DB)
+	}
+
+	var existingToken models.User
+	if db.DB.Where("token = ? AND id != ?", newToken, targetID).First(&existingToken).Error == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Token \"%s\" is already assigned to @%s. Please choose or shuffle a different token.", newToken, existingToken.Username)})
+		return
+	}
+
+	if err := db.DB.Model(&user).Update("token", newToken).Error; err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	user.Token = newToken
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 		"user":    user,

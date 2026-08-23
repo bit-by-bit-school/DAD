@@ -86,7 +86,9 @@ func main() {
 		r.Use(handlers.RequireAdminMiddleware)
 
 		r.Get("/users", handlers.AdminGetUsersHandler)
+		r.Get("/tokens/generate", handlers.AdminGetTokenSuggestionHandler)
 		r.Post("/tokens", handlers.AdminGenerateTokenHandler)
+		r.Put("/users/{id}/token", handlers.AdminUpdateUserTokenHandler)
 		r.Post("/advance-map-discord", handlers.AdminAdvanceMapDiscordHandler)
 		r.Get("/unmapped-discords", handlers.AdminGetUnmappedDiscordsHandler)
 		r.Post("/map-discord", handlers.AdminMapDiscordHandler)

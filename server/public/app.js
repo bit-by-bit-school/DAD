@@ -218,6 +218,13 @@
   const tokenUsernameInput = document.getElementById('token-username-input');
   const tokenDiscordInput = document.getElementById('token-discord-input');
   const tokenRoleSelect = document.getElementById('token-role-select');
+  const tokenCustomInput = document.getElementById('token-custom-input');
+  const btnShuffleCreateToken = document.getElementById('btn-shuffle-create-token');
+  const btnToggleCreateTokenEdit = document.getElementById('btn-toggle-create-token-edit');
+  const btnCloseCreateTokenEdit = document.getElementById('btn-close-create-token-edit');
+  const createTokenEditBox = document.getElementById('create-token-edit-box');
+  const createTokenDisplayVal = document.getElementById('create-token-display-val');
+  const createTokenWordCountBadge = document.getElementById('create-token-word-count-badge');
   const adminUsersList = document.getElementById('admin-users-list');
   const unmappedDiscordContainer = document.getElementById('unmapped-discord-container');
   const formAdvanceDiscordMap = document.getElementById('form-advance-discord-map');
@@ -615,8 +622,23 @@
     // Publish Review Round
     btnPublishReviewRound.addEventListener('click', publishReviewRound);
 
-    // Admin Token Form
+    // Admin Token Form & Edit Drawer
     if (formCreateToken) formCreateToken.addEventListener('submit', createToken);
+    if (btnToggleCreateTokenEdit) {
+      btnToggleCreateTokenEdit.addEventListener('click', () => {
+        if (!createTokenEditBox) return;
+        const isHidden = createTokenEditBox.style.display === 'none';
+        createTokenEditBox.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden && tokenCustomInput) tokenCustomInput.focus();
+      });
+    }
+    if (btnCloseCreateTokenEdit) {
+      btnCloseCreateTokenEdit.addEventListener('click', () => {
+        if (createTokenEditBox) createTokenEditBox.style.display = 'none';
+      });
+    }
+    if (btnShuffleCreateToken) btnShuffleCreateToken.addEventListener('click', shuffleFormToken);
+    if (tokenCustomInput) tokenCustomInput.addEventListener('input', updateTokenWordCountBadge);
 
     // Advance Discord Pre-Mapping Form
     if (formAdvanceDiscordMap) {
@@ -2101,15 +2123,15 @@
       card.innerHTML = `
         <div class="draft-comment-header">
           <div style="display: flex; align-items: center; gap: 0.4rem;">
-            <span class="draft-badge">${HRIcons.aiSpark(11)} AI DRAFT</span>
-            <button class="line-tag-badge" onclick="scrollToMonacoLines(${d.startLine}, ${d.endLine})">${HRIcons.target(11)} ${lineText}</button>
+            <span class="draft-badge">${HRIcons.aiSpark(14)} AI DRAFT</span>
+            <button class="line-tag-badge" onclick="scrollToMonacoLines(${d.startLine}, ${d.endLine})">${HRIcons.target(14)} ${lineText}</button>
           </div>
           <span style="font-size: 0.7rem; color: var(--color-brand);">${escapeHtml(d.type)}</span>
         </div>
         <div class="draft-comment-content">${escapeHtml(d.content)}</div>
         <div class="draft-comment-actions">
-          <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">${HRIcons.close(11)} Reject</button>
-          <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">${HRIcons.check(11)} Approve</button>
+          <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">${HRIcons.close(14)} Reject</button>
+          <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">${HRIcons.check(14)} Approve</button>
         </div>
       `;
 
@@ -2236,22 +2258,22 @@
         if (draftObj && typeof draftObj === 'object') {
           let formattedText = '';
           if (draftObj.complexity && draftObj.complexity !== 'Unknown') {
-            formattedText += `⚡ Algorithmic Complexity: ${draftObj.complexity}\n`;
+            formattedText += `[Complexity] ${draftObj.complexity}\n`;
           }
           if (draftObj.clevernessScore || draftObj.readabilityScore) {
-            formattedText += `★ AI Rating Estimate: Cleverness ${draftObj.clevernessScore || '-'}/5, Readability ${draftObj.readabilityScore || '-'}/5\n\n`;
+            formattedText += `[Rating Estimate] Cleverness ${draftObj.clevernessScore || '-'}/5, Readability ${draftObj.readabilityScore || '-'}/5\n\n`;
           }
           if (draftObj.summary) {
-            formattedText += `📋 Code Analysis Summary:\n${draftObj.summary}\n\n`;
+            formattedText += `[Summary]\n${draftObj.summary}\n\n`;
           }
           if (Array.isArray(draftObj.strengths) && draftObj.strengths.length > 0) {
-            formattedText += `✓ Strengths:\n${draftObj.strengths.map(s => `• ${s}`).join('\n')}\n\n`;
+            formattedText += `[Strengths]\n${draftObj.strengths.map(s => `- ${s}`).join('\n')}\n\n`;
           }
           if (draftObj.edgeCases) {
-            formattedText += `⚠️ Edge Cases & Boundary Analysis:\n${draftObj.edgeCases}\n\n`;
+            formattedText += `[Edge Cases & Boundaries]\n${draftObj.edgeCases}\n\n`;
           }
           if (Array.isArray(draftObj.suggestions) && draftObj.suggestions.length > 0) {
-            formattedText += `💡 Recommendations:\n${draftObj.suggestions.map(s => `• ${s}`).join('\n')}\n`;
+            formattedText += `[Recommendations]\n${draftObj.suggestions.map(s => `- ${s}`).join('\n')}\n`;
           }
           if (draftObj.error) {
             formattedText += `\n[Notice: ${draftObj.error}]`;
@@ -2344,6 +2366,109 @@
     }
   }
 
+  // Tech/Science/Programming Vocabulary for Token Generation
+  const TechAdverbs = [
+    'recursively', 'dynamically', 'asynchronously', 'concurrently', 'statically',
+    'cryptographically', 'deterministically', 'atomically', 'linearly', 'logarithmically',
+    'algorithmically', 'heuristically', 'seamlessly', 'robustly', 'programmatically',
+    'iteratively', 'polymorphically', 'declaratively', 'imperatively', 'securely',
+    'efficiently', 'automatically', 'systematically', 'serially', 'infinitely',
+    'digitally', 'optically', 'syntactically', 'semantically', 'topologically',
+    'orthogonally', 'symbolically', 'continuously', 'natively', 'densely',
+    'computationally', 'kinetically', 'magnetically', 'quantumly', 'structurally',
+    'modularly', 'relationaly', 'spatially', 'temporally', 'vectorially'
+  ];
+
+  const TechVerbs = [
+    'compile', 'execute', 'render', 'parse', 'deploy',
+    'optimize', 'traverse', 'mutate', 'serialize', 'deserialize',
+    'encrypt', 'decrypt', 'synthesize', 'allocate', 'calibrate',
+    'refactor', 'benchmark', 'stream', 'pipeline', 'index',
+    'bootstrap', 'dispatch', 'synchronize', 'orchestrate', 'tokenize',
+    'cache', 'compute', 'resolve', 'deconstruct', 'propagate',
+    'transform', 'override', 'vectorize', 'interpolate', 'compress',
+    'validate', 'integrate', 'iterate', 'amplify', 'decode',
+    'encode', 'simulate', 'transpile', 'isolate', 'instantiate',
+    'intercept', 'sanitize', 'rebalance', 'streamline'
+  ];
+
+  const TechAdjectives = [
+    'quantum', 'neural', 'binary', 'atomic', 'cyber',
+    'matrix', 'reactive', 'modular', 'immutable', 'distributed',
+    'polymorphic', 'recursive', 'asynchronous', 'deterministic', 'cryptographic',
+    'algorithmic', 'syntactic', 'semantic', 'topological', 'orthogonal',
+    'hexadecimal', 'kinetic', 'magnetic', 'photonic', 'prismatic',
+    'synaptic', 'isometric', 'heuristic', 'stateless', 'concurrent',
+    'monolithic', 'vectorized', 'spectral', 'dynamic', 'relational',
+    'temporal', 'discrete', 'stochastic', 'cellular', 'resonant',
+    'scalar', 'infinite', 'hypersonic', 'faultless', 'isomorphic',
+    'declarative', 'parallel', 'hyperbolic', 'cybernetic'
+  ];
+
+  const TechNouns = [
+    'kernel', 'syntax', 'tensor', 'matrix', 'qubit',
+    'daemon', 'flux', 'algorithm', 'vector', 'buffer',
+    'socket', 'pipeline', 'node', 'cluster', 'lattice',
+    'lambda', 'schema', 'protocol', 'bytecode', 'stack',
+    'heap', 'thread', 'mutex', 'semaphore', 'compiler',
+    'parser', 'runtime', 'register', 'packet', 'router',
+    'operand', 'monad', 'closure', 'proxy', 'gateway',
+    'nexus', 'automaton', 'circuit', 'transistor', 'neuron',
+    'prism', 'photon', 'plasma', 'catalyst', 'isotope',
+    'frequency', 'wavelet', 'topology', 'entropy', 'manifold',
+    'hypervisor', 'payload', 'interface', 'module', 'iterator',
+    'checksum', 'hyperplane', 'coroutine', 'microkernel', 'subroutine'
+  ];
+
+  function pickRandomWord(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function generateClientTechToken() {
+    const pattern = Math.floor(Math.random() * 10);
+    let words = [];
+    switch (pattern) {
+      case 0: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
+      case 1: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
+      case 2: words = [pickRandomWord(TechVerbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
+      case 3: words = [pickRandomWord(TechAdjectives), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
+      case 4: words = [pickRandomWord(TechAdjectives), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
+      case 5: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechVerbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
+      case 6: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
+      case 7: words = [pickRandomWord(TechVerbs), pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechNouns)]; break;
+      case 8: words = [pickRandomWord(TechAdjectives), pickRandomWord(TechNouns), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
+      case 9: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechAdjectives), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
+      default: words = [pickRandomWord(TechAdverbs), pickRandomWord(TechVerbs), pickRandomWord(TechNouns)]; break;
+    }
+    const clean = Array.from(new Set(words.map(w => (w || '').trim().toLowerCase()).filter(Boolean)));
+    if (clean.length < 3) {
+      return `${pickRandomWord(TechAdverbs)}-${pickRandomWord(TechVerbs)}-${pickRandomWord(TechNouns)}`;
+    }
+    return clean.join('-');
+  }
+
+  function updateTokenWordCountBadge() {
+    if (!tokenCustomInput) return;
+    const val = tokenCustomInput.value.trim();
+    if (createTokenDisplayVal) {
+      createTokenDisplayVal.textContent = val || '(empty)';
+    }
+    const parts = val.split(/[-_\s]+/).filter(Boolean);
+    const count = parts.length;
+    const label = `${count} word${count === 1 ? '' : 's'}`;
+    const color = (count >= 3 && count <= 4) ? 'var(--role-success)' : 'var(--role-attention)';
+    if (createTokenWordCountBadge) {
+      createTokenWordCountBadge.textContent = label;
+      createTokenWordCountBadge.style.color = color;
+    }
+  }
+
+  function shuffleFormToken() {
+    if (!tokenCustomInput) return;
+    tokenCustomInput.value = generateClientTechToken();
+    updateTokenWordCountBadge();
+  }
+
   // ADMIN CONTROL PANEL
   async function loadAdminPanel() {
     if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
@@ -2353,6 +2478,10 @@
     }
 
     if (adminDashboardBody) adminDashboardBody.style.display = 'block';
+
+    if (tokenCustomInput && !tokenCustomInput.value.trim()) {
+      shuffleFormToken();
+    }
 
     await loadAdminUsers();
     await loadUnmappedDiscords();
@@ -2377,20 +2506,52 @@
     adminUsersList.innerHTML = '';
     users.forEach(u => {
       const item = document.createElement('div');
-      item.style.cssText = 'background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;';
+      item.style.cssText = 'background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 0.75rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;';
       
       const isMasterAdmin = u.token === 'hr_admin_master_token_2026' || (state.currentUser && state.currentUser.id === u.id);
-      const deleteBtn = isMasterAdmin ? '' : `<button class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.7rem; padding: 2px 6px;" onclick="deleteAdminUser('${u.id}', '${escapeHtml(u.username)}')">Delete</button>`;
+      const deleteBtn = isMasterAdmin ? '' : `<button class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.7rem; padding: 3px 6px; display: inline-flex; align-items: center; gap: 4px;" onclick="deleteAdminUser('${u.id}', '${escapeHtml(u.username)}')">${HRIcons.trash(14)} <span>Delete</span></button>`;
 
       item.innerHTML = `
-        <div>
-          <div><strong>@${escapeHtml(u.username)}</strong> <span class="role-badge ${u.role.toLowerCase()}">${u.role}</span></div>
-          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Token: <code>${u.token}</code></div>
-          ${u.discordUsername ? `<div style="font-size: 0.7rem; color: #5865F2; font-weight: 600; margin-top: 2px; display: flex; align-items: center; gap: 4px;">${HRIcons.discord(12)} Discord: @${escapeHtml(u.discordUsername)}</div>` : ''}
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong>@${escapeHtml(u.username)}</strong>
+              <span class="role-badge ${u.role.toLowerCase()}">${u.role}</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span>Token:</span>
+              <code id="user-token-display-${u.id}" class="token-badge-code">${escapeHtml(u.token)}</code>
+            </div>
+            ${u.discordUsername ? `<div style="font-size: 0.7rem; color: #5865F2; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 4px;">${HRIcons.discord(14)} Discord: @${escapeHtml(u.discordUsername)}</div>` : ''}
+          </div>
+          <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-retro btn-cyan" style="font-size: 0.7rem; padding: 3px 7px; display: inline-flex; align-items: center; gap: 4px;" onclick="copyToken('${escapeHtml(u.token)}')">
+              ${HRIcons.copy(14)} <span>Copy</span>
+            </button>
+            <button class="btn-retro btn-pink" style="font-size: 0.7rem; padding: 3px 7px; display: inline-flex; align-items: center; gap: 4px;" title="Edit or Shuffle Token" onclick="toggleEditUserToken('${u.id}')">
+              ${HRIcons.edit(14)} <span>Edit Token</span>
+            </button>
+            ${deleteBtn}
+          </div>
         </div>
-        <div style="display: flex; gap: 0.4rem; align-items: center;">
-          <button class="btn-retro btn-pink" style="font-size: 0.7rem; padding: 2px 6px;" onclick="copyToken('${u.token}')">Copy Token</button>
-          ${deleteBtn}
+
+        <div id="user-token-edit-box-${u.id}" class="user-token-inline-edit" style="display: none;">
+          <div style="font-size: 0.7rem; color: var(--color-brand); display: flex; justify-content: space-between; align-items: center;">
+            <span>Edit Token for @${escapeHtml(u.username)}</span>
+            <span id="user-token-inline-count-${u.id}" style="color: var(--text-muted); font-family: var(--font-mono);"></span>
+          </div>
+          <div class="token-input-group">
+            <input type="text" id="user-token-input-${u.id}" class="form-control font-mono" value="${escapeHtml(u.token)}" oninput="updateInlineTokenWordCount('${u.id}')" autocomplete="off" spellcheck="false" />
+            <button type="button" class="btn-shuffle" onclick="shuffleInlineUserToken('${u.id}')" title="Shuffle 3-4 word combination">
+              ${HRIcons.shuffle(18)} <span>Shuffle</span>
+            </button>
+          </div>
+          <div class="user-token-edit-actions">
+            <button class="btn-retro btn-green" style="font-size: 0.7rem; padding: 3px 8px; display: inline-flex; align-items: center; gap: 4px;" onclick="saveUserToken('${u.id}', '${escapeHtml(u.username)}')">
+              ${HRIcons.check(14)} <span>Save Token</span>
+            </button>
+            <button class="btn-retro" style="font-size: 0.7rem; padding: 3px 8px;" onclick="toggleEditUserToken('${u.id}')">Cancel</button>
+          </div>
         </div>
       `;
       adminUsersList.appendChild(item);
@@ -2406,6 +2567,64 @@
   window.copyToken = function(t) {
     navigator.clipboard.writeText(t);
     alert('Token copied to clipboard!');
+  };
+
+  window.toggleEditUserToken = function(userId) {
+    const box = document.getElementById(`user-token-edit-box-${userId}`);
+    if (!box) return;
+    const isHidden = box.style.display === 'none';
+    box.style.display = isHidden ? 'flex' : 'none';
+    if (isHidden) {
+      const input = document.getElementById(`user-token-input-${userId}`);
+      if (input) {
+        input.focus();
+        window.updateInlineTokenWordCount(userId);
+      }
+    }
+  };
+
+  window.updateInlineTokenWordCount = function(userId) {
+    const input = document.getElementById(`user-token-input-${userId}`);
+    const badge = document.getElementById(`user-token-inline-count-${userId}`);
+    if (!input || !badge) return;
+    const parts = input.value.trim().split(/[-_\s]+/).filter(Boolean);
+    const count = parts.length;
+    badge.textContent = `${count} word${count === 1 ? '' : 's'}`;
+    badge.style.color = (count >= 3 && count <= 4) ? 'var(--role-success)' : 'var(--role-attention)';
+  };
+
+  window.shuffleInlineUserToken = function(userId) {
+    const input = document.getElementById(`user-token-input-${userId}`);
+    if (!input) return;
+    input.value = generateClientTechToken();
+    window.updateInlineTokenWordCount(userId);
+  };
+
+  window.saveUserToken = async function(userId, username) {
+    const input = document.getElementById(`user-token-input-${userId}`);
+    if (!input) return;
+    const token = input.value.trim();
+    if (!token) return alert('Token cannot be empty');
+
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/token`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.currentToken}`
+        },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Token for @${username} saved successfully:\n${data.user.token}`);
+        await loadAdminUsers();
+      } else {
+        alert('Failed to save token: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error saving token: ' + err.message);
+    }
   };
 
   window.deleteAdminUser = async function(userId, username) {
@@ -2432,8 +2651,9 @@
     const username = tokenUsernameInput.value.trim();
     const discordUsername = tokenDiscordInput ? tokenDiscordInput.value.trim() : null;
     const role = tokenRoleSelect.value;
+    const token = tokenCustomInput ? tokenCustomInput.value.trim() : '';
 
-    if (!username) return;
+    if (!username) return alert('Please enter a username');
 
     try {
       const res = await fetch('/api/admin/tokens', {
@@ -2442,7 +2662,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${state.currentToken}`
         },
-        body: JSON.stringify({ username, role, discordUsername })
+        body: JSON.stringify({ username, role, discordUsername, token })
       });
 
       const data = await res.json();
@@ -2450,6 +2670,9 @@
         alert(`Token created for @${data.user.username}!\nToken: ${data.user.token}`);
         tokenUsernameInput.value = '';
         if (tokenDiscordInput) tokenDiscordInput.value = '';
+        if (tokenCustomInput) {
+          shuffleFormToken();
+        }
         await loadAdminUsers();
       } else {
         alert('Failed to create token: ' + data.error);

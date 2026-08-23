@@ -1565,3 +1565,98 @@ select option,
   }
 }
 
+/* ==========================================================================
+   3-4 Word Tech Token Generator & Admin Inline Editor Components
+   ========================================================================== */
+.token-input-group {
+  display: flex;
+  gap: 0.4rem;
+  align-items: stretch;
+}
+
+.token-input-group .form-control {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--color-brand);
+  background: #06080D;
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.token-input-group .form-control:focus {
+  border-color: var(--color-brand);
+  box-shadow: inset 2px 2px 0px #000, 0 0 10px var(--color-brand-glow);
+}
+
+.btn-shuffle {
+  background: var(--bg-elevated);
+  border: 1px solid var(--color-brand);
+  color: var(--color-brand);
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  padding: 0 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer !important;
+  box-shadow: 2px 2px 0px #000;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-shuffle .hr-icon,
+.btn-shuffle svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0;
+}
+
+.btn-shuffle:hover {
+  background: var(--color-brand-dim);
+  color: #FFFFFF;
+  box-shadow: 2px 2px 0px #000, 0 0 8px var(--color-brand-glow);
+}
+
+.btn-shuffle:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #000;
+}
+
+.token-helper-text {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 0.35rem;
+  line-height: 1.35;
+  font-family: var(--font-segment);
+}
+
+.token-badge-code {
+  font-family: var(--font-mono);
+  background: #06080D;
+  padding: 2px 6px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  color: var(--color-brand);
+  font-size: 0.75rem;
+  user-select: all;
+  letter-spacing: 0.3px;
+  word-break: break-all;
+}
+
+.user-token-inline-edit {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px dashed var(--color-brand);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.user-token-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+

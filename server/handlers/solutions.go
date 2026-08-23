@@ -16,6 +16,7 @@ import (
 	"gorm.io/gorm"
 	"hackerrank-server/db"
 	"hackerrank-server/models"
+	"hackerrank-server/services"
 )
 
 type SyncSolutionItem struct {
@@ -309,10 +310,11 @@ func SolutionsListHandler(w http.ResponseWriter, r *http.Request) {
 
 	type FormattedSolution struct {
 		models.Solution
-		ClevernessAvg  *float64 `json:"clevernessAvg"`
-		ReadabilityAvg *float64 `json:"readabilityAvg"`
-		RatingsCount   int      `json:"ratingsCount"`
-		Count          struct {
+		ClevernessAvg      *float64 `json:"clevernessAvg"`
+		ReadabilityAvg     *float64 `json:"readabilityAvg"`
+		DescriptionSnippet string   `json:"descriptionSnippet"`
+		RatingsCount       int      `json:"ratingsCount"`
+		Count              struct {
 			Comments     int64 `json:"comments"`
 			ReviewRounds int64 `json:"reviewRounds"`
 		} `json:"_count"`
@@ -338,10 +340,11 @@ func SolutionsListHandler(w http.ResponseWriter, r *http.Request) {
 		db.DB.Model(&models.ReviewRound{}).Where("solutionId = ?", sol.ID).Count(&reviewCount)
 
 		item := FormattedSolution{
-			Solution:       sol,
-			ClevernessAvg:  cAvg,
-			ReadabilityAvg: rAvg,
-			RatingsCount:   len(sol.Ratings),
+			Solution:           sol,
+			ClevernessAvg:      cAvg,
+			ReadabilityAvg:     rAvg,
+			DescriptionSnippet: services.GetProblemSnippet(sol.ChallengeSlug),
+			RatingsCount:       len(sol.Ratings),
 		}
 		item.Ratings = nil // Omit raw ratings array in list view for performance
 		item.Count.Comments = commentCount
@@ -369,6 +372,21 @@ func SolutionsListHandler(w http.ResponseWriter, r *http.Request) {
 			"hasMore":    hasMore,
 			"nextOffset": nextOffset,
 		},
+	})
+}
+
+func ProblemGetHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	slug := chi.URLParam(r, "slug")
+	problem := services.GetProblemDetails(slug)
+	if !problem.HasStatement && problem.Snippet == "" {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Problem not found"})
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"problem": problem,
 	})
 }
 
@@ -414,17 +432,21 @@ func SolutionsGetSingleHandler(w http.ResponseWriter, r *http.Request) {
 		rAvg = &rVal
 	}
 
+	problemStatement := services.GetProblemDetails(sol.ChallengeSlug)
+
 	type SingleSolutionWrapper struct {
 		models.Solution
-		ClevernessAvg  *float64 `json:"clevernessAvg"`
-		ReadabilityAvg *float64 `json:"readabilityAvg"`
+		ClevernessAvg    *float64                `json:"clevernessAvg"`
+		ReadabilityAvg   *float64                `json:"readabilityAvg"`
+		ProblemStatement services.ProblemDetails `json:"problemStatement"`
 	}
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"solution": SingleSolutionWrapper{
-			Solution:       sol,
-			ClevernessAvg:  cAvg,
-			ReadabilityAvg: rAvg,
+			Solution:         sol,
+			ClevernessAvg:    cAvg,
+			ReadabilityAvg:   rAvg,
+			ProblemStatement: problemStatement,
 		},
 	})
 }

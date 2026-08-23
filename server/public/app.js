@@ -188,6 +188,13 @@
   const detailLanguageTag = document.getElementById('detail-language-tag');
   const detailUserName = document.getElementById('detail-user-name');
   const detailReviewStatusBadge = document.getElementById('detail-review-status-badge');
+  const detailHackerrankLink = document.getElementById('detail-hackerrank-link');
+  const btnQuickViewStatement = document.getElementById('btn-quick-view-statement');
+  const btnSubtabStatement = document.getElementById('btn-subtab-statement');
+  const detailStatementSlug = document.getElementById('detail-statement-slug');
+  const detailStatementTitle = document.getElementById('detail-statement-title');
+  const detailStatementExternalLink = document.getElementById('detail-statement-external-link');
+  const detailStatementContainer = document.getElementById('detail-statement-container');
   const monacoSelectionBadge = document.getElementById('monaco-selection-badge');
   const avgClevernessVal = document.getElementById('avg-cleverness-val');
   const avgReadabilityVal = document.getElementById('avg-readability-val');
@@ -543,13 +550,20 @@
       });
     });
 
-    // Sidebar navigation sub-tabs (Comments / Reviews / Ratings)
+    // Sidebar navigation sub-tabs (Comments / Description / Reviews / Ratings)
     document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetSubtab = btn.dataset.subtab;
         activateSidebarSubtab(targetSubtab, true);
       });
     });
+
+    // Quick View Problem Statement Button in Editor Toolbar
+    if (btnQuickViewStatement) {
+      btnQuickViewStatement.addEventListener('click', () => {
+        activateSidebarSubtab('subtab-statement', true);
+      });
+    }
 
     // Comment Filter Pills
     document.querySelectorAll('.comment-filter-pills .pill-btn').forEach(btn => {
@@ -1190,6 +1204,7 @@
     const cleverStarsHtml = renderStarsHtml(sol.clevernessAvg);
     const readStarsHtml = renderStarsHtml(sol.readabilityAvg);
     const commentsCount = sol._count?.comments !== undefined ? sol._count.comments : (sol.comments ? sol.comments.length : (sol._count?.reviewRounds || 0));
+    const descSnippet = sol.descriptionSnippet ? escapeHtml(sol.descriptionSnippet) : '';
 
     card.innerHTML = `
       <div>
@@ -1200,6 +1215,7 @@
         <div class="sol-meta">
           <span>By <strong>@${escapeHtml(sol.user?.username || 'unknown')}</strong></span>
         </div>
+        ${descSnippet ? `<div class="sol-desc-snippet" title="${descSnippet}">${descSnippet}</div>` : ''}
       </div>
 
       <div class="sol-ratings-summary">
@@ -1220,6 +1236,31 @@
 
     card.addEventListener('click', () => openSolutionDetail(sol.id));
     return card;
+  }
+
+  // Load Problem Statement (Fallback / Direct)
+  async function loadProblemStatement(slug) {
+    if (!detailStatementContainer || !slug) return;
+    detailStatementContainer.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 2rem 1rem;"><div class="spinner-retro" style="margin-bottom: 8px;"></div><br>Loading problem statement...</div>';
+    try {
+      const res = await fetch(`/api/problems/${slug}`);
+      const data = await res.json();
+      if (data.problem && data.problem.statementHtml) {
+        detailStatementContainer.innerHTML = data.problem.statementHtml;
+      } else {
+        detailStatementContainer.innerHTML = `
+          <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
+            <p style="margin-bottom: 0.75rem;">Problem statement not available locally.</p>
+            <a href="https://www.hackerrank.com/challenges/${slug}/problem" target="_blank" rel="noopener noreferrer" class="btn-retro btn-cyan" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+              <span>View on HackerRank</span>
+              ${HRIcons.external(12)}
+            </a>
+          </div>
+        `;
+      }
+    } catch (e) {
+      detailStatementContainer.innerHTML = `<div style="color: var(--role-critical); font-size: 0.8rem; padding: 1rem;">Failed to load problem statement: ${escapeHtml(e.message)}</div>`;
+    }
   }
 
   // Open Solution Detail Tab (Merged Workspace)
@@ -1249,6 +1290,30 @@
           detailReviewStatusBadge.style.display = 'inline-block';
           detailReviewStatusBadge.textContent = 'UNREVIEWED';
           detailReviewStatusBadge.className = 'role-badge user';
+        }
+      }
+
+      // Render Problem Statement & Challenge Links
+      const problem = sol.problemStatement || null;
+      const challengeUrl = problem?.url || `https://www.hackerrank.com/challenges/${sol.challengeSlug}/problem`;
+      if (detailHackerrankLink) {
+        detailHackerrankLink.style.display = 'inline-flex';
+        detailHackerrankLink.href = challengeUrl;
+      }
+      if (detailStatementSlug) {
+        detailStatementSlug.textContent = sol.challengeSlug ? sol.challengeSlug.toUpperCase() : 'CHALLENGE';
+      }
+      if (detailStatementTitle) {
+        detailStatementTitle.textContent = sol.challengeTitle || 'Problem Statement';
+      }
+      if (detailStatementExternalLink) {
+        detailStatementExternalLink.href = challengeUrl;
+      }
+      if (detailStatementContainer) {
+        if (problem && problem.statementHtml) {
+          detailStatementContainer.innerHTML = problem.statementHtml;
+        } else {
+          loadProblemStatement(sol.challengeSlug);
         }
       }
 

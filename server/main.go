@@ -80,6 +80,9 @@ func main() {
 	// Public Users directory
 	r.Get("/api/users", handlers.GetUsersListPublicHandler)
 
+	// Public Problem Statements
+	r.Get("/api/problems/{slug}", handlers.ProblemGetHandler)
+
 	// Admin routes (Require Auth + Admin)
 	r.Route("/api/admin", func(r chi.Router) {
 		r.Use(handlers.AuthenticateMiddleware)
@@ -98,6 +101,7 @@ func main() {
 	// Solutions routes
 	r.Route("/api/solutions", func(r chi.Router) {
 		r.Get("/users", handlers.SolutionsGetUsersHandler)
+		r.Get("/problem/{slug}", handlers.ProblemGetHandler)
 		r.Get("/", handlers.SolutionsListHandler)
 
 		// Authenticated solution operations

@@ -19,9 +19,9 @@ var DB *gorm.DB
 func InitDB() *gorm.DB {
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		dbURL = "prisma/dev.db"
+		dbURL = "dev.db"
 	} else {
-		// Clean file: prefix if present in env (e.g. file:./prisma/dev.db -> prisma/dev.db)
+		// Clean file: prefix if present in env (e.g. file:./dev.db -> ./dev.db)
 		dbURL = strings.TrimPrefix(dbURL, "file:")
 	}
 

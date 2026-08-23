@@ -3,14 +3,15 @@ node_modules/
 **/node_modules/
 /.pnpm-store
 
-# SQLite Database & Prisma
+# SQLite Database
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
 *.sqlite3
 dev.db
 server/dev.db
-server/prisma/*.db
 
 # Build & Output
 dist/

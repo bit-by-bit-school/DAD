@@ -480,6 +480,9 @@
 
         state.editor.onMouseLeave(() => clearMonacoLineHighlight());
 
+        state.editor.onDidScrollChange(() => syncMonacoViewZoneVisibility());
+        state.editor.onDidChangeModelContent(() => syncMonacoViewZoneVisibility());
+
         // Global debounced resize listener for Monaco editor responsiveness
         let resizeTimer = null;
         window.addEventListener('resize', () => {
@@ -487,9 +490,17 @@
           resizeTimer = setTimeout(() => {
             if (state.editor) {
               state.editor.layout();
+              syncMonacoViewZoneVisibility();
             }
           }, 100);
         });
+
+        // Re-sync active solution code once Monaco is fully ready
+        const params = new URLSearchParams(window.location.search);
+        const solId = state.activeSolution ? state.activeSolution.id : (params.get('solutionId') || params.get('solution') || params.get('id'));
+        if (solId) {
+          openSolutionDetail(solId, false);
+        }
       });
     }
   }
@@ -521,13 +532,14 @@
       },
       getPosition: function() {
         if (!state.showSelectionTooltip || !state.currentSelection) return null;
+        if (state.activeInlineLine !== null && state.activeInlineLine !== undefined) return null;
         return {
           position: {
-            lineNumber: state.currentSelection.endLine,
+            lineNumber: state.currentSelection.startLine,
             column: 1
           },
           preference: [
-            monaco.editor.ContentWidgetPositionPreference.BELOW
+            monaco.editor.ContentWidgetPositionPreference.ABOVE
           ]
         };
       }
@@ -1841,6 +1853,7 @@
     state.currentSelection = { startLine: sLine, endLine: eLine };
     state.activeInlineLine = eLine;
     state.collapsedZones.delete(eLine);
+    hideSelectionTooltip();
 
     updateMonacoViewZones();
     setTimeout(() => {
@@ -1922,6 +1935,9 @@
   function updateMonacoViewZones() {
     if (!state.editor || typeof monaco === 'undefined') return;
 
+    const model = state.editor.getModel();
+    const maxLines = model ? model.getLineCount() : 1;
+
     const comments = state.activeSolution?.comments || [];
     const drafts = (state.currentUser && state.currentUser.role === 'ADMIN') ? (state.activeDraftComments || []) : [];
 
@@ -1989,6 +2005,7 @@
 
         const zoneNode = document.createElement('div');
         zoneNode.className = `monaco-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
+        zoneNode.setAttribute('data-line', lineNum);
 
         // Build HTML content for thread
         let publishedCommentsHtml = '';
@@ -2223,8 +2240,10 @@
         zoneNode.style.maxHeight = dynamicHeight + 'px';
         zoneNode.style.boxSizing = 'border-box';
 
+        const targetLine = Math.min(Math.max(1, lineNum), maxLines);
+
         const zoneId = accessor.addZone({
-          afterLineNumber: lineNum,
+          afterLineNumber: targetLine,
           heightInPx: dynamicHeight,
           domNode: zoneNode,
           suppressMouseDown: true
@@ -2233,7 +2252,40 @@
         state.viewZoneIds.push(zoneId);
       });
     });
+
+    setTimeout(() => syncMonacoViewZoneVisibility(), 40);
   }
+
+  function syncMonacoViewZoneVisibility() {
+    if (!state.editor || typeof monaco === 'undefined') return;
+    const visibleRanges = state.editor.getVisibleRanges();
+    if (!visibleRanges || visibleRanges.length === 0) return;
+
+    const startLine = visibleRanges[0].startLineNumber;
+    const endLine = visibleRanges[0].endLineNumber;
+
+    const bufStart = Math.max(1, startLine - 3);
+    const bufEnd = endLine + 3;
+
+    const zoneNodes = document.querySelectorAll('.monaco-inline-thread-zone');
+    zoneNodes.forEach(node => {
+      const lineAttr = node.getAttribute('data-line');
+      if (lineAttr) {
+        const lNum = parseInt(lineAttr);
+        const isInputActive = (state.activeInlineLine === lNum);
+        const isVisible = isInputActive || (lNum >= bufStart && lNum <= bufEnd);
+        
+        if (!isVisible) {
+          node.style.setProperty('display', 'none', 'important');
+          node.style.setProperty('visibility', 'hidden', 'important');
+        } else {
+          node.style.setProperty('display', 'flex', 'important');
+          node.style.setProperty('visibility', 'visible', 'important');
+        }
+      }
+    });
+  }
+  window.syncMonacoViewZoneVisibility = syncMonacoViewZoneVisibility;
 
   // AI Draft Comments Renderer & Approve/Reject Handlers
   function renderAiDraftComments() {

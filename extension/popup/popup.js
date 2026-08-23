@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const fetchAlert = document.getElementById('fetch-alert');
   const alertMessage = document.getElementById('alert-message');
 
+  const serverUrlInput = document.getElementById('server-url-input');
   const serverTokenInput = document.getElementById('server-token-input');
   const saveTokenBtn = document.getElementById('save-token-btn');
   const syncNowBtn = document.getElementById('sync-now-btn');
@@ -50,12 +51,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     problemSlugs = Object.keys(problems);
   }
 
-  // Load local server settings into popup
+  // Load server settings into popup
   async function loadServerSettings() {
     const settings = await HRStorage.getSettings();
+    if (serverUrlInput) {
+      serverUrlInput.value = settings.serverUrl || 'http://localhost:3000';
+    }
     if (settings.authToken) {
       serverTokenInput.value = settings.authToken;
-      syncStatusBadge.textContent = 'Token Set';
+      const isLocal = (settings.serverUrl || '').includes('localhost') || (settings.serverUrl || '').includes('127.0.0.1');
+      syncStatusBadge.textContent = isLocal ? 'Local Server' : 'Prod Server';
       syncStatusBadge.style.color = '#00EA64';
     } else {
       syncStatusBadge.textContent = 'Token Unset';
@@ -63,11 +68,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Save server token handler
+  // Save server config handler
   saveTokenBtn.addEventListener('click', async () => {
+    let url = serverUrlInput ? serverUrlInput.value.trim() : '';
+    if (url && !/^https?:\/\//i.test(url)) {
+      url = `http://${url}`;
+      if (serverUrlInput) serverUrlInput.value = url;
+    }
     const token = serverTokenInput.value.trim();
-    await HRStorage.saveSettings({ authToken: token });
-    showSyncAlert(token ? 'Token saved successfully!' : 'Token cleared.', token ? 'success' : 'error');
+    await HRStorage.saveSettings({ serverUrl: url || 'http://localhost:3000', authToken: token });
+    showSyncAlert(token ? `Server config saved! Target: ${url || 'http://localhost:3000'}` : 'Config updated.', 'success');
     await loadServerSettings();
   });
 
@@ -75,12 +85,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   syncNowBtn.addEventListener('click', async () => {
     syncNowBtn.disabled = true;
     syncNowBtn.textContent = 'Syncing...';
-    showSyncAlert('Syncing solutions to local backend server...', 'info');
+
+    // Save inputs automatically before syncing
+    let url = serverUrlInput ? serverUrlInput.value.trim() : '';
+    if (url && !/^https?:\/\//i.test(url)) {
+      url = `http://${url}`;
+      if (serverUrlInput) serverUrlInput.value = url;
+    }
+    const token = serverTokenInput.value.trim();
+    if (url || token) {
+      await HRStorage.saveSettings({ serverUrl: url || 'http://localhost:3000', authToken: token });
+    }
+
+    const settings = await HRStorage.getSettings();
+    const activeUrl = settings.serverUrl || 'http://localhost:3000';
+    showSyncAlert(`Syncing solutions to ${activeUrl}...`, 'info');
 
     try {
       const result = await HRSync.pushToServer();
       if (result.success) {
-        showSyncAlert(`Synced ${result.syncedCount} solutions as user @${result.syncedUser}!`, 'success');
+        showSyncAlert(`Synced ${result.syncedCount} solutions to server (@${result.syncedUser})!`, 'success');
       } else {
         showSyncAlert(`Sync failed: ${result.error}`, 'error');
       }

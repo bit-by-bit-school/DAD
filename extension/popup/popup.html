@@ -163,7 +163,7 @@
         </div>
       </section>
 
-      <!-- Local Backend Server Sync Section -->
+      <!-- Server Auto-Sync Section (Local / Production) -->
       <section class="card server-card">
         <div class="card-header">
           <div class="card-title-group">
@@ -172,11 +172,22 @@
               <path d="M4 6h16v2H4zm4 14H6v-6h2zm2 2H8v-2h2zm0-2H8v-8h2zm10-4h2v-5h-2z" />
               <path d="M20 18H4v-2h16z" />
             </svg>
-            <h2>Local Server Auto-Sync</h2>
+            <h2>Server Auto-Sync</h2>
           </div>
           <span id="sync-status-badge" class="card-hint">Offline / Unset</span>
         </div>
         <div class="server-sync-form">
+          <div class="input-group">
+            <label for="server-url-input">Server URL (Prod / Local)</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              </span>
+              <input type="url" id="server-url-input" placeholder="http://localhost:3000 or https://your-prod-server.com" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
           <div class="input-group">
             <label for="server-token-input">Server Auth Token</label>
             <div class="input-wrapper">
@@ -191,7 +202,7 @@
             </div>
           </div>
           <div class="button-row">
-            <button type="button" id="save-token-btn" class="btn btn-secondary">Save Token</button>
+            <button type="button" id="save-token-btn" class="btn btn-secondary">Save Config</button>
             <button type="button" id="sync-now-btn" class="btn btn-emerald">Sync Now</button>
           </div>
           <div id="sync-alert" class="alert hidden"></div>

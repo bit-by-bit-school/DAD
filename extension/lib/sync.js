@@ -10,7 +10,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   const HRSync = {
     /**
-     * Push all local solutions to the local backend server
+     * Push all local solutions to configured backend server (Local or Production)
      */
     async pushToServer() {
       if (typeof HRStorage === 'undefined') {
@@ -23,7 +23,7 @@
       const token = settings.authToken || '';
 
       if (!token) {
-        return { success: false, error: 'Local server Auth Token is not configured in settings.' };
+        return { success: false, error: `Server Auth Token is not configured for ${serverUrl}.` };
       }
 
       const solutionsMap = await HRStorage.getSolutions();

@@ -121,5 +121,17 @@ globalThis.localStorage = {
   assert(exported.users && exported.problems && exported.solutions, 'Export data structure valid');
   console.log(`✔ Export data payload verified (${JSON.stringify(exported).length} characters)`);
 
+  console.log('\n--- 7. Testing Prod Server Settings & Sync Module ---');
+  const syncCode = fs.readFileSync(path.join(EXT_DIR, 'lib', 'sync.js'), 'utf8');
+  new Function(syncCode)();
+  const HRSync = globalThis.HRSync;
+  assert(HRSync && typeof HRSync.pushToServer === 'function', 'HRSync module initialized');
+
+  await HRStorage.saveSettings({ serverUrl: 'https://prod-hackerrank.example.com', authToken: 'test_prod_token' });
+  const savedSettings = await HRStorage.getSettings();
+  assert.strictEqual(savedSettings.serverUrl, 'https://prod-hackerrank.example.com');
+  assert.strictEqual(savedSettings.authToken, 'test_prod_token');
+  console.log('✔ Prod Server URL and Auth Token successfully configured in settings');
+
   console.log('\n🎉 ALL EXTENSION MODULES AND ASSETS VERIFIED SUCCESSFULLY!');
 })();

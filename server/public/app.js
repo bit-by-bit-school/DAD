@@ -130,28 +130,33 @@
       const filtered = this.usersList.filter(u => u.username.toLowerCase().includes(searchTerm));
 
       if (filtered.length === 0) {
-        this.optionsContainer.innerHTML = '<div style="font-size: 0.75rem; color: var(--text-muted); padding: 0.4rem; text-align: center;">No users found</div>';
+        this.optionsContainer.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted); padding: 0.5rem; text-align: center; font-family: var(--font-segment);">No users found</div>';
         return;
       }
 
       filtered.forEach(u => {
         const isChecked = this.selectedUsernames.has(u.username);
         const label = document.createElement('label');
-        label.className = 'multiselect-option';
+        label.className = `multiselect-option${isChecked ? ' active' : ''}`;
+        label.style.fontFamily = "'Share Tech Mono', monospace";
+        label.style.fontSize = "0.85rem";
+        label.style.color = "var(--text-bright, #FFFFFF)";
 
         const solCount = u._count?.solutions !== undefined ? ` (${u._count.solutions})` : '';
 
         label.innerHTML = `
-          <input type="checkbox" value="${escapeHtml(u.username)}" ${isChecked ? 'checked' : ''}>
-          <span>@${escapeHtml(u.username)}${solCount}</span>
+          <input type="checkbox" value="${escapeHtml(u.username)}" ${isChecked ? 'checked' : ''} style="accent-color: var(--color-brand); cursor: pointer;">
+          <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: var(--text-bright, #FFFFFF);">@${escapeHtml(u.username)}${solCount}</span>
         `;
 
         const cb = label.querySelector('input');
         cb.addEventListener('change', (e) => {
           if (e.target.checked) {
             this.selectedUsernames.add(u.username);
+            label.classList.add('active');
           } else {
             this.selectedUsernames.delete(u.username);
+            label.classList.remove('active');
           }
           this.updateButtonLabel();
         });
@@ -169,7 +174,7 @@
         const singleName = Array.from(this.selectedUsernames)[0];
         this.label.textContent = `@${singleName}`;
       } else {
-        this.label.innerHTML = `${count} Users Selected <span class="multiselect-badge-count">${count}</span>`;
+        this.label.innerHTML = `${count} Users Selected <span class="multiselect-badge-count" style="font-family: 'Share Tech Mono', monospace;">${count}</span>`;
       }
     },
 

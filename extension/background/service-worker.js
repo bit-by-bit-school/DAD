@@ -54,9 +54,18 @@ async function updateBadge() {
 // Listen for messages from popup or dashboard
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'OPEN_DASHBOARD') {
-    const url = chrome.runtime.getURL('dashboard/dashboard.html') + (message.params ? `?${new URLSearchParams(message.params).toString()}` : '');
-    chrome.tabs.create({ url });
-    sendResponse({ success: true });
+    if (typeof HRStorage !== 'undefined') {
+      HRStorage.getSettings().then(settings => {
+        const serverUrl = settings.serverUrl || 'http://localhost:3000';
+        const token = settings.authToken || '';
+        const targetUrl = token ? `${serverUrl}?token=${encodeURIComponent(token)}` : serverUrl;
+        chrome.tabs.create({ url: targetUrl });
+        sendResponse({ success: true });
+      });
+    } else {
+      chrome.tabs.create({ url: 'http://localhost:3000' });
+      sendResponse({ success: true });
+    }
     return true;
   }
 

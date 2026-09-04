@@ -19,7 +19,7 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
   let reqPath = decodeURI(req.url.split('?')[0]);
-  if (reqPath === '/' || reqPath === '') reqPath = '/extension/dashboard/dashboard.html';
+  if (reqPath === '/' || reqPath === '') reqPath = '/server/public/index.html';
 
   const filePath = path.join(ROOT, reqPath);
 
@@ -41,5 +41,5 @@ const server = http.createServer((req, res) => {
 
 const PORT = 3456;
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/extension/dashboard/dashboard.html`);
+  console.log(`Server running at http://localhost:${PORT}/server/public/index.html`);
 });

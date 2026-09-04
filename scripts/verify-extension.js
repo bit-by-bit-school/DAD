@@ -47,12 +47,8 @@ new Function(storageCode)();
 const apiCode = fs.readFileSync(path.join(EXT_DIR, 'lib', 'api.js'), 'utf8');
 new Function(apiCode)();
 
-const highlighterCode = fs.readFileSync(path.join(EXT_DIR, 'lib', 'highlighter.js'), 'utf8');
-new Function(highlighterCode)();
-
 const HRStorage = globalThis.HRStorage;
 const HRAPI = globalThis.HRAPI;
-const HRHighlighter = globalThis.HRHighlighter;
 
 assert(globalThis.HR_SEED_DATA, 'HR_SEED_DATA is defined');
 assert(Array.isArray(globalThis.HR_PROBLEM_SLUGS), 'HR_PROBLEM_SLUGS is array');
@@ -99,22 +95,6 @@ globalThis.localStorage = {
   const smfSolutions = await HRStorage.getSolutionsForProblem('solve-me-first');
   assert(smfSolutions[testUser], 'Problem has testUser solution');
   console.log(`✔ Problem solve-me-first now has ${Object.keys(smfSolutions).length} user solutions`);
-
-  console.log('\n--- 5. Testing Code Highlighter & Diff ---');
-  const pyHighlighted = HRHighlighter.highlight('def foo(x):\n    # comment\n    return "hello" + str(x)\n', 'python');
-  assert(pyHighlighted.includes('token-keyword'), 'Keywords highlighted');
-  assert(pyHighlighted.includes('token-string'), 'Strings highlighted');
-  assert(pyHighlighted.includes('token-comment'), 'Comments highlighted');
-  console.log('✔ Python syntax highlighting validated');
-
-  const renderedLines = HRHighlighter.renderCodeWithLines('const a = 10;\nconsole.log(a);', 'javascript');
-  assert(renderedLines.includes('code-gutter'), 'Gutter present');
-  assert(renderedLines.includes('line-number'), 'Line numbers present');
-  console.log('✔ Line numbers and code container rendering validated');
-
-  const diffRender = HRHighlighter.renderSideBySideDiff('line 1\nline 2', 'line 1\nline 2 modified', 'python', 'python', 'UserA', 'UserB');
-  assert(diffRender.includes('diff-modified') || diffRender.includes('diff-pane'), 'Diff pane generated');
-  console.log('✔ Side-by-side comparison rendering validated');
 
   console.log('\n--- 6. Testing Export / Backup ---');
   const exported = await HRStorage.exportData();

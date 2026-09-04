@@ -41,19 +41,15 @@ HackerRank/
 │   │   └── service-worker.js      # Background worker & badge updater
 │   ├── lib/
 │   │   ├── storage.js             # Storage management & upsert logic
-│   │   ├── api.js                 # HackerRank REST API client
-│   │   └── highlighter.js         # Offline syntax highlighter & diff engine
+│   │   ├── sync.js                # Local server background sync module
+│   │   └── api.js                 # HackerRank REST API client
 │   ├── data/
 │   │   ├── seed-data.js           # Pre-compiled database with 442 problems & 404 solutions
 │   │   └── problems-list.js       # Array of 442 challenge slugs
-│   ├── popup/
-│   │   ├── popup.html             # Downloader popup UI
-│   │   ├── popup.css              # Dark theme styling
-│   │   └── popup.js               # Popup controller & fetch handler
-│   └── dashboard/
-│       ├── dashboard.html         # Full-page studio layout
-│       ├── dashboard.css          # IDE theme, split pane, diff styles
-│       └── dashboard.js           # Multi-user tabs, search, filter, export
+│   └── popup/
+│       ├── popup.html             # Downloader popup UI
+│       ├── popup.css              # Dark theme styling
+│       └── popup.js               # Popup controller & fetch handler
 ├── initFiles/                     # Archived initial crawler files, problem folders & solutions
 ├── scripts/
 │   ├── generate-icons.js          # Icon generator script

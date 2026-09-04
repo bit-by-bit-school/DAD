@@ -401,164 +401,284 @@
     }
   }
 
-  // Monaco Editor Initialization
-  function initMonaco() {
-    if (typeof require !== 'undefined') {
-      require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
-      require(['vs/editor/editor.main'], function () {
-        state.editor = monaco.editor.create(document.getElementById('monaco-editor'), {
-          value: '// Select a solution to view source code',
-          language: 'python',
-          theme: 'vs-dark',
-          readOnly: true,
-          minimap: { enabled: false },
-          automaticLayout: true,
-          glyphMargin: true,
-          fontFamily: "'Fira Code', 'Share Tech Mono', monospace",
-          fontSize: 13
-        });
+  // Prism Read-Only Code Viewer Initialization & Event Plumbing
+  function initCodeViewer() {
+    setupSelectionTooltipWidget();
 
-        setupSelectionTooltipWidget();
+    // Global click outside listener to hide floating tooltip
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#monaco-selection-tooltip') && !e.target.closest('#code-viewer')) {
+        hideSelectionTooltip();
+      }
+    });
 
-        // Gutter click listener: clicking line numbers or glyph dots opens inline review comment thread
-        state.editor.onMouseDown((e) => {
-          if (e && e.target && (
-            e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_NUMBERS ||
-            e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN
-          )) {
-            const lineNum = e.target.position?.lineNumber;
-            if (lineNum) {
-              openInlineCommentBox(lineNum, lineNum);
-            }
-          }
-        });
-
-        // Track active line selection for code review comments
-        state.editor.onDidChangeCursorSelection((e) => {
-          const sel = e.selection;
-          const start = sel.startLineNumber;
-          const end = sel.endLineNumber;
-          state.currentSelection = { startLine: start, endLine: end };
-
-          if (monacoSelectionBadge) {
-            if (start === end) {
-              monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Line ${start} selected</span>`;
-            } else {
-              monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Lines ${start} - ${end} selected (${end - start + 1} lines)</span>`;
-            }
-          }
-
-          // Trigger floating popup tooltip only when text is actively selected
-          if (!sel.isEmpty()) {
-            showSelectionTooltip();
-          } else {
-            hideSelectionTooltip();
-          }
-        });
-
-        state.editor.onDidScrollChange(() => hideSelectionTooltip());
-
-        // Track hover over lines with comments in editor
-        state.editor.onMouseMove((e) => {
-          if (e && e.target && e.target.position) {
-            const lineNum = e.target.position.lineNumber;
-            const comments = state.activeSolution?.comments || [];
-            const drafts = state.activeDraftComments || [];
-
-            const matchedComment = comments.find(c => c.startLine && lineNum >= parseInt(c.startLine) && lineNum <= (parseInt(c.endLine) || parseInt(c.startLine)));
-            const matchedDraft = drafts.find(d => d.startLine && lineNum >= parseInt(d.startLine) && lineNum <= (parseInt(d.endLine) || parseInt(d.startLine)));
-
-            if (matchedComment) {
-              highlightMonacoLines(matchedComment.startLine, matchedComment.endLine || matchedComment.startLine, false);
-            } else if (matchedDraft) {
-              highlightMonacoLines(matchedDraft.startLine, matchedDraft.endLine || matchedDraft.startLine, true);
-            } else {
-              clearMonacoLineHighlight();
-            }
-          }
-        });
-
-        state.editor.onMouseLeave(() => clearMonacoLineHighlight());
-
-        state.editor.onDidScrollChange(() => syncMonacoViewZoneVisibility());
-        state.editor.onDidChangeModelContent(() => syncMonacoViewZoneVisibility());
-
-        // Global debounced resize listener for Monaco editor responsiveness
-        let resizeTimer = null;
-        window.addEventListener('resize', () => {
-          if (resizeTimer) clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(() => {
-            if (state.editor) {
-              state.editor.layout();
-              syncMonacoViewZoneVisibility();
-            }
-          }, 100);
-        });
-
-        // Re-sync active solution code once Monaco is fully ready
-        const params = new URLSearchParams(window.location.search);
-        const solId = state.activeSolution ? state.activeSolution.id : (params.get('solutionId') || params.get('solution') || params.get('id'));
-        if (solId) {
-          openSolutionDetail(solId, false);
-        }
-      });
+    // Auto-load active solution from URL if any
+    const params = new URLSearchParams(window.location.search);
+    const solId = state.activeSolution ? state.activeSolution.id : (params.get('solutionId') || params.get('solution') || params.get('id'));
+    if (solId) {
+      openSolutionDetail(solId, false);
     }
   }
 
-  // Monaco Selection Floating Popup Tooltip Widget
-  let selectionTooltipWidget = null;
-
-  function setupSelectionTooltipWidget() {
-    if (!state.editor || typeof monaco === 'undefined') return;
-
-    selectionTooltipWidget = {
-      domNode: null,
-      getId: function() { return 'monaco.selection.comment.tooltip'; },
-      getDomNode: function() {
-        if (!this.domNode) {
-          this.domNode = document.createElement('div');
-          this.domNode.className = 'monaco-selection-tooltip';
-          this.domNode.innerHTML = `<button type="button" class="btn-tooltip-comment">${HRIcons.comment(13)} <span>Add Comment</span></button>`;
-
-          this.domNode.querySelector('button').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (state.currentSelection) {
-              openInlineCommentBox(state.currentSelection.startLine, state.currentSelection.endLine);
-              hideSelectionTooltip();
-            }
-          });
-        }
-        return this.domNode;
-      },
-      getPosition: function() {
-        if (!state.showSelectionTooltip || !state.currentSelection) return null;
-        if (state.activeInlineLine !== null && state.activeInlineLine !== undefined) return null;
-        return {
-          position: {
-            lineNumber: state.currentSelection.startLine,
-            column: 1
-          },
-          preference: [
-            monaco.editor.ContentWidgetPositionPreference.ABOVE
-          ]
-        };
-      }
-    };
-
-    state.editor.addContentWidget(selectionTooltipWidget);
+  function initMonaco() {
+    initCodeViewer();
   }
 
-  function showSelectionTooltip() {
+  // Split Prism-highlighted HTML string safely line-by-line while preserving open token tags
+  function splitHighlightedCodeIntoLines(html) {
+    if (!html) return [''];
+    const lines = [];
+    const stack = [];
+    let currentLine = '';
+    let pos = 0;
+
+    while (pos < html.length) {
+      if (html[pos] === '<') {
+        const closeIdx = html.indexOf('>', pos);
+        if (closeIdx === -1) {
+          currentLine += html.substring(pos);
+          break;
+        }
+        const tagStr = html.substring(pos, closeIdx + 1);
+        pos = closeIdx + 1;
+
+        if (tagStr.startsWith('</')) {
+          stack.pop();
+          currentLine += tagStr;
+        } else if (tagStr.endsWith('/>')) {
+          currentLine += tagStr;
+        } else {
+          stack.push(tagStr);
+          currentLine += tagStr;
+        }
+      } else if (html[pos] === '\n') {
+        let closedTags = '';
+        for (let i = stack.length - 1; i >= 0; i--) {
+          const tagName = stack[i].match(/<([a-z0-9]+)/i)?.[1] || 'span';
+          closedTags += `</${tagName}>`;
+        }
+        lines.push(currentLine + closedTags);
+
+        let reopenedTags = '';
+        for (let i = 0; i < stack.length; i++) {
+          reopenedTags += stack[i];
+        }
+        currentLine = reopenedTags;
+        pos++;
+      } else {
+        const nextLt = html.indexOf('<', pos);
+        const nextNl = html.indexOf('\n', pos);
+        let nextSpecial = html.length;
+        if (nextLt !== -1 && nextNl !== -1) nextSpecial = Math.min(nextLt, nextNl);
+        else if (nextLt !== -1) nextSpecial = nextLt;
+        else if (nextNl !== -1) nextSpecial = nextNl;
+
+        currentLine += html.substring(pos, nextSpecial);
+        pos = nextSpecial;
+      }
+    }
+    lines.push(currentLine);
+    return lines;
+  }
+
+  // Render Solution Code with Prism Syntax Highlighting & Line Gutters
+  function renderCodeViewer(codeText, language) {
+    const container = document.getElementById('code-viewer');
+    if (!container) return;
+
+    state.activeCodeLines = (codeText || '').split('\n');
+    const lines = state.activeCodeLines;
+    const langClass = `language-${language}`;
+
+    let highlightedHtml = '';
+    if (typeof Prism !== 'undefined' && Prism.languages[language]) {
+      highlightedHtml = Prism.highlight(codeText, Prism.languages[language], language);
+    } else if (typeof Prism !== 'undefined' && Prism.languages.clike) {
+      highlightedHtml = Prism.highlight(codeText, Prism.languages.clike, 'clike');
+    } else {
+      highlightedHtml = escapeHtml(codeText);
+    }
+
+    const highlightedLines = splitHighlightedCodeIntoLines(highlightedHtml);
+
+    const comments = state.activeSolution?.comments || [];
+    const drafts = state.activeDraftComments || [];
+    const commentLineSet = new Set();
+    const draftLineSet = new Set();
+
+    comments.forEach(c => {
+      if (c.startLine) {
+        const s = parseInt(c.startLine);
+        const e = parseInt(c.endLine) || s;
+        for (let l = s; l <= e; l++) commentLineSet.add(l);
+      }
+    });
+
+    drafts.forEach(d => {
+      if (d.startLine) {
+        const s = parseInt(d.startLine);
+        const e = parseInt(d.endLine) || s;
+        for (let l = s; l <= e; l++) draftLineSet.add(l);
+      }
+    });
+
+    let linesHtml = '';
+    lines.forEach((lineText, index) => {
+      const lineNum = index + 1;
+      const hasComment = commentLineSet.has(lineNum);
+      const hasDraft = draftLineSet.has(lineNum);
+
+      let dotHtml = '';
+      if (hasComment) dotHtml = `<span class="comment-dot published" title="Has inline review comment"></span>`;
+      else if (hasDraft) dotHtml = `<span class="comment-dot draft" title="Has pending AI draft comment"></span>`;
+
+      const lineCodeContent = highlightedLines[index] !== undefined ? highlightedLines[index] : escapeHtml(lineText);
+
+      linesHtml += `
+        <div class="code-line ${hasComment ? 'has-comment' : ''} ${hasDraft ? 'has-draft' : ''}" data-line="${lineNum}" id="code-line-${lineNum}">
+          <div class="line-gutter" data-line="${lineNum}">
+            ${dotHtml}
+            <span>${lineNum}</span>
+          </div>
+          <div class="line-code ${langClass}">${lineCodeContent || '&nbsp;'}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = linesHtml;
+    setupCodeLineEventListeners(container);
+  }
+
+  function setupCodeLineEventListeners(container) {
+    if (!container) return;
+
+    // Gutter Click Listener (Single Line or Shift-Click Multi-Line Range)
+    container.querySelectorAll('.line-gutter').forEach(gutter => {
+      gutter.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lineNum = parseInt(gutter.dataset.line);
+        if (!lineNum) return;
+
+        if (e.shiftKey && state.currentSelection && state.currentSelection.startLine) {
+          const sLine = Math.min(state.currentSelection.startLine, lineNum);
+          const eLine = Math.max(state.currentSelection.startLine, lineNum);
+          openInlineCommentBox(sLine, eLine);
+        } else {
+          openInlineCommentBox(lineNum, lineNum);
+        }
+      });
+    });
+
+    // Hover effect over code lines to highlight corresponding sidebar comments or line highlights
+    container.querySelectorAll('.code-line').forEach(lineEl => {
+      const lineNum = parseInt(lineEl.dataset.line);
+
+      lineEl.addEventListener('mouseenter', () => {
+        const comments = state.activeSolution?.comments || [];
+        const drafts = state.activeDraftComments || [];
+
+        const matchedComment = comments.find(c => c.startLine && lineNum >= parseInt(c.startLine) && lineNum <= (parseInt(c.endLine) || parseInt(c.startLine)));
+        const matchedDraft = drafts.find(d => d.startLine && lineNum >= parseInt(d.startLine) && lineNum <= (parseInt(d.endLine) || parseInt(d.startLine)));
+
+        if (matchedComment) {
+          highlightMonacoLines(matchedComment.startLine, matchedComment.endLine || matchedComment.startLine, false);
+        } else if (matchedDraft) {
+          highlightMonacoLines(matchedDraft.startLine, matchedDraft.endLine || matchedDraft.startLine, true);
+        }
+      });
+
+      lineEl.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+    });
+
+    // Selection listener inside code container for multi-line / text selection
+    container.addEventListener('mouseup', () => {
+      setTimeout(() => checkCodeViewerSelection(), 20);
+    });
+  }
+
+  function checkCodeViewerSelection() {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      hideSelectionTooltip();
+      return;
+    }
+
+    const container = document.getElementById('code-viewer');
+    if (!container || !container.contains(sel.anchorNode)) {
+      hideSelectionTooltip();
+      return;
+    }
+
+    const startLineEl = sel.anchorNode.nodeType === 1 ? sel.anchorNode.closest('.code-line') : sel.anchorNode.parentElement?.closest('.code-line');
+    const endLineEl = sel.focusNode.nodeType === 1 ? sel.focusNode.closest('.code-line') : sel.focusNode.parentElement?.closest('.code-line');
+
+    if (startLineEl && endLineEl) {
+      const l1 = parseInt(startLineEl.dataset.line);
+      const l2 = parseInt(endLineEl.dataset.line);
+      const start = Math.min(l1, l2);
+      const end = Math.max(l1, l2);
+
+      state.currentSelection = { startLine: start, endLine: end };
+
+      if (monacoSelectionBadge) {
+        if (start === end) {
+          monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Line ${start} selected</span>`;
+        } else {
+          monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Lines ${start} - ${end} selected (${end - start + 1} lines)</span>`;
+        }
+      }
+
+      showSelectionTooltip(endLineEl);
+    }
+  }
+
+  // Floating Selection Tooltip Widget
+  let selectionTooltipEl = null;
+
+  function setupSelectionTooltipWidget() {
+    if (selectionTooltipEl) return;
+    selectionTooltipEl = document.createElement('div');
+    selectionTooltipEl.id = 'monaco-selection-tooltip';
+    selectionTooltipEl.className = 'monaco-selection-tooltip';
+    selectionTooltipEl.style.position = 'absolute';
+    selectionTooltipEl.style.display = 'none';
+    selectionTooltipEl.style.zIndex = '1000';
+    selectionTooltipEl.innerHTML = `<button type="button" class="btn-tooltip-comment">${HRIcons.comment(13)} <span>Add Comment</span></button>`;
+
+    selectionTooltipEl.querySelector('button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (state.currentSelection) {
+        openInlineCommentBox(state.currentSelection.startLine, state.currentSelection.endLine);
+        hideSelectionTooltip();
+      }
+    });
+
+    const editorContainer = document.getElementById('monaco-editor') || document.body;
+    editorContainer.appendChild(selectionTooltipEl);
+  }
+
+  function showSelectionTooltip(anchorEl) {
+    if (!selectionTooltipEl || !state.currentSelection) return;
     state.showSelectionTooltip = true;
-    if (state.editor && selectionTooltipWidget) {
-      state.editor.layoutContentWidget(selectionTooltipWidget);
+
+    const lineEl = anchorEl || document.getElementById(`code-line-${state.currentSelection.startLine}`);
+    if (lineEl) {
+      const editorBox = document.getElementById('monaco-editor').getBoundingClientRect();
+      const lineBox = lineEl.getBoundingClientRect();
+
+      const topPos = lineBox.top - editorBox.top - 28;
+      const leftPos = Math.max(70, lineBox.left - editorBox.left + 20);
+
+      selectionTooltipEl.style.top = `${Math.max(4, topPos)}px`;
+      selectionTooltipEl.style.left = `${leftPos}px`;
+      selectionTooltipEl.style.display = 'block';
     }
   }
 
   function hideSelectionTooltip() {
     state.showSelectionTooltip = false;
-    if (state.editor && selectionTooltipWidget) {
-      state.editor.layoutContentWidget(selectionTooltipWidget);
+    if (selectionTooltipEl) {
+      selectionTooltipEl.style.display = 'none';
     }
   }
 
@@ -1347,18 +1467,23 @@
       avgClevernessVal.textContent = sol.clevernessAvg ? `${sol.clevernessAvg} / 5` : '-- / 5';
       avgReadabilityVal.textContent = sol.readabilityAvg ? `${sol.readabilityAvg} / 5` : '-- / 5';
 
-      // Load code into Monaco editor
-      if (state.editor) {
-        let monacoLang = 'python';
-        if (sol.language.includes('cpp')) monacoLang = 'cpp';
-        else if (sol.language.includes('java')) monacoLang = 'java';
-        else if (sol.language.includes('js') || sol.language.includes('javascript')) monacoLang = 'javascript';
-        
-        monaco.editor.setModelLanguage(state.editor.getModel(), monacoLang);
-        state.editor.setValue(sol.code || '');
-
-        updateMonacoDecorations(sol.comments || []);
+      // Load code into Prism Code Viewer
+      let prismLang = 'python';
+      if (sol.language) {
+        const l = sol.language.toLowerCase();
+        if (l.includes('cpp') || l.includes('c++')) prismLang = 'cpp';
+        else if (l.includes('java')) prismLang = 'java';
+        else if (l.includes('js') || l.includes('javascript')) prismLang = 'javascript';
+        else if (l.includes('py')) prismLang = 'python';
+        else if (l.includes('go')) prismLang = 'go';
+        else if (l.includes('rust')) prismLang = 'rust';
+        else if (l.includes('cs') || l.includes('csharp')) prismLang = 'csharp';
+        else if (l.includes('ruby')) prismLang = 'ruby';
+        else if (l.includes('php')) prismLang = 'php';
+        else if (l.includes('swift')) prismLang = 'swift';
+        else if (l.includes('kotlin')) prismLang = 'kotlin';
       }
+      renderCodeViewer(sol.code || '', prismLang);
 
       // Initialize active solution ratings (show solid filled stars for existing ratings)
       const myRating = (sol.ratings || []).find(r => r.userId === state.currentUser?.id);
@@ -1401,49 +1526,38 @@
 
   // Dynamic Hover Line Highlight Helper Functions for Comments
   function highlightMonacoLines(startLine, endLine, isDraft = false) {
-    if (!state.editor || typeof monaco === 'undefined' || !startLine) return;
+    if (!startLine) return;
     const sLine = parseInt(startLine);
     const eLine = parseInt(endLine) || sLine;
-    const className = isDraft ? 'monaco-draft-line-highlight' : 'monaco-comment-line-highlight';
+    const highlightClass = isDraft ? 'highlighted-draft' : 'highlighted-comment';
 
-    state.editorHoverDecorations = state.editor.deltaDecorations(
-      state.editorHoverDecorations || [],
-      [{
-        range: new monaco.Range(sLine, 1, eLine, 1000),
-        options: {
-          isWholeLine: true,
-          className: className
-        }
-      }]
-    );
+    clearMonacoLineHighlight();
+    for (let l = sLine; l <= eLine; l++) {
+      const el = document.getElementById(`code-line-${l}`);
+      if (el) el.classList.add(highlightClass);
+    }
   }
   window.highlightMonacoLines = highlightMonacoLines;
 
   function clearMonacoLineHighlight() {
-    if (!state.editor || typeof monaco === 'undefined') return;
-    if (state.editorHoverDecorations && state.editorHoverDecorations.length > 0) {
-      state.editorHoverDecorations = state.editor.deltaDecorations(state.editorHoverDecorations, []);
-    }
+    document.querySelectorAll('.code-line.highlighted-comment, .code-line.highlighted-draft').forEach(el => {
+      el.classList.remove('highlighted-comment', 'highlighted-draft');
+    });
   }
   window.clearMonacoLineHighlight = clearMonacoLineHighlight;
 
   function scrollToMonacoLines(startLine, endLine) {
-    if (!state.editor || !startLine) return;
+    if (!startLine) return;
     const sLine = parseInt(startLine);
     const eLine = parseInt(endLine) || sLine;
 
-    // Uncollapse viewzone for this line if collapsed
     state.collapsedZones.delete(eLine);
-    updateMonacoViewZones();
+    if (typeof updateInlineCommentThreads === 'function') updateInlineCommentThreads();
 
-    // Reveal line in center of editor and select range
-    state.editor.revealLineInCenter(sLine);
-    state.editor.setSelection(new monaco.Range(sLine, 1, eLine, 1000));
-    highlightMonacoLines(sLine, eLine, false);
-
-    const editorContainer = document.getElementById('monaco-editor');
-    if (editorContainer) {
-      editorContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const targetEl = document.getElementById(`code-line-${sLine}`);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      highlightMonacoLines(sLine, eLine, false);
     }
   }
   window.scrollToMonacoLines = scrollToMonacoLines;
@@ -1558,40 +1672,12 @@
   }
   window.scrollToAndHighlightComment = scrollToAndHighlightComment;
 
-  // Monaco line decorations for line-targeted code review comments (Glyph margin indicator only by default)
+  // Code viewer line decorations helper
   function updateMonacoDecorations(comments) {
-    if (!state.editor || typeof monaco === 'undefined') return;
-
-    const newDecorations = [];
-    (comments || []).forEach(c => {
-      if (c.startLine) {
-        const sLine = parseInt(c.startLine);
-        const eLine = parseInt(c.endLine) || sLine;
-        newDecorations.push({
-          range: new monaco.Range(sLine, 1, eLine, 1000),
-          options: {
-            isWholeLine: true,
-            glyphMarginClassName: 'monaco-comment-glyph-margin',
-            hoverMessage: { value: `**@${c.user?.username || 'User'}**: ${c.content}` }
-          }
-        });
-      }
-    });
-
-    state.editorDecorations = state.editor.deltaDecorations(state.editorDecorations, newDecorations);
+    if (typeof updateInlineCommentThreads === 'function') updateInlineCommentThreads();
   }
-
-  // Scroll editor to target line range and open inline ViewZone thread
-  window.scrollToMonacoLines = function(startLine, endLine) {
-    if (!state.editor) return;
-    const sLine = parseInt(startLine);
-    const eLine = parseInt(endLine) || sLine;
-    state.editor.revealLineInCenter(sLine);
-    state.editor.setSelection(new monaco.Range(sLine, 1, eLine, 1000));
-    state.editor.focus();
-
-    openInlineCommentBox(sLine, eLine);
-  };
+  window.updateMonacoDecorations = updateMonacoDecorations;
+  window.updateMonacoDraftDecorations = updateMonacoDecorations;
 
   // Submit Rating Handler
   async function submitRating() {
@@ -1845,19 +1931,43 @@
     });
   }
 
+  // Helper to find starting line anchor for any line target
+  function findAnchorLineForTarget(lineNum) {
+    const num = parseInt(lineNum);
+    const comments = state.activeSolution?.comments || [];
+    const drafts = (state.currentUser && state.currentUser.role === 'ADMIN') ? (state.activeDraftComments || []) : [];
+
+    const matchedComment = comments.find(c => c.startLine && num >= parseInt(c.startLine) && num <= (parseInt(c.endLine) || parseInt(c.startLine)));
+    if (matchedComment) return parseInt(matchedComment.startLine);
+
+    const matchedDraft = drafts.find(d => d.startLine && num >= parseInt(d.startLine) && num <= (parseInt(d.endLine) || parseInt(d.startLine)));
+    if (matchedDraft) return parseInt(matchedDraft.startLine);
+
+    return num;
+  }
+
   // Inline Review ViewZone Handlers
   function openInlineCommentBox(startLine, endLine) {
-    const sLine = parseInt(startLine) || state.currentSelection?.startLine || 1;
-    const eLine = parseInt(endLine) || state.currentSelection?.endLine || sLine;
+    let sLine = parseInt(startLine) || state.currentSelection?.startLine || 1;
+    let eLine = parseInt(endLine) || state.currentSelection?.endLine || sLine;
+
+    const anchorLine = findAnchorLineForTarget(sLine);
+    if (anchorLine !== sLine) {
+      sLine = anchorLine;
+      const matchedComment = (state.activeSolution?.comments || []).find(c => parseInt(c.startLine) === anchorLine);
+      if (matchedComment && matchedComment.endLine) {
+        eLine = parseInt(matchedComment.endLine);
+      }
+    }
 
     state.currentSelection = { startLine: sLine, endLine: eLine };
-    state.activeInlineLine = eLine;
-    state.collapsedZones.delete(eLine);
+    state.activeInlineLine = sLine;
+    state.collapsedZones.delete(sLine);
     hideSelectionTooltip();
 
-    updateMonacoViewZones();
+    updateInlineCommentThreads();
     setTimeout(() => {
-      const input = document.getElementById(`zone-input-${eLine}`);
+      const input = document.getElementById(`zone-input-${sLine}`);
       if (input) {
         input.focus();
         input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1869,7 +1979,7 @@
   function closeInlineCommentBox() {
     state.activeInlineLine = null;
     hideSelectionTooltip();
-    updateMonacoViewZones();
+    updateInlineCommentThreads();
   }
   window.closeInlineCommentBox = closeInlineCommentBox;
 
@@ -1880,7 +1990,7 @@
       state.activeInlineLine = null;
     }
     hideSelectionTooltip();
-    updateMonacoViewZones();
+    updateInlineCommentThreads();
   };
 
   window.postViewZoneComment = async function(lineNum) {
@@ -1898,9 +2008,9 @@
     let sLine = num;
     let eLine = num;
 
-    if (state.currentSelection && parseInt(state.currentSelection.endLine) === num && state.currentSelection.startLine) {
-      sLine = parseInt(state.currentSelection.startLine);
-      eLine = num;
+    if (state.currentSelection && parseInt(state.currentSelection.startLine) === num && state.currentSelection.endLine) {
+      sLine = num;
+      eLine = parseInt(state.currentSelection.endLine);
     }
 
     try {
@@ -1919,8 +2029,8 @@
 
       const data = await res.json();
       if (res.ok) {
-        state.activeInlineLine = null;
-        state.collapsedZones.delete(num);
+        state.activeInlineLine = sLine;
+        state.collapsedZones.delete(sLine);
         await reloadSolutionComments(state.activeSolution.id);
         showRetroToast('Inline review comment posted!', HRIcons.check(16));
       } else {
@@ -1931,361 +2041,264 @@
     }
   };
 
-  // Monaco ViewZones Manager for GitHub / Bitbucket style embedded inline threads
-  function updateMonacoViewZones() {
-    if (!state.editor || typeof monaco === 'undefined') return;
+  // Prism Code Viewer Inline Comment Threads Manager
+  function updateInlineCommentThreads() {
+    const container = document.getElementById('code-viewer');
+    if (!container) return;
 
-    const model = state.editor.getModel();
-    const maxLines = model ? model.getLineCount() : 1;
+    // Clear previous inline thread zones
+    container.querySelectorAll('.inline-thread-zone, .monaco-inline-thread-zone').forEach(el => el.remove());
 
     const comments = state.activeSolution?.comments || [];
     const drafts = (state.currentUser && state.currentUser.role === 'ADMIN') ? (state.activeDraftComments || []) : [];
 
-    // Collect all line numbers that need an embedded ViewZone
     const lineMap = new Map();
 
-    // 1. Group published line comments by target line number
     comments.forEach(c => {
       if (c.startLine) {
-        const lineNum = parseInt(c.endLine) || parseInt(c.startLine);
+        const lineNum = parseInt(c.startLine) || parseInt(c.endLine);
         if (!lineMap.has(lineNum)) lineMap.set(lineNum, { comments: [], drafts: [] });
         lineMap.get(lineNum).comments.push(c);
       }
     });
 
-    // 2. Group pending AI draft comments by target line number
     drafts.forEach(d => {
-      const lineNum = parseInt(d.endLine) || parseInt(d.startLine) || 1;
+      const lineNum = parseInt(d.startLine) || parseInt(d.endLine) || 1;
       if (!lineMap.has(lineNum)) lineMap.set(lineNum, { comments: [], drafts: [] });
       lineMap.get(lineNum).drafts.push(d);
     });
 
-    // 3. Include actively targeted inline line number if user opened comment creation
     if (state.activeInlineLine) {
       const activeLineNum = parseInt(state.activeInlineLine);
       if (!lineMap.has(activeLineNum)) lineMap.set(activeLineNum, { comments: [], drafts: [] });
     }
 
-    state.editor.changeViewZones(function(accessor) {
-      // Clear previously registered ViewZones
-      if (state.viewZoneIds && state.viewZoneIds.length > 0) {
-        state.viewZoneIds.forEach(id => accessor.removeZone(id));
+    const lineNumbers = Array.from(lineMap.keys())
+      .filter(lNum => {
+        if (state.collapsedZones.has(lNum) && state.activeInlineLine !== lNum) {
+          return false;
+        }
+        return true;
+      })
+      .sort((a, b) => a - b);
+
+    lineNumbers.forEach(lineNum => {
+      const targetLineEl = document.getElementById(`code-line-${lineNum}`);
+      if (!targetLineEl) return;
+
+      const data = lineMap.get(lineNum);
+      const hasDraft = data.drafts.length > 0;
+      const isInputActive = (state.activeInlineLine === lineNum);
+
+      let isSelectedRange = false;
+      let sLine = lineNum;
+      if (state.currentSelection && parseInt(state.currentSelection.endLine) === lineNum && parseInt(state.currentSelection.startLine) < lineNum) {
+        sLine = parseInt(state.currentSelection.startLine);
+        isSelectedRange = true;
       }
-      state.viewZoneIds = [];
 
-      const lineNumbers = Array.from(lineMap.keys())
-        .filter(lNum => {
-          // If collapsed and user didn't explicitly click to open input for this line, hide zone
-          if (state.collapsedZones.has(lNum) && state.activeInlineLine !== lNum) {
-            return false;
-          }
-          return true;
-        })
-        .sort((a, b) => a - b);
+      const titleText = isSelectedRange 
+        ? `Lines ${sLine}-${lineNum} Code Review Thread`
+        : `Line ${lineNum} Code Review Thread`;
+      const placeholderText = isSelectedRange
+        ? `Write inline review comment on lines ${sLine}-${lineNum}...`
+        : `Write inline review comment on line ${lineNum}...`;
 
-      lineNumbers.forEach(lineNum => {
-        const data = lineMap.get(lineNum);
-        const hasDraft = data.drafts.length > 0;
-        const hasCommentsOrDrafts = data.comments.length > 0 || data.drafts.length > 0;
-        const isInputActive = (state.activeInlineLine === lineNum);
+      const zoneNode = document.createElement('div');
+      zoneNode.className = `inline-thread-zone monaco-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
+      zoneNode.setAttribute('data-line', lineNum);
 
-        let isSelectedRange = false;
-        let sLine = lineNum;
-        if (state.currentSelection && parseInt(state.currentSelection.endLine) === lineNum && parseInt(state.currentSelection.startLine) < lineNum) {
-          sLine = parseInt(state.currentSelection.startLine);
-          isSelectedRange = true;
-        }
+      let publishedCommentsHtml = '';
+      data.comments.forEach(c => {
+        const isAuthorOrAdmin = state.currentUser && state.currentUser.username !== 'Guest' && (
+          (state.currentUser.id && (state.currentUser.id === c.userId || (c.user && state.currentUser.id === c.user.id))) ||
+          (state.currentUser.username && (state.currentUser.username === c.user?.username)) ||
+          state.currentUser.role === 'ADMIN'
+        );
+        const deleteBtnHtml = isAuthorOrAdmin 
+          ? `<button type="button" class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` 
+          : '';
+        const replyItemBtnHtml = `<button type="button" class="btn-micro btn-item-reply" data-line="${lineNum}" data-user="${escapeHtml(c.user?.username || 'User')}" style="color: var(--neon-cyan); border-color: rgba(0,243,255,0.3); font-size: 0.65rem;">Reply</button>`;
 
-        const titleText = isSelectedRange 
-          ? `Lines ${sLine}-${lineNum} Code Review Thread`
-          : `Line ${lineNum} Code Review Thread`;
-        const placeholderText = isSelectedRange
-          ? `Write inline review comment on lines ${sLine}-${lineNum}...`
-          : `Write inline review comment on line ${lineNum}...`;
-
-        const zoneNode = document.createElement('div');
-        zoneNode.className = `monaco-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
-        zoneNode.setAttribute('data-line', lineNum);
-
-        // Build HTML content for thread
-        let publishedCommentsHtml = '';
-        data.comments.forEach(c => {
-          const isAuthorOrAdmin = state.currentUser && state.currentUser.username !== 'Guest' && (
-            (state.currentUser.id && (state.currentUser.id === c.userId || (c.user && state.currentUser.id === c.user.id))) ||
-            (state.currentUser.username && (state.currentUser.username === c.user?.username)) ||
-            state.currentUser.role === 'ADMIN'
-          );
-          const deleteBtnHtml = isAuthorOrAdmin 
-            ? `<button type="button" class="btn-micro" style="color: var(--role-critical); border-color: rgba(239,68,68,0.3); font-size: 0.65rem;" onclick="deleteComment('${c.id}')">Delete</button>` 
-            : '';
-          const replyItemBtnHtml = `<button type="button" class="btn-micro btn-item-reply" data-line="${lineNum}" data-user="${escapeHtml(c.user?.username || 'User')}" style="color: var(--neon-cyan); border-color: rgba(0,243,255,0.3); font-size: 0.65rem;">Reply</button>`;
-
-          publishedCommentsHtml += `
-            <div class="monaco-thread-item" data-comment-id="${c.id}" id="monaco-comment-${c.id}">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem; color: var(--text-muted);">
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                  <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
-                  <button type="button" class="btn-comment-copy-link" onclick="copyCommentLink('${c.id}', event)" title="Copy link to comment">
-                    ${HRIcons.link(12)}
-                  </button>
-                </div>
-                <div style="display: flex; gap: 0.4rem; align-items: center;">
-                  <span>${new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  ${replyItemBtnHtml}
-                  ${deleteBtnHtml}
-                </div>
+        publishedCommentsHtml += `
+          <div class="monaco-thread-item" data-comment-id="${c.id}" id="monaco-comment-${c.id}">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem; color: var(--text-muted);">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
+                <button type="button" class="btn-comment-copy-link" onclick="copyCommentLink('${c.id}', event)" title="Copy link to comment">
+                  ${HRIcons.link(12)}
+                </button>
               </div>
-              <div style="color: #fff; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(c.content)}</div>
-            </div>
-          `;
-        });
-
-        let draftCommentsHtml = '';
-        data.drafts.forEach(d => {
-          draftCommentsHtml += `
-            <div class="draft-comment-card" style="margin-bottom: 0.4rem;">
-              <div class="draft-comment-header">
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                  <span class="draft-badge">${HRIcons.aiSpark(11)} AI DRAFT</span>
-                  <span style="font-size: 0.72rem; color: var(--color-brand); font-weight: 600;">${escapeHtml(d.type)}</span>
-                </div>
-              </div>
-              <div class="draft-comment-content">${escapeHtml(d.content)}</div>
-              <div class="draft-comment-actions">
-                <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">${HRIcons.close(11)} Reject</button>
-                <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">${HRIcons.check(11)} Approve</button>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <span>${new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                ${replyItemBtnHtml}
+                ${deleteBtnHtml}
               </div>
             </div>
-          `;
-        });
-
-        let actionAreaHtml = '';
-        if (isInputActive) {
-          actionAreaHtml = `
-            <div class="monaco-thread-input-row">
-              <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="${placeholderText}"></textarea>
-              <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.3rem;">
-                <button type="button" class="btn-micro btn-zone-cancel" data-line="${lineNum}">Cancel</button>
-                <button type="button" class="btn-retro btn-green btn-zone-post" style="font-size: 0.75rem; padding: 3px 8px;" data-line="${lineNum}">Post Comment</button>
-              </div>
-            </div>
-          `;
-        } else {
-          actionAreaHtml = `
-            <div class="monaco-thread-reply-bar">
-              <button type="button" class="btn-micro btn-zone-reply" data-line="${lineNum}" style="display: flex; align-items: center; gap: 4px; color: var(--neon-cyan); border-color: rgba(0,243,255,0.3);">
-                ${HRIcons.comment(11)} Reply...
-              </button>
-            </div>
-          `;
-        }
-
-        zoneNode.innerHTML = `
-          <div class="monaco-thread-header">
-            <div style="display: flex; align-items: center; gap: 6px;">
-              ${HRIcons.comment(12)}
-              <span>${titleText}</span>
-            </div>
-            <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">Close</button>
+            <div style="color: #fff; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(c.content)}</div>
           </div>
-          ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
-          ${draftCommentsHtml ? `<div style="margin-bottom: 0.5rem;">${draftCommentsHtml}</div>` : ''}
-          ${actionAreaHtml}
         `;
-
-        // Direct DOM event bindings with full event isolation from Monaco
-        zoneNode.addEventListener('mousedown', (e) => e.stopPropagation());
-        zoneNode.addEventListener('mouseup', (e) => e.stopPropagation());
-        zoneNode.addEventListener('click', (e) => e.stopPropagation());
-        zoneNode.addEventListener('keydown', (e) => e.stopPropagation());
-        zoneNode.addEventListener('keyup', (e) => e.stopPropagation());
-
-        // Stop wheel events from bubbling up and scrolling Monaco editor (both bubbling and capture phases)
-        const stopWheel = (e) => {
-          e.stopPropagation();
-        };
-        zoneNode.addEventListener('wheel', stopWheel, { passive: true, capture: true });
-        zoneNode.addEventListener('wheel', stopWheel, { passive: true, capture: false });
-        zoneNode.addEventListener('mousewheel', stopWheel, { passive: true, capture: true });
-        zoneNode.addEventListener('DOMMouseScroll', stopWheel, { passive: true, capture: true });
-
-        const commentsList = zoneNode.querySelector('.monaco-thread-comments');
-        if (commentsList) {
-          commentsList.addEventListener('wheel', stopWheel, { passive: true, capture: true });
-          commentsList.addEventListener('wheel', stopWheel, { passive: true, capture: false });
-        }
-
-        const textarea = zoneNode.querySelector('textarea');
-        if (textarea) {
-          textarea.addEventListener('keydown', (e) => {
-            e.stopPropagation();
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-              e.preventDefault();
-              postViewZoneComment(lineNum);
-            }
-          });
-          textarea.addEventListener('keyup', (e) => e.stopPropagation());
-          textarea.addEventListener('keypress', (e) => e.stopPropagation());
-        }
-
-        const closeBtn = zoneNode.querySelector('.btn-zone-close');
-        if (closeBtn) {
-          closeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            closeLineViewZone(lineNum);
-          });
-        }
-
-        const replyBtn = zoneNode.querySelector('.btn-zone-reply');
-        if (replyBtn) {
-          replyBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            state.activeInlineLine = lineNum;
-            state.collapsedZones.delete(lineNum);
-            updateMonacoViewZones();
-            setTimeout(() => {
-              const input = document.getElementById(`zone-input-${lineNum}`);
-              if (input) {
-                input.focus();
-                input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-              }
-            }, 60);
-          });
-        }
-
-        zoneNode.querySelectorAll('.btn-item-reply').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const targetUser = btn.dataset.user;
-            state.activeInlineLine = lineNum;
-            state.collapsedZones.delete(lineNum);
-            updateMonacoViewZones();
-            setTimeout(() => {
-              const input = document.getElementById(`zone-input-${lineNum}`);
-              if (input) {
-                if (targetUser && !input.value.includes(`@${targetUser}`)) {
-                  input.value = `@${targetUser} ` + input.value;
-                }
-                input.focus();
-                input.setSelectionRange(input.value.length, input.value.length);
-              }
-            }, 60);
-          });
-        });
-
-        const cancelBtn = zoneNode.querySelector('.btn-zone-cancel');
-        if (cancelBtn) {
-          cancelBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (data.comments.length === 0 && data.drafts.length === 0) {
-              closeLineViewZone(lineNum);
-            } else {
-              const input = document.getElementById(`zone-input-${lineNum}`);
-              if (input) input.value = '';
-              state.activeInlineLine = null;
-              updateMonacoViewZones();
-            }
-          });
-        }
-
-        const postBtn = zoneNode.querySelector('.btn-zone-post');
-        if (postBtn) {
-          postBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            postViewZoneComment(lineNum);
-          });
-        }
-
-        zoneNode.querySelectorAll('.monaco-thread-item').forEach((threadItem, index) => {
-          const comment = data.comments[index];
-          if (comment && comment.startLine) {
-            threadItem.addEventListener('mouseenter', () => highlightMonacoLines(comment.startLine, comment.endLine || comment.startLine, false));
-            threadItem.addEventListener('mouseleave', () => clearMonacoLineHighlight());
-          }
-        });
-
-        zoneNode.querySelectorAll('.draft-comment-card').forEach((draftCard, index) => {
-          const draft = data.drafts[index];
-          if (draft && draft.startLine) {
-            draftCard.addEventListener('mouseenter', () => highlightMonacoLines(draft.startLine, draft.endLine, true));
-            draftCard.addEventListener('mouseleave', () => clearMonacoLineHighlight());
-          }
-        });
-
-        // Dynamic height calculation ensuring content fits cleanly without clipping or wasted space
-        let dynamicHeight = 44 + (isInputActive ? 120 : 44); // header + action area
-        data.comments.forEach(c => {
-          const lines = (c.content || '').split('\n').length;
-          dynamicHeight += 50 + Math.max(lines, 1) * 22;
-        });
-        data.drafts.forEach(d => {
-          const lines = (d.content || '').split('\n').length;
-          dynamicHeight += 80 + Math.max(lines, 1) * 22;
-        });
-
-        // Cap maximum height to comfortable viewport bounds while allowing internal scrolling
-        const maxZoneHeight = Math.min(Math.max(window.innerHeight * 0.5, 340), 440);
-        dynamicHeight = Math.min(dynamicHeight, maxZoneHeight);
-
-        // Explicitly assign flex display and height to zoneNode so flex children stretch and fill the space cleanly
-        zoneNode.style.display = 'flex';
-        zoneNode.style.flexDirection = 'column';
-        zoneNode.style.height = dynamicHeight + 'px';
-        zoneNode.style.minHeight = dynamicHeight + 'px';
-        zoneNode.style.maxHeight = dynamicHeight + 'px';
-        zoneNode.style.boxSizing = 'border-box';
-
-        const targetLine = Math.min(Math.max(1, lineNum), maxLines);
-
-        const zoneId = accessor.addZone({
-          afterLineNumber: targetLine,
-          heightInPx: dynamicHeight,
-          domNode: zoneNode,
-          suppressMouseDown: true
-        });
-
-        state.viewZoneIds.push(zoneId);
       });
-    });
 
-    setTimeout(() => syncMonacoViewZoneVisibility(), 40);
-  }
+      let draftCommentsHtml = '';
+      data.drafts.forEach(d => {
+        draftCommentsHtml += `
+          <div class="draft-comment-card" style="margin-bottom: 0.4rem;">
+            <div class="draft-comment-header">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span class="draft-badge">${HRIcons.aiSpark(11)} AI DRAFT</span>
+                <span style="font-size: 0.72rem; color: var(--color-brand); font-weight: 600;">${escapeHtml(d.type)}</span>
+              </div>
+            </div>
+            <div class="draft-comment-content">${escapeHtml(d.content)}</div>
+            <div class="draft-comment-actions">
+              <button type="button" class="btn-reject" onclick="rejectDraftComment('${d.id}')">${HRIcons.close(11)} Reject</button>
+              <button type="button" class="btn-approve" onclick="approveDraftComment('${d.id}')">${HRIcons.check(11)} Approve</button>
+            </div>
+          </div>
+        `;
+      });
 
-  function syncMonacoViewZoneVisibility() {
-    if (!state.editor || typeof monaco === 'undefined') return;
-    const visibleRanges = state.editor.getVisibleRanges();
-    if (!visibleRanges || visibleRanges.length === 0) return;
-
-    const startLine = visibleRanges[0].startLineNumber;
-    const endLine = visibleRanges[0].endLineNumber;
-
-    const bufStart = Math.max(1, startLine - 3);
-    const bufEnd = endLine + 3;
-
-    const zoneNodes = document.querySelectorAll('.monaco-inline-thread-zone');
-    zoneNodes.forEach(node => {
-      const lineAttr = node.getAttribute('data-line');
-      if (lineAttr) {
-        const lNum = parseInt(lineAttr);
-        const isInputActive = (state.activeInlineLine === lNum);
-        const isVisible = isInputActive || (lNum >= bufStart && lNum <= bufEnd);
-        
-        if (!isVisible) {
-          node.style.setProperty('display', 'none', 'important');
-          node.style.setProperty('visibility', 'hidden', 'important');
-        } else {
-          node.style.setProperty('display', 'flex', 'important');
-          node.style.setProperty('visibility', 'visible', 'important');
-        }
+      let actionAreaHtml = '';
+      if (isInputActive) {
+        actionAreaHtml = `
+          <div class="monaco-thread-input-row">
+            <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="${placeholderText}"></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.3rem;">
+              <button type="button" class="btn-micro btn-zone-cancel" data-line="${lineNum}">Cancel</button>
+              <button type="button" class="btn-retro btn-green btn-zone-post" style="font-size: 0.75rem; padding: 3px 8px;" data-line="${lineNum}">Post Comment</button>
+            </div>
+          </div>
+        `;
+      } else {
+        actionAreaHtml = `
+          <div class="monaco-thread-reply-bar">
+            <button type="button" class="btn-micro btn-zone-reply" data-line="${lineNum}" style="display: flex; align-items: center; gap: 4px; color: var(--neon-cyan); border-color: rgba(0,243,255,0.3);">
+              ${HRIcons.comment(11)} Reply...
+            </button>
+          </div>
+        `;
       }
+
+      zoneNode.innerHTML = `
+        <div class="monaco-thread-header">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            ${HRIcons.comment(12)}
+            <span>${titleText}</span>
+          </div>
+          <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">Close</button>
+        </div>
+        ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
+        ${draftCommentsHtml ? `<div style="margin-bottom: 0.5rem;">${draftCommentsHtml}</div>` : ''}
+        ${actionAreaHtml}
+      `;
+
+      zoneNode.querySelectorAll('.monaco-thread-item').forEach((threadItem, index) => {
+        const comment = data.comments[index];
+        if (comment && comment.startLine) {
+          threadItem.addEventListener('mouseenter', () => highlightMonacoLines(comment.startLine, comment.endLine || comment.startLine, false));
+          threadItem.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+        }
+      });
+
+      zoneNode.querySelectorAll('.draft-comment-card').forEach((draftCard, index) => {
+        const draft = data.drafts[index];
+        if (draft && draft.startLine) {
+          draftCard.addEventListener('mouseenter', () => highlightMonacoLines(draft.startLine, draft.endLine, true));
+          draftCard.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+        }
+      });
+
+      const closeBtn = zoneNode.querySelector('.btn-zone-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeLineViewZone(lineNum);
+        });
+      }
+
+      const replyBtn = zoneNode.querySelector('.btn-zone-reply');
+      if (replyBtn) {
+        replyBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          state.activeInlineLine = lineNum;
+          state.collapsedZones.delete(lineNum);
+          updateInlineCommentThreads();
+          setTimeout(() => {
+            const input = document.getElementById(`zone-input-${lineNum}`);
+            if (input) {
+              input.focus();
+              input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }, 60);
+        });
+      }
+
+      zoneNode.querySelectorAll('.btn-item-reply').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const targetUser = btn.dataset.user;
+          state.activeInlineLine = lineNum;
+          state.collapsedZones.delete(lineNum);
+          updateInlineCommentThreads();
+          setTimeout(() => {
+            const input = document.getElementById(`zone-input-${lineNum}`);
+            if (input) {
+              if (targetUser && !input.value.includes(`@${targetUser}`)) {
+                input.value = `@${targetUser} ` + input.value;
+              }
+              input.focus();
+              input.setSelectionRange(input.value.length, input.value.length);
+            }
+          }, 60);
+        });
+      });
+
+      const cancelBtn = zoneNode.querySelector('.btn-zone-cancel');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (data.comments.length === 0 && data.drafts.length === 0) {
+            closeLineViewZone(lineNum);
+          } else {
+            const input = document.getElementById(`zone-input-${lineNum}`);
+            if (input) input.value = '';
+            state.activeInlineLine = null;
+            updateInlineCommentThreads();
+          }
+        });
+      }
+
+      const postBtn = zoneNode.querySelector('.btn-zone-post');
+      if (postBtn) {
+        postBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          postViewZoneComment(lineNum);
+        });
+      }
+
+      const textarea = zoneNode.querySelector('textarea');
+      if (textarea) {
+        textarea.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            postViewZoneComment(lineNum);
+          }
+        });
+      }
+
+      targetLineEl.after(zoneNode);
     });
   }
-  window.syncMonacoViewZoneVisibility = syncMonacoViewZoneVisibility;
+
+  window.updateInlineCommentThreads = updateInlineCommentThreads;
+  window.updateMonacoViewZones = updateInlineCommentThreads;
+  window.syncMonacoViewZoneVisibility = function() {};
 
   // AI Draft Comments Renderer & Approve/Reject Handlers
   function renderAiDraftComments() {

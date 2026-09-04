@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HackerRank Solutions Hub // Lixie Instrument Dashboard</title>
   <link rel="stylesheet" href="retro-digital.css?v=2026_15">
-  <!-- Monaco Editor CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <!-- Prism.js CDN for Syntax Highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </head>
 <body>
 
@@ -240,7 +241,9 @@
                 <span>Problem Statement</span>
               </button>
             </div>
-            <div id="monaco-editor" class="editor-container"></div>
+            <div id="monaco-editor" class="editor-container">
+              <div id="code-viewer" class="code-viewer"></div>
+            </div>
           </div>
 
           <!-- Right Column: Sidebar (Sub-tabs for Comments, AI/Admin Reviews, Ratings, and Problem Statement) -->

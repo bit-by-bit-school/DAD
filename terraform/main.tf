@@ -60,7 +60,7 @@ resource "google_compute_instance" "cheapest_server" {
     provisioning_model = var.use_spot_instance ? "SPOT" : "STANDARD"
   }
 
-  # Startup script: installs Go, builds lightweight binary (~15MB RAM RSS), sets up systemd service
+  # Startup script: installs Go, clones repo, builds lightweight binary, sets up systemd service
   metadata_startup_script = <<-EOF
     #!/bin/bash
     set -e
@@ -74,11 +74,34 @@ resource "google_compute_instance" "cheapest_server" {
       echo '/swapfile none swap sw 0 0' >> /etc/fstab
     fi
 
-    # 2. Update packages and install tools + Go compiler
-    sudo apt-get update -y
-    sudo apt-get install -y curl git golang-go sqlite3
+    # 2. Update packages and install official Go binary + tools
+    export HOME=/root
+    export GOPATH=/root/go
+    export GOMODCACHE=/root/go/pkg/mod
+    export PATH=/usr/local/go/bin:$PATH
 
-    # 3. Setup application systemd service
+    sudo apt-get update -y
+    sudo apt-get install -y curl git sqlite3 tar
+
+    if [ ! -d "/usr/local/go" ] || ! /usr/local/go/bin/go version | grep -q "go1.23"; then
+      echo "Installing official Go 1.23.0..."
+      rm -rf /usr/local/go
+      curl -sSL https://go.dev/dl/go1.23.0.linux-amd64.tar.gz | tar -C /usr/local -xz
+    fi
+
+    # 3. Setup application directory & clone repository
+    mkdir -p /opt/hackerrank-server
+    if [ ! -d "/opt/hackerrank-server/repo" ]; then
+      git clone https://github.com/bit-by-bit-school/DAD.git /opt/hackerrank-server/repo
+    else
+      cd /opt/hackerrank-server/repo && git pull origin main || true
+    fi
+
+    # 4. Build Go executable binary
+    cd /opt/hackerrank-server/repo/server
+    /usr/local/go/bin/go build -o /opt/hackerrank-server/server main.go
+
+    # 5. Setup application systemd service
     cat <<'SERVICE' > /etc/systemd/system/hackerrank-server.service
     [Unit]
     Description=HackerRank Solutions Hub Golang Server
@@ -87,7 +110,7 @@ resource "google_compute_instance" "cheapest_server" {
     [Service]
     Type=simple
     User=root
-    WorkingDirectory=/opt/hackerrank-server
+    WorkingDirectory=/opt/hackerrank-server/repo/server
     ExecStart=/opt/hackerrank-server/server
     Restart=always
     RestartSec=3
@@ -97,7 +120,11 @@ resource "google_compute_instance" "cheapest_server" {
     WantedBy=multi-user.target
 SERVICE
 
-    echo "Golang initialization script ready."
+    systemctl daemon-reload
+    systemctl enable hackerrank-server
+    systemctl restart hackerrank-server
+
+    echo "Golang initialization & production service deployment complete."
   EOF
 
   metadata = {

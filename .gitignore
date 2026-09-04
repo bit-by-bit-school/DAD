@@ -3,6 +3,33 @@ node_modules/
 **/node_modules/
 /.pnpm-store
 
+# Go & Compiled Executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Browser Extension & Package Builds
+*.zip
+*.crx
+*.pem
+
 # SQLite Database
 *.db
 *.db-journal
@@ -10,8 +37,6 @@ node_modules/
 *.db-shm
 *.sqlite
 *.sqlite3
-dev.db
-server/dev.db
 
 # Build & Output
 dist/
@@ -32,7 +57,6 @@ lerna-debug.log*
 .env.local
 .env.*.local
 *.env
-server/.env
 
 # IDEs & Editors
 .vscode/
@@ -42,6 +66,8 @@ server/.env
 *.njsproj
 *.sln
 *.sw?
+*.sublime-project
+*.sublime-workspace
 
 # OS Generated Files
 .DS_Store
@@ -51,6 +77,7 @@ server/.env
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # Caches & Temporary Files
 .cache/

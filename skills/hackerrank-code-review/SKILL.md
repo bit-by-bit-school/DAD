@@ -25,7 +25,7 @@ flowchart LR
 1. **Prompt Generation**: The dashboard or backend strips standard competitive programming I/O plumbing (leaving only the core algorithmic function) and gathers the problem statement, historical review rounds, and past comments into a structured prompt.
 2. **LLM Evaluation**: You paste the prompt into any external LLM chat. The LLM audits time/space complexity, correctness, edge cases, and code style.
 3. **Structured Response**: The LLM responds strictly with a parseable JSON block matching the schema.
-4. **Dashboard Import**: You paste the JSON into the dashboard and click **"Process & Apply Review"**. The dashboard automatically populates the review decision status, detailed notes breakdown, ratings, and line-targeted draft comments in the Monaco editor.
+4. **Dashboard Import**: You paste the JSON into the dashboard and click **"Process & Apply Review"**. The dashboard automatically populates the review decision status, detailed notes breakdown, ratings, and line-targeted draft comments in the code editor.
 5. **Publish Round**: Approve/reject individual line comments and click **"Publish Review Round"**.
 
 ---
@@ -128,7 +128,7 @@ The external LLM must format its response matching this exact schema:
 - **`suggestions`** *(array of strings)*: High-level actionable recommendations.
 - **`adminNotes`** *(string)*: Official notes recorded in the review round history.
 - **`lineComments`** *(array of objects)*: Line-targeted review feedback:
-  - `startLine` *(integer)*: 1-based start line in the Monaco editor.
+  - `startLine` *(integer)*: 1-based start line in the code editor.
   - `endLine` *(integer)*: 1-based end line (optional / same as `startLine`).
   - `type` *(string)*: `"SUGGESTION"` | `"ISSUE"` | `"PRAISE"` | `"NOTE"`.
   - `content` *(string)*: Actionable line-level review comment.
@@ -155,6 +155,6 @@ The external LLM must format its response matching this exact schema:
 4. Paste the prompt into your preferred LLM chat and receive the JSON response.
 5. Copy the entire LLM response and paste it into the **`Paste LLM Review Response`** textarea.
 6. Click **`Process & Apply Review`**.
-7. Observe the **Parsed Review Highlights** card, updated decision status, notes, and Monaco editor line comment viewzones.
+7. Observe the **Parsed Review Highlights** card, updated decision status, notes, and code editor inline comment threads.
 8. Approve or reject individual draft comments as desired.
 9. Click **`Publish Review Round`** to record the official review in the database.

@@ -202,7 +202,7 @@
   const detailStatementTitle = document.getElementById('detail-statement-title');
   const detailStatementExternalLink = document.getElementById('detail-statement-external-link');
   const detailStatementContainer = document.getElementById('detail-statement-container');
-  const monacoSelectionBadge = document.getElementById('monaco-selection-badge');
+  const codeSelectionBadge = document.getElementById('code-selection-badge');
   const avgClevernessVal = document.getElementById('avg-cleverness-val');
   const avgReadabilityVal = document.getElementById('avg-readability-val');
   const btnSubmitRating = document.getElementById('btn-submit-rating');
@@ -265,7 +265,8 @@
       localStorage.setItem('hr_app_token', tokenParam);
     }
 
-    initMonaco();
+    initCodeEditor();
+    initWrapToggle();
     setupEventListeners();
     await multiselectUser.init();
     await verifyAuth();
@@ -422,7 +423,7 @@
 
     // Global click outside listener to hide floating tooltip
     document.addEventListener('mousedown', (e) => {
-      if (!e.target.closest('#monaco-selection-tooltip') && !e.target.closest('#code-viewer')) {
+      if (!e.target.closest('#code-selection-tooltip') && !e.target.closest('#code-viewer')) {
         hideSelectionTooltip();
       }
     });
@@ -435,8 +436,65 @@
     }
   }
 
-  function initMonaco() {
+  function initCodeEditor() {
     initCodeViewer();
+  }
+
+  // Code editor initialized via initCodeEditor()
+
+  function checkWrappedLines() {
+    const editor = document.getElementById('code-editor');
+    if (!editor) return;
+    const isWrapEnabled = editor.classList.contains('word-wrap-enabled');
+    const lines = document.querySelectorAll('.code-line');
+    lines.forEach(lineEl => {
+      if (!isWrapEnabled) {
+        lineEl.classList.remove('is-wrapped');
+        return;
+      }
+      const codeEl = lineEl.querySelector('.line-code');
+      if (codeEl) {
+        // Line wraps if rendered height exceeds single line height (> 24px)
+        const isWrapped = codeEl.clientHeight > 24;
+        lineEl.classList.toggle('is-wrapped', isWrapped);
+      }
+    });
+  }
+
+  function initWrapToggle() {
+    const btnToggleWrap = document.getElementById('btn-toggle-wrap');
+    const wrapToggleLabel = document.getElementById('wrap-toggle-label');
+    const editorEl = document.getElementById('code-editor');
+
+    function applyWrap(enabled) {
+      if (!editorEl) return;
+      if (enabled) {
+        editorEl.classList.add('word-wrap-enabled');
+        if (wrapToggleLabel) wrapToggleLabel.textContent = 'Wrap: ON';
+        if (btnToggleWrap) btnToggleWrap.style.color = 'var(--color-brand)';
+      } else {
+        editorEl.classList.remove('word-wrap-enabled');
+        if (wrapToggleLabel) wrapToggleLabel.textContent = 'Wrap: OFF';
+        if (btnToggleWrap) btnToggleWrap.style.color = 'var(--text-muted)';
+      }
+      localStorage.setItem('hr_editor_wrap', enabled ? '1' : '0');
+      requestAnimationFrame(() => checkWrappedLines());
+    }
+
+    const saved = localStorage.getItem('hr_editor_wrap');
+    // Default to true (Wrap: ON)
+    applyWrap(saved !== '0');
+
+    if (btnToggleWrap) {
+      btnToggleWrap.addEventListener('click', () => {
+        const current = editorEl ? editorEl.classList.contains('word-wrap-enabled') : false;
+        applyWrap(!current);
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      requestAnimationFrame(() => checkWrappedLines());
+    });
   }
 
   // Split Prism-highlighted HTML string safely line-by-line while preserving open token tags
@@ -553,6 +611,7 @@
         <div class="code-line ${hasComment ? 'has-comment' : ''} ${hasDraft ? 'has-draft' : ''}" data-line="${lineNum}" id="code-line-${lineNum}">
           <div class="line-gutter" data-line="${lineNum}">
             ${dotHtml}
+            <span class="wrap-indicator" title="Wrapped line continuation">↳</span>
             <span>${lineNum}</span>
           </div>
           <div class="line-code ${langClass}">${lineCodeContent || '&nbsp;'}</div>
@@ -562,6 +621,7 @@
 
     container.innerHTML = linesHtml;
     setupCodeLineEventListeners(container);
+    requestAnimationFrame(() => checkWrappedLines());
   }
 
   function setupCodeLineEventListeners(container) {
@@ -596,13 +656,13 @@
         const matchedDraft = drafts.find(d => d.startLine && lineNum >= parseInt(d.startLine) && lineNum <= (parseInt(d.endLine) || parseInt(d.startLine)));
 
         if (matchedComment) {
-          highlightMonacoLines(matchedComment.startLine, matchedComment.endLine || matchedComment.startLine, false);
+          highlightCodeLines(matchedComment.startLine, matchedComment.endLine || matchedComment.startLine, false);
         } else if (matchedDraft) {
-          highlightMonacoLines(matchedDraft.startLine, matchedDraft.endLine || matchedDraft.startLine, true);
+          highlightCodeLines(matchedDraft.startLine, matchedDraft.endLine || matchedDraft.startLine, true);
         }
       });
 
-      lineEl.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+      lineEl.addEventListener('mouseleave', () => clearCodeLineHighlight());
     });
 
     // Selection listener inside code container for multi-line / text selection
@@ -635,11 +695,11 @@
 
       state.currentSelection = { startLine: start, endLine: end };
 
-      if (monacoSelectionBadge) {
+      if (codeSelectionBadge) {
         if (start === end) {
-          monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Line ${start} selected</span>`;
+          codeSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Line ${start} selected</span>`;
         } else {
-          monacoSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Lines ${start} - ${end} selected (${end - start + 1} lines)</span>`;
+          codeSelectionBadge.innerHTML = `${HRIcons.target(12)} <span>Lines ${start} - ${end} selected (${end - start + 1} lines)</span>`;
         }
       }
 
@@ -653,8 +713,8 @@
   function setupSelectionTooltipWidget() {
     if (selectionTooltipEl) return;
     selectionTooltipEl = document.createElement('div');
-    selectionTooltipEl.id = 'monaco-selection-tooltip';
-    selectionTooltipEl.className = 'monaco-selection-tooltip';
+    selectionTooltipEl.id = 'code-selection-tooltip';
+    selectionTooltipEl.className = 'code-selection-tooltip';
     selectionTooltipEl.style.position = 'absolute';
     selectionTooltipEl.style.display = 'none';
     selectionTooltipEl.style.zIndex = '1000';
@@ -668,7 +728,7 @@
       }
     });
 
-    const editorContainer = document.getElementById('monaco-editor') || document.body;
+    const editorContainer = document.getElementById('code-editor') || document.body;
     editorContainer.appendChild(selectionTooltipEl);
   }
 
@@ -678,7 +738,7 @@
 
     const lineEl = anchorEl || document.getElementById(`code-line-${state.currentSelection.startLine}`);
     if (lineEl) {
-      const editorBox = document.getElementById('monaco-editor').getBoundingClientRect();
+      const editorEl = document.getElementById('code-editor'); if (!editorEl) return; const editorBox = editorEl.getBoundingClientRect();
       const lineBox = lineEl.getBoundingClientRect();
 
       const topPos = lineBox.top - editorBox.top - 28;
@@ -1024,7 +1084,7 @@
     // If not admin, purge draft comments state and decorations
     if (!isAdmin) {
       state.activeDraftComments = [];
-      if (typeof updateMonacoDraftDecorations === 'function') updateMonacoDraftDecorations();
+      if (typeof updateCodeDraftDecorations === 'function') updateCodeDraftDecorations();
       if (typeof renderAiDraftComments === 'function') renderAiDraftComments();
     }
 
@@ -1032,7 +1092,7 @@
     if (state.activeSolution) {
       renderComments(state.activeSolution.comments || []);
       renderReviewRoundsTimeline(state.activeSolution.reviewRounds || []);
-      if (typeof updateMonacoViewZones === 'function') updateMonacoViewZones();
+      if (typeof updateCodeThreadZones === 'function') updateCodeThreadZones();
     }
   }
 
@@ -1468,7 +1528,12 @@
 
         <div class="solved-by-container">
           <span class="solved-by-label">SOLVED BY:</span>
-          ${solvedByHtml}
+          <div class="solved-by-scroll-wrap">
+            <div class="solved-by-list">
+              ${solvedByHtml}
+            </div>
+            <span class="solved-by-scroll-indicator" title="Scroll for more solvers">›</span>
+          </div>
         </div>
 
         ${descSnippet ? `<div class="sol-desc-snippet" style="margin-top: 0.4rem;" title="${descSnippet}">${descSnippet}</div>` : ''}
@@ -1501,6 +1566,27 @@
       </div>
     `;
 
+    // Setup solved-by horizontal scroll & overflow indicator
+    const scrollWrap = card.querySelector('.solved-by-scroll-wrap');
+    const scrollList = card.querySelector('.solved-by-list');
+    const scrollIndicator = card.querySelector('.solved-by-scroll-indicator');
+
+    if (scrollWrap && scrollList && scrollIndicator) {
+      const updateScrollIndicator = () => {
+        const hasOverflow = scrollList.scrollWidth > scrollList.clientWidth + 2;
+        const atEnd = scrollList.scrollLeft + scrollList.clientWidth >= scrollList.scrollWidth - 4;
+        scrollWrap.classList.toggle('has-overflow', hasOverflow && !atEnd);
+      };
+
+      setTimeout(updateScrollIndicator, 60);
+      scrollList.addEventListener('scroll', updateScrollIndicator, { passive: true });
+
+      scrollIndicator.addEventListener('click', (e) => {
+        e.stopPropagation();
+        scrollList.scrollBy({ left: 120, behavior: 'smooth' });
+      });
+    }
+
     // If more than 1 solution, add "Show More" accordion toggle & container
     if (totalSols > 1) {
       const otherSols = group.solutions.slice(1);
@@ -1512,6 +1598,8 @@
       otherSols.forEach((sol) => {
         const item = document.createElement('div');
         const solUser = escapeHtml(sol.user?.username || 'unknown');
+        const solClever = renderStarsHtml(sol.clevernessAvg);
+        const solRead = renderStarsHtml(sol.readabilityAvg);
         const solComments = sol._count?.comments !== undefined ? sol._count.comments : (sol.comments ? sol.comments.length : (sol._count?.reviewRounds || 0));
 
         let isMatch = false;
@@ -1522,18 +1610,29 @@
           }
         }
 
-        item.className = `accordion-solution-item${isMatch ? ' matching-search' : ''}`;
+        item.className = `latest-solution-container accordion-solution-item glass-panel${isMatch ? ' matching-search' : ''}`;
         item.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 0.8rem; font-family: var(--font-segment); color: var(--text-bright);">@${solUser}</span>
-            <span class="lang-tag" style="font-size: 0.7rem;">${escapeHtml(sol.language)}</span>
+          <div class="latest-solution-header">
+            <div class="latest-label">
+              ${HRIcons.check(12)}
+              <span>@${solUser}</span>
+            </div>
+            <span class="lang-tag">${escapeHtml(sol.language)}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+
+          <div class="sol-ratings-summary">
+            <div class="rating-badge" title="Cleverness: ${sol.clevernessAvg ? sol.clevernessAvg + '/5' : '0/5'}">
+              <span style="color: var(--color-brand); display: inline-flex;">${HRIcons.brain(12)}</span>
+              ${solClever}
+            </div>
+            <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : '0/5'}">
+              <span style="color: var(--color-brand); display: inline-flex;">${HRIcons.bookOpen(12)}</span>
+              ${solRead}
+            </div>
             <div class="rating-badge" title="Comments: ${solComments}">
               <span style="color: var(--text-muted); display: inline-flex;">${HRIcons.comment(12)}</span>
-              <span class="segment-number" style="font-size: 0.75rem;">${solComments}</span>
+              <span class="segment-number" style="font-size: 0.75rem; color: var(--text-bright);">${solComments}</span>
             </div>
-            <button type="button" class="btn-micro" style="color: var(--color-brand);">Open</button>
           </div>
         `;
 
@@ -1592,6 +1691,32 @@
     return card;
   }
 
+  // Setup Image URL Fallbacks for Problem Statements
+  function setupStatementImageFallbacks(container) {
+    if (!container) return;
+    container.querySelectorAll('img').forEach(img => {
+      const currentSrc = img.getAttribute('src') || '';
+      if (currentSrc.includes('hr-challenge-images')) {
+        const parts = currentSrc.split('/').filter(Boolean);
+        if (parts.length >= 2) {
+          img.src = '/assets/challenge-images/' + parts.slice(-2).join('-');
+        }
+      }
+      img.addEventListener('error', () => {
+        const src = img.getAttribute('src') || '';
+        const parts = src.split('/').filter(Boolean);
+        if (parts.length >= 2) {
+          const localAsset = '/assets/challenge-images/' + parts.slice(-2).join('-');
+          if (img.src !== window.location.origin + localAsset) {
+            img.src = localAsset;
+            return;
+          }
+        }
+        img.style.display = 'none';
+      }, { once: true });
+    });
+  }
+
   // Load Problem Statement (Fallback / Direct)
   async function loadProblemStatement(slug) {
     if (!detailStatementContainer || !slug) return;
@@ -1622,6 +1747,7 @@
         `;
 
         detailStatementContainer.innerHTML = platformBadge + `<div class="statement-content-box leetcode-statement">${data.problem.statementHtml}</div>` + extButtonHtml;
+        setupStatementImageFallbacks(detailStatementContainer);
       } else {
         const isLeetCode = data.problem && data.problem.platform === 'leetcode';
         const targetUrl = data.problem?.url || (isLeetCode ? `https://leetcode.com/problems/${slug}/` : `https://www.hackerrank.com/challenges/${slug}/problem`);
@@ -1786,6 +1912,7 @@
       if (detailStatementContainer) {
         if (problem && problem.statementHtml) {
           detailStatementContainer.innerHTML = `<div class="statement-content-box ${isLC ? 'leetcode-statement' : ''}">${problem.statementHtml}</div>`;
+          setupStatementImageFallbacks(detailStatementContainer);
         } else {
           loadProblemStatement(sol.challengeSlug);
         }
@@ -1834,8 +1961,8 @@
       if (parsedReviewCard) parsedReviewCard.style.display = 'none';
       if (adminReviewNotes) adminReviewNotes.value = '';
       renderAiDraftComments();
-      updateMonacoDraftDecorations();
-      updateMonacoViewZones();
+      updateCodeDraftDecorations();
+      updateCodeThreadZones();
 
       renderComments(sol.comments || []);
       renderReviewRoundsTimeline(sol.reviewRounds || []);
@@ -1852,28 +1979,28 @@
   }
 
   // Dynamic Hover Line Highlight Helper Functions for Comments
-  function highlightMonacoLines(startLine, endLine, isDraft = false) {
+  function highlightCodeLines(startLine, endLine, isDraft = false) {
     if (!startLine) return;
     const sLine = parseInt(startLine);
     const eLine = parseInt(endLine) || sLine;
     const highlightClass = isDraft ? 'highlighted-draft' : 'highlighted-comment';
 
-    clearMonacoLineHighlight();
+    clearCodeLineHighlight();
     for (let l = sLine; l <= eLine; l++) {
       const el = document.getElementById(`code-line-${l}`);
       if (el) el.classList.add(highlightClass);
     }
   }
-  window.highlightMonacoLines = highlightMonacoLines;
+  window.highlightCodeLines = highlightCodeLines;
 
-  function clearMonacoLineHighlight() {
+  function clearCodeLineHighlight() {
     document.querySelectorAll('.code-line.highlighted-comment, .code-line.highlighted-draft').forEach(el => {
       el.classList.remove('highlighted-comment', 'highlighted-draft');
     });
   }
-  window.clearMonacoLineHighlight = clearMonacoLineHighlight;
+  window.clearCodeLineHighlight = clearCodeLineHighlight;
 
-  function scrollToMonacoLines(startLine, endLine) {
+  function scrollToCodeLines(startLine, endLine) {
     if (!startLine) return;
     const sLine = parseInt(startLine);
     const eLine = parseInt(endLine) || sLine;
@@ -1884,10 +2011,10 @@
     const targetEl = document.getElementById(`code-line-${sLine}`);
     if (targetEl) {
       targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      highlightMonacoLines(sLine, eLine, false);
+      highlightCodeLines(sLine, eLine, false);
     }
   }
-  window.scrollToMonacoLines = scrollToMonacoLines;
+  window.scrollToCodeLines = scrollToCodeLines;
 
   function replyToComment(commentId, username, startLine, endLine) {
     if (startLine) {
@@ -1895,10 +2022,10 @@
       const eLine = parseInt(endLine) || sLine;
       state.collapsedZones.delete(eLine);
       state.activeInlineLine = eLine;
-      updateMonacoViewZones();
+      updateCodeThreadZones();
 
       setTimeout(() => {
-        scrollToMonacoLines(sLine, eLine);
+        scrollToCodeLines(sLine, eLine);
         const input = document.getElementById(`zone-input-${eLine}`);
         if (input) {
           if (username && !input.value.includes(`@${username}`)) {
@@ -1969,12 +2096,12 @@
       const eLine = parseInt(targetComment.endLine) || sLine;
 
       state.collapsedZones.delete(eLine);
-      updateMonacoViewZones();
+      updateCodeThreadZones();
 
       setTimeout(() => {
-        scrollToMonacoLines(sLine, eLine);
+        scrollToCodeLines(sLine, eLine);
 
-        const zoneItem = document.querySelector(`.monaco-thread-item[data-comment-id="${commentId}"]`);
+        const zoneItem = document.querySelector(`.code-thread-item[data-comment-id="${commentId}"]`);
         if (zoneItem) {
           zoneItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           zoneItem.classList.remove('comment-highlight-pulse');
@@ -2000,11 +2127,11 @@
   window.scrollToAndHighlightComment = scrollToAndHighlightComment;
 
   // Code viewer line decorations helper
-  function updateMonacoDecorations(comments) {
+  function updateCodeDecorations(comments) {
     if (typeof updateInlineCommentThreads === 'function') updateInlineCommentThreads();
   }
-  window.updateMonacoDecorations = updateMonacoDecorations;
-  window.updateMonacoDraftDecorations = updateMonacoDecorations;
+  window.updateCodeDecorations = updateCodeDecorations;
+  window.updateCodeDraftDecorations = updateCodeDecorations;
 
   // Submit Rating Handler
   async function submitRating() {
@@ -2069,7 +2196,7 @@
         const lineText = (c.endLine && c.endLine > c.startLine) 
           ? `Lines ${c.startLine}-${c.endLine}` 
           : `Line ${c.startLine}`;
-        lineBadgeHtml = `<button class="line-tag-badge" onclick="scrollToMonacoLines(${c.startLine}, ${c.endLine || c.startLine})" title="Jump to code line in editor">${HRIcons.target(11)} ${lineText}</button>`;
+        lineBadgeHtml = `<button class="line-tag-badge" onclick="scrollToCodeLines(${c.startLine}, ${c.endLine || c.startLine})" title="Jump to code line in editor">${HRIcons.target(11)} ${lineText}</button>`;
       }
 
       const isAuthorOrAdmin = state.currentUser && state.currentUser.username !== 'Guest' && (
@@ -2101,8 +2228,8 @@
       item.id = `comment-${c.id}`;
 
       if (c.startLine) {
-        item.addEventListener('mouseenter', () => highlightMonacoLines(c.startLine, c.endLine || c.startLine, false));
-        item.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+        item.addEventListener('mouseenter', () => highlightCodeLines(c.startLine, c.endLine || c.startLine, false));
+        item.addEventListener('mouseleave', () => clearCodeLineHighlight());
       }
 
       commentsContainer.appendChild(item);
@@ -2122,9 +2249,9 @@
         renderComments(state.activeSolution.comments);
         renderReviewRoundsTimeline(state.activeSolution.reviewRounds);
         updateReviewRoundPublisherUI();
-        updateMonacoDecorations(state.activeSolution.comments);
-        updateMonacoDraftDecorations();
-        updateMonacoViewZones();
+        updateCodeDecorations(state.activeSolution.comments);
+        updateCodeDraftDecorations();
+        updateCodeThreadZones();
       }
     } catch (err) {
       console.error('Failed to reload solution comments:', err);
@@ -2374,7 +2501,7 @@
     if (!container) return;
 
     // Clear previous inline thread zones
-    container.querySelectorAll('.inline-thread-zone, .monaco-inline-thread-zone').forEach(el => el.remove());
+    container.querySelectorAll('.inline-thread-zone, .code-inline-thread-zone').forEach(el => el.remove());
 
     const comments = state.activeSolution?.comments || [];
     const drafts = (state.currentUser && state.currentUser.role === 'ADMIN') ? (state.activeDraftComments || []) : [];
@@ -2432,7 +2559,7 @@
         : `Write inline review comment on line ${lineNum}...`;
 
       const zoneNode = document.createElement('div');
-      zoneNode.className = `inline-thread-zone monaco-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
+      zoneNode.className = `inline-thread-zone code-inline-thread-zone ${hasDraft ? 'has-draft' : ''}`;
       zoneNode.setAttribute('data-line', lineNum);
 
       let publishedCommentsHtml = '';
@@ -2448,7 +2575,7 @@
         const replyItemBtnHtml = `<button type="button" class="btn-micro btn-item-reply" data-line="${lineNum}" data-user="${escapeHtml(c.user?.username || 'User')}" style="color: var(--neon-cyan); border-color: rgba(0,243,255,0.3); font-size: 0.65rem;">Reply</button>`;
 
         publishedCommentsHtml += `
-          <div class="monaco-thread-item" data-comment-id="${c.id}" id="monaco-comment-${c.id}">
+          <div class="code-thread-item" data-comment-id="${c.id}" id="code-comment-${c.id}">
             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem; color: var(--text-muted);">
               <div style="display: flex; align-items: center; gap: 0.4rem;">
                 <span class="comment-user">@${escapeHtml(c.user?.username || 'User')} ${c.user?.role === 'ADMIN' ? '<span class="role-badge admin">ADMIN</span>' : ''}</span>
@@ -2489,7 +2616,7 @@
       let actionAreaHtml = '';
       if (isInputActive) {
         actionAreaHtml = `
-          <div class="monaco-thread-input-row">
+          <div class="code-thread-input-row">
             <textarea id="zone-input-${lineNum}" class="form-control" rows="2" placeholder="${placeholderText}"></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.3rem;">
               <button type="button" class="btn-micro btn-zone-cancel" data-line="${lineNum}">Cancel</button>
@@ -2499,7 +2626,7 @@
         `;
       } else {
         actionAreaHtml = `
-          <div class="monaco-thread-reply-bar">
+          <div class="code-thread-reply-bar">
             <button type="button" class="btn-micro btn-zone-reply" data-line="${lineNum}" style="display: flex; align-items: center; gap: 4px; color: var(--neon-cyan); border-color: rgba(0,243,255,0.3);">
               ${HRIcons.comment(11)} Reply...
             </button>
@@ -2508,31 +2635,31 @@
       }
 
       zoneNode.innerHTML = `
-        <div class="monaco-thread-header">
+        <div class="code-thread-header">
           <div style="display: flex; align-items: center; gap: 6px;">
             ${HRIcons.comment(12)}
             <span>${titleText}</span>
           </div>
           <button type="button" class="btn-micro btn-zone-close" data-line="${lineNum}" style="font-size: 0.65rem;">Close</button>
         </div>
-        ${publishedCommentsHtml ? `<div class="monaco-thread-comments">${publishedCommentsHtml}</div>` : ''}
+        ${publishedCommentsHtml ? `<div class="code-thread-comments">${publishedCommentsHtml}</div>` : ''}
         ${draftCommentsHtml ? `<div style="margin-bottom: 0.5rem;">${draftCommentsHtml}</div>` : ''}
         ${actionAreaHtml}
       `;
 
-      zoneNode.querySelectorAll('.monaco-thread-item').forEach((threadItem, index) => {
+      zoneNode.querySelectorAll('.code-thread-item').forEach((threadItem, index) => {
         const comment = data.comments[index];
         if (comment && comment.startLine) {
-          threadItem.addEventListener('mouseenter', () => highlightMonacoLines(comment.startLine, comment.endLine || comment.startLine, false));
-          threadItem.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+          threadItem.addEventListener('mouseenter', () => highlightCodeLines(comment.startLine, comment.endLine || comment.startLine, false));
+          threadItem.addEventListener('mouseleave', () => clearCodeLineHighlight());
         }
       });
 
       zoneNode.querySelectorAll('.draft-comment-card').forEach((draftCard, index) => {
         const draft = data.drafts[index];
         if (draft && draft.startLine) {
-          draftCard.addEventListener('mouseenter', () => highlightMonacoLines(draft.startLine, draft.endLine, true));
-          draftCard.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+          draftCard.addEventListener('mouseenter', () => highlightCodeLines(draft.startLine, draft.endLine, true));
+          draftCard.addEventListener('mouseleave', () => clearCodeLineHighlight());
         }
       });
 
@@ -2624,8 +2751,8 @@
   }
 
   window.updateInlineCommentThreads = updateInlineCommentThreads;
-  window.updateMonacoViewZones = updateInlineCommentThreads;
-  window.syncMonacoViewZoneVisibility = function() {};
+  window.updateCodeThreadZones = updateInlineCommentThreads;
+  window.syncCodeThreadVisibility = function() {};
 
   // AI Draft Comments Renderer & Approve/Reject Handlers
   function renderAiDraftComments() {
@@ -2659,7 +2786,7 @@
         <div class="draft-comment-header">
           <div style="display: flex; align-items: center; gap: 0.4rem;">
             <span class="draft-badge">${HRIcons.aiSpark(14)} AI DRAFT</span>
-            <button class="line-tag-badge" onclick="scrollToMonacoLines(${d.startLine}, ${d.endLine})">${HRIcons.target(14)} ${lineText}</button>
+            <button class="line-tag-badge" onclick="scrollToCodeLines(${d.startLine}, ${d.endLine})">${HRIcons.target(14)} ${lineText}</button>
           </div>
           <span style="font-size: 0.7rem; color: var(--color-brand);">${escapeHtml(d.type)}</span>
         </div>
@@ -2671,39 +2798,18 @@
       `;
 
       if (d.startLine) {
-        card.addEventListener('mouseenter', () => highlightMonacoLines(d.startLine, d.endLine, true));
-        card.addEventListener('mouseleave', () => clearMonacoLineHighlight());
+        card.addEventListener('mouseenter', () => highlightCodeLines(d.startLine, d.endLine, true));
+        card.addEventListener('mouseleave', () => clearCodeLineHighlight());
       }
 
       aiDraftCommentsList.appendChild(card);
     });
   }
 
-  function updateMonacoDraftDecorations() {
-    if (!state.editor || typeof monaco === 'undefined') return;
-
-    if (!state.currentUser || state.currentUser.role !== 'ADMIN') {
-      if (state.editorDraftDecorations && state.editorDraftDecorations.length > 0) {
-        state.editorDraftDecorations = state.editor.deltaDecorations(state.editorDraftDecorations, []);
-      }
-      return;
+  function updateCodeDraftDecorations() {
+    if (typeof updateInlineCommentThreads === 'function') {
+      updateInlineCommentThreads();
     }
-
-    const newDraftDecorations = [];
-    (state.activeDraftComments || []).forEach(d => {
-      const sLine = parseInt(d.startLine);
-      const eLine = parseInt(d.endLine) || sLine;
-      newDraftDecorations.push({
-        range: new monaco.Range(sLine, 1, eLine, 1000),
-        options: {
-          isWholeLine: true,
-          glyphMarginClassName: 'monaco-draft-glyph-margin',
-          hoverMessage: { value: `**AI Draft (${d.type})**: ${d.content}` }
-        }
-      });
-    });
-
-    state.editorDraftDecorations = state.editor.deltaDecorations(state.editorDraftDecorations || [], newDraftDecorations);
   }
 
   window.approveDraftComment = async function(draftId) {
@@ -2741,8 +2847,8 @@
   window.rejectDraftComment = function(draftId) {
     state.activeDraftComments = (state.activeDraftComments || []).filter(d => d.id !== draftId);
     renderAiDraftComments();
-    updateMonacoDraftDecorations();
-    updateMonacoViewZones();
+    updateCodeDraftDecorations();
+    updateCodeThreadZones();
   };
 
   async function approveAllDraftComments() {
@@ -2776,8 +2882,8 @@
   function rejectAllDraftComments() {
     state.activeDraftComments = [];
     renderAiDraftComments();
-    updateMonacoDraftDecorations();
-    updateMonacoViewZones();
+    updateCodeDraftDecorations();
+    updateCodeThreadZones();
     showRetroToast('All draft comments dismissed.', HRIcons.close(16));
   }
 
@@ -3027,8 +3133,8 @@ Please review the code and respond strictly with JSON:
 
     updateReviewRoundPublisherUI();
     renderAiDraftComments();
-    updateMonacoDraftDecorations();
-    updateMonacoViewZones();
+    updateCodeDraftDecorations();
+    updateCodeThreadZones();
 
     showRetroToast(`LLM Review parsed! ${state.activeDraftComments.length} line comments and decision notes loaded.`, HRIcons.check(16));
   }
@@ -3418,7 +3524,7 @@ Please review the code and respond strictly with JSON:
         if (comments.length === 0 && drafts.length === 0) {
           state.collapsedZones.add(activeLine);
         }
-        updateMonacoViewZones();
+        updateCodeThreadZones();
       }
       hideSelectionTooltip();
       if (authModal && authModal.style.display !== 'none') {

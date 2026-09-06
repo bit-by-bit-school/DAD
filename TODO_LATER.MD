@@ -1,1 +1,1 @@
-[] 
+[x] add a clear feedback button to inspector

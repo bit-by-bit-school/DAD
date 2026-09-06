@@ -32,6 +32,7 @@ var (
 	svgRegex    = regexp.MustCompile(`(?i)<svg[^>]*>[\s\S]*?</svg>`)
 	scriptRegex = regexp.MustCompile(`(?i)<script[^>]*>[\s\S]*?</script>`)
 	spaceRegex  = regexp.MustCompile(`\s+`)
+	hrChallengeImgRegex = regexp.MustCompile(`https?://(?:s3\.amazonaws\.com/hr-challenge-images|hr-challenge-images\.s3\.amazonaws\.com)/([^"'\s>]+)`)
 )
 
 func loadHackerRankSlugs() {
@@ -144,6 +145,23 @@ func SlugToTitle(slug string) string {
 	return strings.Join(parts, " ")
 }
 
+func RewriteProblemImages(html string) string {
+	if html == "" {
+		return ""
+	}
+	return hrChallengeImgRegex.ReplaceAllStringFunc(html, func(match string) string {
+		parts := strings.Split(match, "/")
+		if len(parts) >= 2 {
+			safeName := parts[len(parts)-2] + "-" + parts[len(parts)-1]
+			return "/assets/challenge-images/" + safeName
+		}
+		if len(parts) > 0 {
+			return "/assets/challenge-images/" + parts[len(parts)-1]
+		}
+		return match
+	})
+}
+
 func GetProblemStatementHTML(slug string) string {
 	if slug == "" {
 		return ""
@@ -158,7 +176,7 @@ func GetProblemStatementHTML(slug string) string {
 	path := resolveStatementPath(slug)
 	if path != "" {
 		if content, err := os.ReadFile(path); err == nil {
-			str := string(content)
+			str := RewriteProblemImages(string(content))
 			cacheMutex.Lock()
 			statementCache[slug] = str
 			cacheMutex.Unlock()

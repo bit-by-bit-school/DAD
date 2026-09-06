@@ -152,6 +152,16 @@ func main() {
 
 	fileServer := http.FileServer(filesDir)
 
+	// Long-term caching for static assets (images, challenge media)
+	assetsPath := filepath.Join(workDir, publicDir, "assets")
+	if _, err := os.Stat(assetsPath); err == nil {
+		assetsFileServer := http.StripPrefix("/assets/", http.FileServer(http.Dir(assetsPath)))
+		r.Get("/assets/*", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			assetsFileServer.ServeHTTP(w, r)
+		})
+	}
+
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		path := filepath.Join(workDir, publicDir, filepath.Clean(r.URL.Path))
 		info, err := os.Stat(path)

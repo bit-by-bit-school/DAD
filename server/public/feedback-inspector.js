@@ -73,7 +73,8 @@
       <span style="color: #8b949e; font-size: 12px;">⋮⋮</span>
       <span style="display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' ? HRIcons.target(14) : ''} <span>INSPECTOR ACTIVE</span></span>
     </span>
-    <button id="feedback-view-all-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 0px; box-shadow: 2px 2px 0px #000; padding: 3px 8px; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; pointer-events: auto; display: flex; align-items: center; gap: 4px;">${typeof HRIcons !== 'undefined' ? HRIcons.list(12) : ''} <span>LIST</span></button>
+    <button id="feedback-view-all-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 0px; box-shadow: 2px 2px 0px #000; padding: 3px 8px; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; pointer-events: auto; display: flex; align-items: center; gap: 4px;" title="View and copy feedback history">${typeof HRIcons !== 'undefined' ? HRIcons.list(12) : ''} <span>LIST</span></button>
+    <button id="feedback-clear-btn" style="background: rgba(239, 68, 68, 0.16); border: 1px solid #ef4444; color: #ef4444; border-radius: 0px; box-shadow: 2px 2px 0px #000; padding: 3px 8px; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; pointer-events: auto; display: flex; align-items: center; gap: 4px;" title="Clear all recorded feedback">${typeof HRIcons !== 'undefined' && HRIcons.trash ? HRIcons.trash(12) : ''} <span>CLEAR</span></button>
     <button id="feedback-exit-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 0px; box-shadow: 2px 2px 0px #000; padding: 3px 8px; font-family: var(--font-pixel, monospace); font-size: 10px; cursor: pointer; pointer-events: auto;">EXIT (ESC)</button>
   `;
   document.body.appendChild(topBanner);
@@ -177,6 +178,7 @@
 
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
       <button id="fb-btn-cancel" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 14px; border-radius: 0px; box-shadow: 2px 2px 0px #000; cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase;">CANCEL</button>
+      <button id="fb-btn-clear-comment" type="button" style="background: transparent; border: 1px solid #30363d; color: #8b949e; padding: 6px 14px; border-radius: 0px; box-shadow: 2px 2px 0px #000; cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase;" title="Clear comment text">CLEAR</button>
       <button id="fb-btn-submit" style="background: #00f3ff; border: none; color: #0d1117; font-weight: 400; letter-spacing: 0.6px; padding: 6px 16px; border-radius: 0px; box-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,243,255,0.4); cursor: pointer; font-family: var(--font-pixel, monospace); font-size: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">${typeof HRIcons !== 'undefined' && HRIcons.zap ? HRIcons.zap(13) : ''} <span>SEND TO AI</span></button>
     </div>
   `;
@@ -269,7 +271,7 @@
   let dragOffsetY = 0;
 
   topBanner.addEventListener('mousedown', (e) => {
-    if (e.target.closest('#feedback-view-all-btn, #feedback-exit-btn')) return;
+    if (e.target.closest('#feedback-view-all-btn, #feedback-clear-btn, #feedback-exit-btn')) return;
 
     isDraggingBanner = true;
     hasBeenDragged = true;
@@ -326,6 +328,26 @@
   triggerBtn.addEventListener('click', () => toggleInspector());
   document.getElementById('feedback-exit-btn').addEventListener('click', () => toggleInspector(false));
   document.getElementById('feedback-view-all-btn').addEventListener('click', openHistoryModal);
+  const clearFeedbackBtn = document.getElementById('feedback-clear-btn');
+  if (clearFeedbackBtn) {
+    clearFeedbackBtn.addEventListener('click', clearAllFeedback);
+    clearFeedbackBtn.addEventListener('mouseenter', () => {
+      clearFeedbackBtn.style.background = 'rgba(239, 68, 68, 0.3)';
+    });
+    clearFeedbackBtn.addEventListener('mouseleave', () => {
+      clearFeedbackBtn.style.background = 'rgba(239, 68, 68, 0.16)';
+    });
+  }
+  const clearCommentBtn = document.getElementById('fb-btn-clear-comment');
+  if (clearCommentBtn) {
+    clearCommentBtn.addEventListener('click', () => {
+      const input = document.getElementById('fb-comment-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    });
+  }
   document.getElementById('feedback-modal-close').addEventListener('click', closeModal);
   document.getElementById('fb-btn-cancel').addEventListener('click', closeModal);
 
@@ -433,24 +455,74 @@
     input.focus();
   }
 
-  function openHistoryModal() {
+  async function openHistoryModal() {
     let items = [];
     try {
       items = JSON.parse(localStorage.getItem('hr_feedback_items') || '[]');
     } catch (e) {}
 
-    const text = items.map((it, idx) => `### ${idx + 1}. [${it.category}] ${it.comment}\n- **Element**: \`${it.element.tagName}\` (${it.element.cssSelector})\n- **Text**: "${it.element.text}"\n`).join('\n');
-    
+    if (items.length === 0) {
+      try {
+        const res = await fetch('/api/feedback');
+        const data = await res.json();
+        if (data && Array.isArray(data.feedbacks) && data.feedbacks.length > 0) {
+          items = data.feedbacks;
+        }
+      } catch (e) {
+        console.warn('Could not fetch server feedback:', e);
+      }
+    }
+
     if (items.length === 0) {
       alert('No feedback items submitted yet.');
       return;
     }
+
+    const text = items.map((it, idx) => {
+      const tag = it.element && it.element.tagName ? it.element.tagName : 'ELEMENT';
+      const selector = it.element && it.element.cssSelector ? ` (${it.element.cssSelector})` : '';
+      const elText = it.element && it.element.text ? `\n- **Text**: "${it.element.text}"` : '';
+      return `### ${idx + 1}. [${it.category}] ${it.comment}\n- **Element**: \`${tag}\`${selector}${elText}\n`;
+    }).join('\n');
 
     navigator.clipboard.writeText(text).then(() => {
       showToast('All feedback copied to clipboard!');
     }).catch(() => {
       prompt('Copy your feedback history below:', text);
     });
+  }
+
+  async function clearAllFeedback() {
+    if (!confirm('Are you sure you want to clear all feedback entries? This will delete all feedback history.')) {
+      return;
+    }
+
+    let localCleared = false;
+    try {
+      localStorage.removeItem('hr_feedback_items');
+      localCleared = true;
+    } catch (e) {
+      console.warn('Could not clear localStorage:', e);
+    }
+
+    let serverCleared = false;
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        serverCleared = true;
+      }
+    } catch (err) {
+      console.error('Failed to clear /api/feedback:', err);
+    }
+
+    if (serverCleared || localCleared) {
+      showToast('All feedback cleared!');
+    } else {
+      showToast('No feedback to clear');
+    }
   }
 
   function closeModal() {

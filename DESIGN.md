@@ -101,7 +101,7 @@ The color palette consists of one primary **Brand Color** and exactly **Three Fu
 - **Strict Prohibition**: Raw Unicode emojis (e.g. 🧠, 📖, 💬, 📂, 💻, ⚡, 🔔, 🔑, 🤖, ⭐, ★) are **strictly forbidden** anywhere in UI chrome, cards, badges, headings, buttons, and status displays.
 - **Primary Icon Pack**: **`Pixelarticons`** (24×24 strict pixel grid, 1-bit / 2-bit geometric pixel-art paths).
 - **Secondary / Fallback Pack**: **`Pixel Icon Library`** (`pixeliconlibrary`) — used as a fallback whenever a specialized icon is not available in Pixelarticons.
-- **Brand Logo**: 3-Cell 16-Segment Alphanumeric Phosphor Display spelling **`HRH`** with unlit skeleton segments and cyan/white phosphor glow.
+- **Brand Logo**: 3-Cell 16-Segment Alphanumeric Phosphor Display spelling **`DAD`** with unlit skeleton segments and cyan/white phosphor glow.
 - **Implementation Rules**:
   - All icons must be loaded from / synced between `server/public/icons.js` and `extension/lib/icons.js` under the global `HRIcons` object.
   - Every icon SVG must specify `viewBox="0 0 24 24"`, `fill="currentColor"`, and `shape-rendering="crispEdges"` with the CSS class `.hr-icon`.

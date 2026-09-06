@@ -4,9 +4,9 @@
  */
 
 const HRIcons = {
-  // Authentic 3-Cell 16-Segment Alphanumeric Display Logo spelling "H R H"
+  // Authentic 3-Cell 16-Segment Alphanumeric Display Logo spelling "D A D"
   logo: (size = 26) => `
-    <svg viewBox="0 0 70 28" width="${Math.round(size * 2.5)}" height="${size}" fill="none" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo">
+    <svg viewBox="0 0 70 28" width="${Math.round(size * 2.5)}" height="${size}" fill="none" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" class="hr-icon-logo" role="img" aria-label="DAD Logo">
       <defs>
         <!-- Single 16-Segment Display Cell Template -->
         <g id="seg-cell" transform="skewX(-7)">
@@ -25,42 +25,40 @@ const HRIcons = {
             <line x1="16" y1="2" x2="9" y2="13"/>
             <line x1="9" y1="13" x2="2" y2="24"/>
             <line x1="9" y1="13" x2="16" y2="24"/>
+            <!-- D Right Chamfer Segments -->
+            <line x1="11" y1="2" x2="16" y2="7"/>
+            <line x1="16" y1="19" x2="11" y2="24"/>
             <rect x="18" y="23" width="1.5" height="1.5" fill="rgba(255, 255, 255, 0.12)"/>
           </g>
         </g>
       </defs>
 
-      <!-- Letter 1: 'H' (Cyan Phosphor) -->
+      <!-- Letter 1: 'D' (Cyan Phosphor - Distinct D-curve with flat spine) -->
       <g transform="translate(3, 1)">
         <use href="#seg-cell" x="0" y="0"/>
-        <g stroke="var(--color-brand, #00E5FF)" stroke-width="2.2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))" transform="skewX(-7)">
-          <line x1="2" y1="2" x2="2" y2="24"/>
-          <line x1="16" y1="2" x2="16" y2="24"/>
-          <line x1="2" y1="13" x2="16" y2="13"/>
+        <g stroke="var(--color-brand, #00E5FF)" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))" transform="skewX(-7)">
+          <polyline points="2,24 2,2 11,2 16,7 16,19 11,24 2,24" fill="none"/>
         </g>
         <rect x="18" y="23" width="1.5" height="1.5" fill="var(--color-brand, #00E5FF)" transform="skewX(-7)"/>
       </g>
 
-      <!-- Letter 2: 'R' (White Phosphor) -->
+      <!-- Letter 2: 'A' (White Phosphor) -->
       <g transform="translate(26, 1)">
         <use href="#seg-cell" x="0" y="0"/>
-        <g stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="square" filter="drop-shadow(0 0 3px #FFFFFF)" transform="skewX(-7)">
+        <g stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" filter="drop-shadow(0 0 3px #FFFFFF)" transform="skewX(-7)">
           <line x1="2" y1="2" x2="2" y2="24"/>
           <line x1="2" y1="2" x2="16" y2="2"/>
-          <line x1="16" y1="2" x2="16" y2="13"/>
+          <line x1="16" y1="2" x2="16" y2="24"/>
           <line x1="2" y1="13" x2="16" y2="13"/>
-          <line x1="9" y1="13" x2="16" y2="24"/>
         </g>
         <rect x="18" y="23" width="1.5" height="1.5" fill="#FFFFFF" transform="skewX(-7)"/>
       </g>
 
-      <!-- Letter 3: 'H' (Cyan Phosphor) -->
+      <!-- Letter 3: 'D' (Cyan Phosphor - Distinct D-curve with flat spine) -->
       <g transform="translate(49, 1)">
         <use href="#seg-cell" x="0" y="0"/>
-        <g stroke="var(--color-brand, #00E5FF)" stroke-width="2.2" stroke-linecap="square" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))" transform="skewX(-7)">
-          <line x1="2" y1="2" x2="2" y2="24"/>
-          <line x1="16" y1="2" x2="16" y2="24"/>
-          <line x1="2" y1="13" x2="16" y2="13"/>
+        <g stroke="var(--color-brand, #00E5FF)" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="miter" filter="drop-shadow(0 0 3px var(--color-brand, #00E5FF))" transform="skewX(-7)">
+          <polyline points="2,24 2,2 11,2 16,7 16,19 11,24 2,24" fill="none"/>
         </g>
         <rect x="18" y="23" width="1.5" height="1.5" fill="var(--color-brand, #00E5FF)" transform="skewX(-7)"/>
       </g>

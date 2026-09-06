@@ -75,8 +75,8 @@ function crc32(buf) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-// Draw HackerRank inspired icon: Dark rounded square with glowing vibrant green 'H' / code symbol
-function hackerRankIcon(x, y, w, h) {
+// Draw DAD Hub icon: Dark rounded square with glowing vibrant Ice Cyan 'D' symbol
+function dadIcon(x, y, w, h) {
   const cx = w / 2;
   const cy = h / 2;
 
@@ -113,21 +113,36 @@ function hackerRankIcon(x, y, w, h) {
   const normX = (x - cx) / (w / 2);
   const normY = (y - cy) / (h / 2);
 
-  // Draw 'H' letter
-  const isLeftBar = normX >= -0.52 && normX <= -0.20 && normY >= -0.55 && normY <= 0.55;
-  const isRightBar = normX >= 0.20 && normX <= 0.52 && normY >= -0.55 && normY <= 0.55;
-  const isCrossBar = normX >= -0.30 && normX <= 0.30 && normY >= -0.16 && normY <= 0.16;
+  // Outer boundary of 'D': Flat left spine with sharp 90-degree corners, chamfered right bowl
+  const inOuterD =
+    normX >= -0.55 &&
+    normX <= 0.50 &&
+    normY >= -0.65 &&
+    normY <= 0.65 &&
+    normX - normY <= 0.75 && // top-right 45-degree chamfer
+    normX + normY <= 0.75;   // bottom-right 45-degree chamfer
 
-  if (isLeftBar || isRightBar || isCrossBar) {
-    // Vibrant HackerRank green #00EA64
-    return [0, 234, 100, 255];
+  // Inner hole (counter) of 'D'
+  const inInnerHole =
+    normX >= -0.22 &&
+    normX <= 0.18 &&
+    normY >= -0.32 &&
+    normY <= 0.32 &&
+    normX - normY <= 0.42 &&
+    normX + normY <= 0.42;
+
+  const isD = inOuterD && !inInnerHole;
+
+  if (isD) {
+    // Vibrant Ice Cyan Phosphor #00E5FF
+    return [0, 229, 255, 255];
   }
 
-  // Dark background with subtle slate gradient
+  // Dark background with subtle slate gradient (#0E121B to #151B26)
   const bgY = y / h;
-  const rBg = Math.round(15 + bgY * 10);
-  const gBg = Math.round(23 + bgY * 12);
-  const bBg = Math.round(42 + bgY * 15);
+  const rBg = Math.round(10 + bgY * 8);
+  const gBg = Math.round(14 + bgY * 10);
+  const bBg = Math.round(24 + bgY * 12);
 
   return [rBg, gBg, bBg, 255];
 }
@@ -138,7 +153,7 @@ if (!fs.existsSync(iconsDir)) {
 }
 
 [16, 48, 128].forEach((size) => {
-  const pngBuf = createPNG(size, size, hackerRankIcon);
+  const pngBuf = createPNG(size, size, dadIcon);
   const filePath = path.join(iconsDir, `icon-${size}.png`);
   fs.writeFileSync(filePath, pngBuf);
   console.log(`Generated icon: ${filePath} (${size}x${size}, ${pngBuf.length} bytes)`);

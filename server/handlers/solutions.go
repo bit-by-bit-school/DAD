@@ -22,6 +22,7 @@ import (
 type SyncSolutionItem struct {
 	ID             string      `json:"id"`
 	SubmissionID   string      `json:"submissionId"`
+	Platform       string      `json:"platform"`
 	ChallengeSlug  string      `json:"challengeSlug"`
 	ChallengeTitle string      `json:"challengeTitle"`
 	Slug           string      `json:"slug"`
@@ -84,6 +85,11 @@ func SolutionsSyncHandler(w http.ResponseWriter, r *http.Request) {
 		contestSlug := sol.ContestSlug
 		if contestSlug == "" {
 			contestSlug = "master"
+		}
+
+		platform := sol.Platform
+		if platform == "" {
+			platform = "hackerrank"
 		}
 
 		language := sol.Language
@@ -151,6 +157,7 @@ func SolutionsSyncHandler(w http.ResponseWriter, r *http.Request) {
 			record = models.Solution{
 				ID:             uuid.New().String(),
 				SubmissionID:   submissionID,
+				Platform:       platform,
 				ChallengeSlug:  challengeSlug,
 				ChallengeTitle: challengeTitle,
 				ContestSlug:    &contestSlug,
@@ -165,6 +172,7 @@ func SolutionsSyncHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// Update existing solution
 			db.DB.Model(&record).Updates(map[string]interface{}{
+				"platform":       platform,
 				"challengeTitle": challengeTitle,
 				"contestSlug":    contestSlug,
 				"language":       language,
@@ -260,7 +268,17 @@ func SolutionsListHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	platform := q.Get("platform")
+
 	query := db.DB.Model(&models.Solution{}).Joins("User")
+
+	if platform != "" && platform != "all" {
+		if platform == "hackerrank" {
+			query = query.Where("Solution.platform = 'hackerrank' OR Solution.platform IS NULL OR Solution.platform = ''")
+		} else {
+			query = query.Where("Solution.platform = ?", platform)
+		}
+	}
 
 	if challengeSlug != "" {
 		query = query.Where("Solution.challengeSlug = ?", challengeSlug)
@@ -338,6 +356,12 @@ func SolutionsListHandler(w http.ResponseWriter, r *http.Request) {
 		var commentCount, reviewCount int64
 		db.DB.Model(&models.Comment{}).Where("solutionId = ?", sol.ID).Count(&commentCount)
 		db.DB.Model(&models.ReviewRound{}).Where("solutionId = ?", sol.ID).Count(&reviewCount)
+
+		if services.IsLeetCodeSlug(sol.ChallengeSlug) {
+			sol.Platform = "leetcode"
+		} else if sol.Platform == "" {
+			sol.Platform = "hackerrank"
+		}
 
 		item := FormattedSolution{
 			Solution:           sol,
@@ -430,6 +454,12 @@ func SolutionsGetSingleHandler(w http.ResponseWriter, r *http.Request) {
 		rVal := math.Round((float64(rSum)/float64(len(sol.Ratings)))*10) / 10
 		cAvg = &cVal
 		rAvg = &rVal
+	}
+
+	if services.IsLeetCodeSlug(sol.ChallengeSlug) {
+		sol.Platform = "leetcode"
+	} else if sol.Platform == "" {
+		sol.Platform = "hackerrank"
 	}
 
 	problemStatement := services.GetProblemDetails(sol.ChallengeSlug)

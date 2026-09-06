@@ -51,6 +51,9 @@ func InitDB() *gorm.DB {
 		log.Fatalf("Failed to auto-migrate database: %v", err)
 	}
 
+	// Normalize legacy platforms
+	DB.Exec("UPDATE Solution SET platform = 'hackerrank' WHERE platform IS NULL OR platform = '';")
+
 	SeedAdmin()
 
 	return DB

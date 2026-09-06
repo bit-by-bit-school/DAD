@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,11 +17,14 @@ type ProblemDetails struct {
 	StatementHTML string `json:"statementHtml"`
 	Snippet       string `json:"snippet"`
 	URL           string `json:"url"`
+	Platform      string `json:"platform"`
 }
 
 var (
 	snippetCache   = make(map[string]string)
 	statementCache = make(map[string]string)
+	hrSlugSet      = make(map[string]bool)
+	loadSlugsOnce  sync.Once
 	cacheMutex     sync.RWMutex
 
 	tagRegex    = regexp.MustCompile(`<[^>]+>`)
@@ -29,6 +33,59 @@ var (
 	scriptRegex = regexp.MustCompile(`(?i)<script[^>]*>[\s\S]*?</script>`)
 	spaceRegex  = regexp.MustCompile(`\s+`)
 )
+
+func loadHackerRankSlugs() {
+	candidates := []string{
+		filepath.Join("..", "initFiles", "all.json"),
+		filepath.Join(".", "initFiles", "all.json"),
+		filepath.Join("..", "..", "initFiles", "all.json"),
+	}
+	for _, c := range candidates {
+		if content, err := os.ReadFile(c); err == nil {
+			var slugs []string
+			if err := json.Unmarshal(content, &slugs); err == nil {
+				for _, s := range slugs {
+					hrSlugSet[s] = true
+				}
+				return
+			}
+		}
+	}
+}
+
+func IsLeetCodeSlug(slug string) bool {
+	if slug == "" {
+		return false
+	}
+	loadSlugsOnce.Do(loadHackerRankSlugs)
+	if len(hrSlugSet) > 0 && hrSlugSet[slug] {
+		return false
+	}
+
+	// Check curated LeetCode slugs
+	curated := map[string]bool{
+		"two-sum": true, "palindrome-number": true, "add-two-numbers": true,
+		"longest-substring-without-repeating-characters": true, "median-of-two-sorted-arrays": true,
+		"valid-parentheses": true, "merge-two-sorted-lists": true, "reverse-linked-list": true,
+		"3sum": true, "container-with-most-water": true, "trapping-rain-water": true,
+	}
+	if curated[slug] {
+		return true
+	}
+
+	// Check if statement HTML contains LeetCode indicators
+	html := GetProblemStatementHTML(slug)
+	if strings.Contains(html, "leetcode") || strings.Contains(html, "elfjS") || strings.Contains(html, "example-") || strings.Contains(html, "strong class=\"example\"") || strings.Contains(html, "Constraints:") {
+		return true
+	}
+
+	// If it has a local statement but is not in HackerRank's all.json
+	if len(hrSlugSet) > 0 && !hrSlugSet[slug] && resolveStatementPath(slug) != "" {
+		return true
+	}
+
+	return false
+}
 
 func resolveStatementPath(slug string) string {
 	if slug == "" {
@@ -137,6 +194,15 @@ func GetProblemDetails(slug string) ProblemDetails {
 	html := GetProblemStatementHTML(slug)
 	snippet := GetProblemSnippet(slug)
 	title := SlugToTitle(slug)
+	isLC := IsLeetCodeSlug(slug)
+
+	platform := "hackerrank"
+	url := fmt.Sprintf("https://www.hackerrank.com/challenges/%s/problem", slug)
+
+	if isLC {
+		platform = "leetcode"
+		url = fmt.Sprintf("https://leetcode.com/problems/%s/", slug)
+	}
 
 	return ProblemDetails{
 		Slug:          slug,
@@ -144,6 +210,7 @@ func GetProblemDetails(slug string) ProblemDetails {
 		HasStatement:  html != "",
 		StatementHTML: html,
 		Snippet:       snippet,
-		URL:           fmt.Sprintf("https://www.hackerrank.com/challenges/%s/problem", slug),
+		URL:           url,
+		Platform:      platform,
 	}
 }

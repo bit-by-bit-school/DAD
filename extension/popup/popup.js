@@ -1,5 +1,5 @@
 /**
- * HackerRank Solutions - Popup Controller with Local Server Sync Support
+ * Solutions Hub - Popup Controller with HackerRank and LeetCode Support
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const metricTotalUsers = document.getElementById('metric-total-users');
   const openDashboardBtn = document.getElementById('open-dashboard-btn');
 
+  // Platform Tabs
+  const tabHackerRank = document.getElementById('tab-hackerrank');
+  const tabLeetCode = document.getElementById('tab-leetcode');
+  const tabAll = document.getElementById('tab-all');
+
+  let currentPlatform = 'hackerrank';
   let abortController = null;
 
   // Initialize Storage & Server Settings
@@ -42,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadServerSettings();
   checkAuth();
 
-  // Load problem slugs list
+  // Load HackerRank problem slugs list
   let problemSlugs = [];
   if (typeof HR_PROBLEM_SLUGS !== 'undefined' && Array.isArray(HR_PROBLEM_SLUGS)) {
     problemSlugs = HR_PROBLEM_SLUGS;
@@ -50,6 +56,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     const problems = await HRStorage.getProblems();
     problemSlugs = Object.keys(problems);
   }
+
+  // Handle Platform Tab Switch
+  function setPlatform(platform) {
+    currentPlatform = platform;
+    [tabHackerRank, tabLeetCode, tabAll].forEach(t => t && t.classList.remove('active'));
+
+    if (platform === 'hackerrank' && tabHackerRank) tabHackerRank.classList.add('active');
+    if (platform === 'leetcode' && tabLeetCode) tabLeetCode.classList.add('active');
+    if (platform === 'all' && tabAll) tabAll.classList.add('active');
+
+    const inputLabel = fetchForm.querySelector('label[for="username-input"]');
+    if (inputLabel) {
+      if (platform === 'leetcode') inputLabel.textContent = 'LeetCode Username';
+      else if (platform === 'all') inputLabel.textContent = 'Username (HR & LeetCode)';
+      else inputLabel.textContent = 'HackerRank Username';
+    }
+
+    if (usernameInput) {
+      if (platform === 'leetcode') usernameInput.placeholder = 'e.g. leetcode_user';
+      else usernameInput.placeholder = 'e.g. nmeera2024';
+    }
+
+    checkAuth();
+  }
+
+  if (tabHackerRank) tabHackerRank.addEventListener('click', () => setPlatform('hackerrank'));
+  if (tabLeetCode) tabLeetCode.addEventListener('click', () => setPlatform('leetcode'));
+  if (tabAll) tabAll.addEventListener('click', () => setPlatform('all'));
 
   // Load server settings into popup
   async function loadServerSettings() {
@@ -157,21 +191,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Check HackerRank Authentication
+  // Check Platform Authentication Status
   async function checkAuth() {
     authBadge.className = 'auth-badge checking';
     authBadge.innerHTML = '<span class="status-dot"></span><span class="status-text">Checking login...</span>';
 
     try {
-      const auth = await HRAPI.checkAuthStatus();
-      if (auth.isLoggedIn) {
-        authBadge.className = 'auth-badge logged-in';
-        authBadge.innerHTML = `<span class="status-dot"></span><span class="status-text">${auth.user ? escapeHtml(auth.user) : 'HackerRank Active'}</span>`;
-        authBadge.title = 'Logged in to HackerRank. Ready to fetch solutions!';
+      if (currentPlatform === 'leetcode') {
+        if (typeof LCAPI !== 'undefined') {
+          const auth = await LCAPI.checkAuthStatus();
+          if (auth.isLoggedIn) {
+            authBadge.className = 'auth-badge logged-in';
+            authBadge.innerHTML = `<span class="status-dot"></span><span class="status-text">${auth.user ? escapeHtml(auth.user) : 'LeetCode Active'}</span>`;
+            authBadge.title = 'Logged into LeetCode. Ready to fetch solutions!';
+          } else {
+            authBadge.className = 'auth-badge logged-out';
+            authBadge.innerHTML = '<span class="status-dot"></span><span class="status-text">Not Logged In</span>';
+            authBadge.title = 'Click to open LeetCode login page';
+          }
+        }
       } else {
-        authBadge.className = 'auth-badge logged-out';
-        authBadge.innerHTML = '<span class="status-dot"></span><span class="status-text">Not Logged In</span>';
-        authBadge.title = 'Click to open HackerRank login page in a new tab';
+        const auth = await HRAPI.checkAuthStatus();
+        if (auth.isLoggedIn) {
+          authBadge.className = 'auth-badge logged-in';
+          authBadge.innerHTML = `<span class="status-dot"></span><span class="status-text">${auth.user ? escapeHtml(auth.user) : 'HackerRank Active'}</span>`;
+          authBadge.title = 'Logged in to HackerRank. Ready to fetch solutions!';
+        } else {
+          authBadge.className = 'auth-badge logged-out';
+          authBadge.innerHTML = '<span class="status-dot"></span><span class="status-text">Not Logged In</span>';
+          authBadge.title = 'Click to open HackerRank login page';
+        }
       }
     } catch (e) {
       authBadge.className = 'auth-badge logged-out';
@@ -179,13 +228,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Click on auth badge to open HackerRank
+  // Click on auth badge to open login page
   authBadge.addEventListener('click', () => {
     if (authBadge.classList.contains('logged-out')) {
+      const loginUrl = currentPlatform === 'leetcode' ? 'https://leetcode.com/accounts/login/' : 'https://www.hackerrank.com/login';
       if (typeof chrome !== 'undefined' && chrome.tabs) {
-        chrome.tabs.create({ url: 'https://www.hackerrank.com/login' });
+        chrome.tabs.create({ url: loginUrl });
       } else {
-        window.open('https://www.hackerrank.com/login', '_blank');
+        window.open(loginUrl, '_blank');
       }
     }
   });
@@ -210,58 +260,106 @@ document.addEventListener('DOMContentLoaded', async () => {
     statSolvedCount.textContent = '0';
     statSkippedCount.textContent = '0';
     statCurrentIndex.textContent = '0';
-    statTotalCount.textContent = String(problemSlugs.length);
-    progressStatusText.textContent = `Downloading solutions for @${username}...`;
+    statTotalCount.textContent = '...';
 
-    try {
-      const result = await HRAPI.fetchUserSolutionsBatch(
-        username,
-        problemSlugs,
-        (progress) => {
-          progressBarFill.style.width = `${progress.percent}%`;
-          progressPercent.textContent = `${progress.percent}%`;
-          statSolvedCount.textContent = String(progress.solvedCount);
-          statSkippedCount.textContent = String(progress.notFoundCount);
-          statCurrentIndex.textContent = String(progress.current);
-          currentChallengeLabel.textContent = `Checking: ${progress.currentSlug}`;
-        },
-        {
-          concurrency: 6,
-          delayMs: 25,
-          signal: abortController.signal
+    if (currentPlatform === 'leetcode') {
+      progressStatusText.textContent = `Fetching LeetCode solutions for @${username}...`;
+      try {
+        const result = await LCAPI.fetchUserSolutionsBatch(
+          username,
+          (progress) => {
+            if (progress.phase === 'listing') {
+              progressStatusText.textContent = progress.message;
+            } else {
+              progressBarFill.style.width = `${progress.percent}%`;
+              progressPercent.textContent = `${progress.percent}%`;
+              statSolvedCount.textContent = String(progress.solvedCount);
+              statSkippedCount.textContent = String(progress.errorCount || 0);
+              statCurrentIndex.textContent = String(progress.current);
+              statTotalCount.textContent = String(progress.total);
+              currentChallengeLabel.textContent = `Downloading: ${progress.currentSlug}`;
+            }
+          },
+          {
+            concurrency: 3,
+            maxSubmissions: 200,
+            signal: abortController.signal
+          }
+        );
+
+        // Save into storage
+        const saveResult = await HRStorage.saveUserSolutions(username, result.solutions);
+        await refreshDatabaseStats();
+
+        // Trigger server sync automatically
+        const syncRes = await HRSync.pushToServer();
+
+        showAlert(
+          `Success! Found ${result.solvedCount} LeetCode solutions for @${username}. ${syncRes.success ? 'Synced to server!' : ''}`,
+          'success'
+        );
+      } catch (err) {
+        if (err.name === 'AbortError' || (abortController && abortController.signal.aborted)) {
+          showAlert('Download cancelled by user.', 'error');
+        } else {
+          showAlert(err.message || 'Failed to fetch LeetCode solutions. Ensure you are logged in on leetcode.com.', 'error');
         }
-      );
-
-      // Save and merge solutions into storage
-      const saveResult = await HRStorage.saveUserSolutions(username, result.solutions);
-      await refreshDatabaseStats();
-
-      // Trigger server sync automatically after fetching
-      const syncRes = await HRSync.pushToServer();
-
-      showAlert(
-        `Success! Found ${result.solvedCount} solutions for @${username}. ${syncRes.success ? 'Synced to server!' : ''}`,
-        'success'
-      );
-    } catch (err) {
-      if (err.name === 'AbortError' || (abortController && abortController.signal.aborted)) {
-        showAlert('Download cancelled by user.', 'error');
-      } else {
-        showAlert(err.message || 'Failed to fetch solutions. Ensure you are logged into HackerRank.', 'error');
       }
-    } finally {
-      fetchBtn.disabled = false;
-      fetchBtn.innerHTML = `
-        <span class="btn-icon">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-        </span>
-        <span class="btn-label">Fetch Solutions</span>
-      `;
-      cancelBtn.classList.add('hidden');
-      currentChallengeLabel.textContent = 'Completed';
+    } else {
+      // HackerRank or All
+      progressStatusText.textContent = `Downloading solutions for @${username}...`;
+      statTotalCount.textContent = String(problemSlugs.length);
+
+      try {
+        const result = await HRAPI.fetchUserSolutionsBatch(
+          username,
+          problemSlugs,
+          (progress) => {
+            progressBarFill.style.width = `${progress.percent}%`;
+            progressPercent.textContent = `${progress.percent}%`;
+            statSolvedCount.textContent = String(progress.solvedCount);
+            statSkippedCount.textContent = String(progress.notFoundCount);
+            statCurrentIndex.textContent = String(progress.current);
+            currentChallengeLabel.textContent = `Checking: ${progress.currentSlug}`;
+          },
+          {
+            concurrency: 6,
+            delayMs: 25,
+            signal: abortController.signal
+          }
+        );
+
+        // Save into storage
+        const saveResult = await HRStorage.saveUserSolutions(username, result.solutions);
+        await refreshDatabaseStats();
+
+        // Trigger server sync automatically
+        const syncRes = await HRSync.pushToServer();
+
+        showAlert(
+          `Success! Found ${result.solvedCount} solutions for @${username}. ${syncRes.success ? 'Synced to server!' : ''}`,
+          'success'
+        );
+      } catch (err) {
+        if (err.name === 'AbortError' || (abortController && abortController.signal.aborted)) {
+          showAlert('Download cancelled by user.', 'error');
+        } else {
+          showAlert(err.message || 'Failed to fetch solutions. Ensure you are logged into HackerRank.', 'error');
+        }
+      }
     }
+
+    fetchBtn.disabled = false;
+    fetchBtn.innerHTML = `
+      <span class="btn-icon">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </span>
+      <span class="btn-label">Fetch Solutions</span>
+    `;
+    cancelBtn.classList.add('hidden');
+    currentChallengeLabel.textContent = 'Completed';
   });
 
   // Handle Cancel

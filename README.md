@@ -1,16 +1,18 @@
-# HackerRank Solutions Chrome Extension
+# Solutions Hub (HackerRank & LeetCode) Chrome Extension
 
-A Google Chrome Extension (Manifest V3) for downloading, storing, searching, and comparing HackerRank problem solutions categorized by challenges and users.
+A Google Chrome Extension (Manifest V3) and Go backend server for downloading, storing, searching, and comparing HackerRank and LeetCode problem solutions categorized by challenges, platforms, and users.
 
 ---
 
 ## 🌟 Highlights
 
-- **442 Pre-indexed Challenges & 404 Seed Solutions**: Immediate access to solutions across multiple users without needing to re-fetch existing ones.
-- **Fast Batch Downloader**: Download all solved problems for any user in seconds with live progress and cancel support.
+- **Multi-Platform Scraping Support**: Scrapes and downloads user solutions and problem statements from both **HackerRank** and **LeetCode** (via GraphQL & session auth).
+- **452 Pre-indexed Challenges & 404 Seed Solutions**: Immediate access to solutions across multiple platforms and users without needing to re-fetch existing ones.
+- **Fast Batch Downloader**: Download all solved problems for any user on HackerRank or LeetCode in seconds with live progress and cancel support.
+- **Platform Selector & Filtering**: Toggle seamlessly between `HackerRank`, `LeetCode`, and `All` platforms in the extension popup and explorer dashboard.
 - **Incremental Merging**: Stores data in `chrome.storage.local` (`unlimitedStorage`), adding newer solutions and updating existing ones.
 - **Full-Page Solution Explorer**:
-  - Filter by track, difficulty, user, and language.
+  - Filter by platform (HackerRank/LeetCode), track, difficulty, user, and language.
   - Search by problem title, slug, or inside source code.
   - Multi-user code tabs for viewing different solutions to the same challenge.
   - Side-by-side comparison mode with line-by-line diff.
@@ -25,8 +27,8 @@ A Google Chrome Extension (Manifest V3) for downloading, storing, searching, and
 1. Open Google Chrome and go to `chrome://extensions`.
 2. Toggle on **Developer mode** in the top right.
 3. Click **Load unpacked** and select the `extension/` folder in this repository.
-4. Log into [hackerrank.com](https://www.hackerrank.com) in your browser.
-5. Click the extension icon in your Chrome toolbar to fetch solutions or open the full dashboard.
+4. Log into [hackerrank.com](https://www.hackerrank.com) or [leetcode.com](https://leetcode.com) in your browser.
+5. Click the extension icon in your Chrome toolbar, select your platform (`HackerRank` or `LeetCode`), and click **Fetch Solutions**.
 
 ---
 

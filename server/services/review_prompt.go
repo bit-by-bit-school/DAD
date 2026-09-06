@@ -552,14 +552,25 @@ func BuildReviewPrompt(sol models.Solution, problem ProblemDetails) string {
 		commentsSection = fmt.Sprintf("### Existing Community Comments & Line Reviews:\n%s\n", strings.Join(commentItems, "\n"))
 	}
 
-	prompt := fmt.Sprintf(`You are a senior algorithmic software engineer and competitive programming code reviewer conducting Review Round #%d for a HackerRank submission.
+	platformName := "HackerRank"
+	challengeURL := fmt.Sprintf("https://www.hackerrank.com/challenges/%s/problem", sol.ChallengeSlug)
+	if strings.ToLower(sol.Platform) == "leetcode" || strings.ToLower(problem.Platform) == "leetcode" {
+		platformName = "LeetCode"
+		challengeURL = fmt.Sprintf("https://leetcode.com/problems/%s/", sol.ChallengeSlug)
+	}
+	if problem.URL != "" {
+		challengeURL = problem.URL
+	}
+
+	prompt := fmt.Sprintf(`You are a senior algorithmic software engineer and competitive programming code reviewer conducting Review Round #%d for a %s submission.
 
 # 1. Challenge Information
+- **Platform**: %s
 - **Title**: %s
 - **Slug**: %s
 - **Language**: %s
 - **Submission Author**: @%s
-- **Challenge URL**: https://www.hackerrank.com/challenges/%s/problem
+- **Challenge URL**: %s
 
 # 2. Problem Statement
 %s
@@ -615,11 +626,13 @@ Required JSON Schema:
 `+"```"+`
 `,
 		nextRoundNum,
+		platformName,
+		platformName,
 		sol.ChallengeTitle,
 		sol.ChallengeSlug,
 		sol.Language,
 		sol.User.Username,
-		sol.ChallengeSlug,
+		challengeURL,
 		statementText,
 		sol.Language,
 		numberedCode,

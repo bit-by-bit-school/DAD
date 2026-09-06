@@ -69,6 +69,7 @@ func (UnmappedDiscord) TableName() string {
 type Solution struct {
 	ID             string     `gorm:"primaryKey;column:id" json:"id"`
 	SubmissionID   string     `gorm:"column:submissionId;not null" json:"submissionId"`
+	Platform       string     `gorm:"column:platform;default:hackerrank" json:"platform"`
 	ChallengeSlug  string     `gorm:"column:challengeSlug;not null" json:"challengeSlug"`
 	ChallengeTitle string     `gorm:"column:challengeTitle;not null" json:"challengeTitle"`
 	ContestSlug    *string    `gorm:"column:contestSlug;default:master" json:"contestSlug,omitempty"`

@@ -2090,10 +2090,228 @@ select option,
   color: var(--color-brand);
 }
 
-.review-metric-pill.warning {
-  border-color: rgba(245, 158, 11, 0.4);
-  color: var(--role-attention);
+
+.leetcode-statement {
+  line-height: 1.6;
+  color: var(--text-bright);
+  font-size: 0.85rem;
 }
+
+.leetcode-statement p {
+  margin-bottom: 0.85rem;
+}
+
+.leetcode-statement pre {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid #FFA116;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0.75rem 0;
+}
+
+.leetcode-statement code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #00e5ff;
+}
+
+.leetcode-statement strong.example {
+  color: #FFA116;
+  font-family: var(--font-mono);
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+}
+
+.leetcode-statement ul, .leetcode-statement ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.leetcode-statement li {
+  margin-bottom: 0.35rem;
+}
+
+/* ==========================================================================
+   Problem Explorer & Clubbed Solutions Styles
+   ========================================================================== */
+
+.problem-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.problem-card:hover {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 12px var(--color-brand-glow);
+}
+
+.problem-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.problem-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.problem-title {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  color: var(--text-bright);
+  letter-spacing: 0.5px;
+}
+
+.problem-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.solved-by-container {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.solved-by-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-segment);
+  margin-right: 0.25rem;
+}
+
+.user-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  font-size: 0.75rem;
+  font-family: var(--font-segment);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.user-badge-tag:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-dim);
+}
+
+.user-badge-tag.admin {
+  border-color: rgba(255, 183, 0, 0.4);
+  color: var(--neon-amber);
+}
+
+.latest-solution-container {
+  border: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.latest-solution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.latest-label {
+  font-size: 0.72rem;
+  font-family: var(--font-segment);
+  color: var(--color-brand);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.solutions-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.btn-show-more-solutions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-family: var(--font-segment);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 0.35rem;
+}
+
+.btn-show-more-solutions:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-dim);
+}
+
+.accordion-solution-item {
+  border: 1px solid var(--border-subtle);
+  background: rgba(14, 18, 27, 0.7);
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.accordion-solution-item:hover {
+  border-color: var(--color-brand);
+  background: var(--bg-card-hover);
+}
+
+.accordion-solution-item.matching-search {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 8px var(--color-brand-glow);
+  background: rgba(0, 229, 255, 0.08);
+}
+
+
 
 
 

@@ -154,25 +154,31 @@
         if (isNew) newlyAddedCount++;
         else updatedCount++;
 
+        const platform = solData.platform || 'hackerrank';
+
         solutions[slug][username] = {
           code: solData.code,
           language: solData.language || 'python',
           username,
           problemSlug: slug,
+          platform,
           fetchedAt: solData.fetchedAt || Date.now(),
-          url: solData.url || `https://www.hackerrank.com/rest/contests/master/challenges/${slug}/hackers/${username}/download_solution`
+          url: solData.url || (platform === 'leetcode' ? `https://leetcode.com/problems/${slug}/` : `https://www.hackerrank.com/rest/contests/master/challenges/${slug}/hackers/${username}/download_solution`)
         };
 
         // Ensure problem is recorded
         if (!problems[slug]) {
           problems[slug] = {
             slug,
-            title: slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+            title: solData.problemTitle || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
             category: 'Algorithms',
             difficulty: 'Medium',
-            url: `https://www.hackerrank.com/challenges/${slug}/problem`,
+            platform,
+            url: platform === 'leetcode' ? `https://leetcode.com/problems/${slug}/` : `https://www.hackerrank.com/challenges/${slug}/problem`,
             hasStatement: false
           };
+        } else if (!problems[slug].platform) {
+          problems[slug].platform = platform;
         }
 
         // Update solved users list on the problem

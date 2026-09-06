@@ -19,7 +19,8 @@ assert.strictEqual(manifest.manifest_version, 3, 'Must be Manifest V3');
 assert(manifest.permissions.includes('storage'), 'Missing storage permission');
 assert(manifest.permissions.includes('unlimitedStorage'), 'Missing unlimitedStorage permission');
 assert(manifest.host_permissions.includes('https://*.hackerrank.com/*'), 'Missing HackerRank host permission');
-console.log('✔ manifest.json is valid Manifest V3');
+assert(manifest.host_permissions.includes('https://*.leetcode.com/*'), 'Missing LeetCode host permission');
+console.log('✔ manifest.json is valid Manifest V3 with HackerRank and LeetCode host permissions');
 
 console.log('\n--- 2. Checking Icon Assets ---');
 for (const size of ['16', '48', '128']) {
@@ -47,12 +48,18 @@ new Function(storageCode)();
 const apiCode = fs.readFileSync(path.join(EXT_DIR, 'lib', 'api.js'), 'utf8');
 new Function(apiCode)();
 
+const leetcodeApiCode = fs.readFileSync(path.join(EXT_DIR, 'lib', 'leetcode-api.js'), 'utf8');
+new Function(leetcodeApiCode)();
+
 const HRStorage = globalThis.HRStorage;
 const HRAPI = globalThis.HRAPI;
+const LCAPI = globalThis.LCAPI;
 
 assert(globalThis.HR_SEED_DATA, 'HR_SEED_DATA is defined');
 assert(Array.isArray(globalThis.HR_PROBLEM_SLUGS), 'HR_PROBLEM_SLUGS is array');
+assert(LCAPI && typeof LCAPI.fetchSubmissions === 'function', 'LCAPI module initialized');
 console.log(`✔ Seed contains ${Object.keys(globalThis.HR_SEED_DATA.problems).length} problems and ${globalThis.HR_PROBLEM_SLUGS.length} slug index`);
+console.log(`✔ LCAPI module verified (language detection: 'python3' -> '${LCAPI.detectLanguage('python3')}')`);
 
 // Mock localStorage for storage testing
 const store = {};
@@ -71,16 +78,18 @@ globalThis.localStorage = {
   console.log(`✔ HRStorage initialized: ${Object.keys(problems).length} problems, ${users.length} users`);
   assert.strictEqual(users.length, 6, 'Expected 6 initial users');
 
-  console.log('\n--- 4. Testing Upsert / Merge Logic ---');
+  console.log('\n--- 4. Testing Upsert / Merge Logic for HackerRank & LeetCode ---');
   const testUser = 'test_dev_99';
   const saveResult = await HRStorage.saveUserSolutions(testUser, {
     'solve-me-first': {
       code: 'def solveMeFirst(a,b):\n    return a+b\n',
-      language: 'python'
+      language: 'python',
+      platform: 'hackerrank'
     },
-    'simple-array-sum': {
-      code: 'def simpleArraySum(ar):\n    return sum(ar)\n',
-      language: 'python'
+    'two-sum': {
+      code: 'class Solution:\n    def twoSum(self, nums, target):\n        return []\n',
+      language: 'python',
+      platform: 'leetcode'
     }
   });
 
@@ -92,9 +101,10 @@ globalThis.localStorage = {
   assert(foundUser, 'New user was registered in users list');
   assert.strictEqual(foundUser.solvedCount, 2, 'User solved count updated');
 
-  const smfSolutions = await HRStorage.getSolutionsForProblem('solve-me-first');
-  assert(smfSolutions[testUser], 'Problem has testUser solution');
-  console.log(`✔ Problem solve-me-first now has ${Object.keys(smfSolutions).length} user solutions`);
+  const twoSumSolutions = await HRStorage.getSolutionsForProblem('two-sum');
+  assert(twoSumSolutions[testUser], 'Problem two-sum has testUser solution');
+  assert.strictEqual(twoSumSolutions[testUser].platform, 'leetcode', 'Solution has platform leetcode');
+  console.log(`✔ Problem two-sum verified with platform 'leetcode'`);
 
   console.log('\n--- 6. Testing Export / Backup ---');
   const exported = await HRStorage.exportData();

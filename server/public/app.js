@@ -308,6 +308,10 @@
     if (filterSearch && filterSearch.value.trim()) {
       newParams.set('search', filterSearch.value.trim());
     }
+    const filterPlatform = document.getElementById('filter-platform');
+    if (filterPlatform && filterPlatform.value) {
+      newParams.set('platform', filterPlatform.value);
+    }
     if (filterLanguage && filterLanguage.value) {
       newParams.set('language', filterLanguage.value);
     }
@@ -366,6 +370,10 @@
 
     const searchVal = params.get('search') || '';
     if (filterSearch) filterSearch.value = searchVal;
+
+    const platformVal = params.get('platform') || '';
+    const filterPlatform = document.getElementById('filter-platform');
+    if (filterPlatform) filterPlatform.value = platformVal;
 
     const langVal = params.get('language') || '';
     if (filterLanguage) filterLanguage.value = langVal;
@@ -754,6 +762,20 @@
       updateUrlState();
       loadSolutions({ append: false });
     });
+
+    const filterPlatform = document.getElementById('filter-platform');
+    if (filterPlatform) {
+      filterPlatform.addEventListener('change', () => {
+        updateUrlState();
+        loadSolutions({ append: false });
+      });
+    }
+    if (filterLanguage) {
+      filterLanguage.addEventListener('change', () => {
+        updateUrlState();
+        loadSolutions({ append: false });
+      });
+    }
 
     // Star Selectors
     setupStarSelectors();
@@ -1217,26 +1239,6 @@
     return date.toLocaleDateString();
   }
 
-  // Solutions Grid Renderer
-  function renderSolutionsGrid(solutions) {
-    if (!solutionsGrid) return;
-    if (!solutions || solutions.length === 0) {
-      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No solutions match the specified filters.</div>';
-      return;
-    }
-    solutionsGrid.innerHTML = '';
-    solutions.forEach(sol => {
-      solutionsGrid.appendChild(createSolutionCard(sol));
-    });
-  }
-
-  function appendSolutionsGrid(newSolutions) {
-    if (!solutionsGrid || !newSolutions) return;
-    newSolutions.forEach(sol => {
-      solutionsGrid.appendChild(createSolutionCard(sol));
-    });
-  }
-
   // Infinite Scroll Observer Setup
   let infiniteScrollObserver = null;
   function setupInfiniteScroll() {
@@ -1271,7 +1273,7 @@
       state.offset = 0;
       state.hasMore = true;
       state.solutions = [];
-      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);"><div class="spinner-retro" style="margin-bottom: 8px;"></div><br>Loading solutions...</div>';
+      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);"><div class="spinner-retro" style="margin-bottom: 8px;"></div><br>Loading problems...</div>';
       if (infiniteScrollSentinel) infiniteScrollSentinel.classList.add('hidden');
     } else {
       if (infiniteScrollSentinel) infiniteScrollSentinel.classList.remove('hidden');
@@ -1281,6 +1283,8 @@
     params.append('offset', state.offset);
     params.append('limit', state.limit);
 
+    const filterPlatform = document.getElementById('filter-platform');
+    if (filterPlatform && filterPlatform.value) params.append('platform', filterPlatform.value);
     if (filterSearch && filterSearch.value.trim()) params.append('search', filterSearch.value.trim());
     if (filterLanguage && filterLanguage.value) params.append('language', filterLanguage.value);
 
@@ -1307,11 +1311,7 @@
         renderSolutionsGrid(state.solutions);
       } else {
         state.solutions.push(...newSolutions);
-        appendSolutionsGrid(newSolutions);
-      }
-
-      if (solutionsCountBadge) {
-        solutionsCountBadge.textContent = `Loaded ${state.solutions.length} / ${state.totalCount} Solutions`;
+        renderSolutionsGrid(state.solutions);
       }
     } catch (err) {
       if (!append) {
@@ -1343,45 +1343,218 @@
     return `<span class="star-rating" style="display: inline-flex; align-items: center; gap: 2px;">${html}</span>`;
   }
 
-  // Create Solution Card Element
-  function createSolutionCard(sol) {
+  // Problem Explorer & Grouped Solutions Renderer
+  function renderSolutionsGrid(solutions) {
+    if (!solutionsGrid) return;
+    if (!solutions || solutions.length === 0) {
+      solutionsGrid.innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No problems or solutions match the specified filters.</div>';
+      return;
+    }
+
+    // Group solutions by challenge slug
+    const groupedMap = new Map();
+    solutions.forEach(sol => {
+      const slug = sol.challengeSlug || 'unknown';
+      if (!groupedMap.has(slug)) {
+        groupedMap.set(slug, {
+          slug: slug,
+          title: sol.challengeTitle || slug,
+          platform: sol.platform || 'hackerrank',
+          descriptionSnippet: sol.descriptionSnippet || '',
+          solutions: [],
+          solvedByMap: new Map()
+        });
+      }
+      const group = groupedMap.get(slug);
+      group.solutions.push(sol);
+
+      const username = sol.user?.username || 'unknown';
+      if (!group.solvedByMap.has(username)) {
+        group.solvedByMap.set(username, sol.user || { username: username, role: 'USER' });
+      }
+    });
+
+    solutionsGrid.innerHTML = '';
+    const searchTerm = filterSearch ? filterSearch.value.trim().toLowerCase() : '';
+
+    let totalProblems = groupedMap.size;
+    groupedMap.forEach(group => {
+      solutionsGrid.appendChild(createProblemCard(group, searchTerm));
+    });
+
+    if (solutionsCountBadge) {
+      solutionsCountBadge.textContent = `${totalProblems} Problem${totalProblems === 1 ? '' : 's'} (${state.solutions.length} Solutions)`;
+    }
+  }
+
+  function createProblemCard(group, searchTerm = '') {
     const card = document.createElement('div');
-    card.className = 'solution-card';
-    
-    const cleverStarsHtml = renderStarsHtml(sol.clevernessAvg);
-    const readStarsHtml = renderStarsHtml(sol.readabilityAvg);
-    const commentsCount = sol._count?.comments !== undefined ? sol._count.comments : (sol.comments ? sol.comments.length : (sol._count?.reviewRounds || 0));
-    const descSnippet = sol.descriptionSnippet ? escapeHtml(sol.descriptionSnippet) : '';
+    card.className = 'problem-card';
+
+    const isLC = group.platform === 'leetcode';
+    const platformBadge = isLC
+      ? `<span class="lang-tag" style="background: rgba(255, 161, 22, 0.15); border-color: rgba(255, 161, 22, 0.4); color: #FFA116;">LeetCode</span>`
+      : `<span class="lang-tag" style="background: rgba(0, 229, 255, 0.15); border-color: rgba(0, 229, 255, 0.4); color: var(--color-brand);">HackerRank</span>`;
+
+    const totalSols = group.solutions.length;
+    const countBadge = `<span class="count-badge segment-number" style="font-size: 0.72rem; padding: 2px 6px;">${totalSols} Solution${totalSols === 1 ? '' : 's'}</span>`;
+
+    // Render Solved By User Badges
+    let solvedByHtml = '';
+    group.solvedByMap.forEach((u, username) => {
+      const isAdmin = u.role === 'ADMIN';
+      solvedByHtml += `<span class="user-badge-tag${isAdmin ? ' admin' : ''}" title="${escapeHtml(username)}'s Solution">@${escapeHtml(username)}</span>`;
+    });
+
+    const descSnippet = group.descriptionSnippet ? escapeHtml(group.descriptionSnippet) : '';
+
+    // Primary / Latest Solution (First solution in sorted array)
+    const latestSol = group.solutions[0];
+    const latestUser = escapeHtml(latestSol.user?.username || 'unknown');
+    const latestClever = renderStarsHtml(latestSol.clevernessAvg);
+    const latestRead = renderStarsHtml(latestSol.readabilityAvg);
+    const latestComments = latestSol._count?.comments !== undefined ? latestSol._count.comments : (latestSol.comments ? latestSol.comments.length : (latestSol._count?.reviewRounds || 0));
 
     card.innerHTML = `
       <div>
-        <div class="sol-header">
-          <div class="sol-title">${escapeHtml(sol.challengeTitle)}</div>
-          <span class="lang-tag">${escapeHtml(sol.language)}</span>
+        <div class="problem-card-header">
+          <div class="problem-title-group">
+            <div class="problem-title">${escapeHtml(group.title)}</div>
+            <div class="problem-meta-row">
+              ${platformBadge}
+              ${countBadge}
+            </div>
+          </div>
         </div>
-        <div class="sol-meta">
-          <span>By <strong>@${escapeHtml(sol.user?.username || 'unknown')}</strong></span>
+
+        <div class="solved-by-container">
+          <span class="solved-by-label">SOLVED BY:</span>
+          ${solvedByHtml}
         </div>
-        ${descSnippet ? `<div class="sol-desc-snippet" title="${descSnippet}">${descSnippet}</div>` : ''}
+
+        ${descSnippet ? `<div class="sol-desc-snippet" style="margin-top: 0.4rem;" title="${descSnippet}">${descSnippet}</div>` : ''}
       </div>
 
-      <div class="sol-ratings-summary">
-        <div class="rating-badge" title="Cleverness: ${sol.clevernessAvg ? sol.clevernessAvg + '/5' : '0/5'}">
-          <span class="star-label-icon" style="color: var(--color-brand); display: inline-flex;">${HRIcons.brain(12)}</span>
-          ${cleverStarsHtml}
+      <!-- Latest Solution Preview Card -->
+      <div class="latest-solution-container glass-panel">
+        <div class="latest-solution-header">
+          <div class="latest-label">
+            ${HRIcons.check(12)}
+            <span>Latest Solution by @${latestUser}</span>
+          </div>
+          <span class="lang-tag">${escapeHtml(latestSol.language)}</span>
         </div>
-        <div class="rating-badge" title="Readability: ${sol.readabilityAvg ? sol.readabilityAvg + '/5' : '0/5'}">
-          <span class="star-label-icon" style="color: var(--color-brand); display: inline-flex;">${HRIcons.bookOpen(12)}</span>
-          ${readStarsHtml}
-        </div>
-        <div class="rating-badge" style="margin-left: auto;" title="Comments: ${commentsCount}">
-          <span class="review-icon" style="color: var(--text-muted); display: inline-flex;">${HRIcons.comment(12)}</span>
-          <span class="segment-number" style="font-size: 0.75rem; color: var(--text-bright);">${commentsCount}</span>
+
+        <div class="sol-ratings-summary">
+          <div class="rating-badge" title="Cleverness: ${latestSol.clevernessAvg ? latestSol.clevernessAvg + '/5' : '0/5'}">
+            <span style="color: var(--color-brand); display: inline-flex;">${HRIcons.brain(12)}</span>
+            ${latestClever}
+          </div>
+          <div class="rating-badge" title="Readability: ${latestSol.readabilityAvg ? latestSol.readabilityAvg + '/5' : '0/5'}">
+            <span style="color: var(--color-brand); display: inline-flex;">${HRIcons.bookOpen(12)}</span>
+            ${latestRead}
+          </div>
+          <div class="rating-badge" title="Comments: ${latestComments}">
+            <span style="color: var(--text-muted); display: inline-flex;">${HRIcons.comment(12)}</span>
+            <span class="segment-number" style="font-size: 0.75rem; color: var(--text-bright);">${latestComments}</span>
+          </div>
+          <button type="button" class="btn-micro btn-open-latest" style="margin-left: auto; color: var(--color-brand); border-color: rgba(0, 229, 255, 0.4);">
+            Open Review
+          </button>
         </div>
       </div>
     `;
 
-    card.addEventListener('click', () => openSolutionDetail(sol.id));
+    // Wire up Open Review button for Latest Solution
+    card.querySelector('.btn-open-latest')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSolutionDetail(latestSol.id);
+    });
+
+    // If more than 1 solution, add "Show More" accordion toggle & container
+    if (totalSols > 1) {
+      const otherSols = group.solutions.slice(1);
+      const accordionEl = document.createElement('div');
+      accordionEl.className = 'solutions-accordion hidden';
+
+      let autoExpand = false;
+
+      otherSols.forEach((sol) => {
+        const item = document.createElement('div');
+        const solUser = escapeHtml(sol.user?.username || 'unknown');
+        const solComments = sol._count?.comments !== undefined ? sol._count.comments : (sol.comments ? sol.comments.length : (sol._count?.reviewRounds || 0));
+
+        let isMatch = false;
+        if (searchTerm) {
+          if (solUser.toLowerCase().includes(searchTerm) || (sol.language && sol.language.toLowerCase().includes(searchTerm)) || (sol.code && sol.code.toLowerCase().includes(searchTerm))) {
+            isMatch = true;
+            autoExpand = true;
+          }
+        }
+
+        item.className = `accordion-solution-item${isMatch ? ' matching-search' : ''}`;
+        item.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.8rem; font-family: var(--font-segment); color: var(--text-bright);">@${solUser}</span>
+            <span class="lang-tag" style="font-size: 0.7rem;">${escapeHtml(sol.language)}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+            <div class="rating-badge" title="Comments: ${solComments}">
+              <span style="color: var(--text-muted); display: inline-flex;">${HRIcons.comment(12)}</span>
+              <span class="segment-number" style="font-size: 0.75rem;">${solComments}</span>
+            </div>
+            <button type="button" class="btn-micro" style="color: var(--color-brand);">Open</button>
+          </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openSolutionDetail(sol.id);
+        });
+
+        accordionEl.appendChild(item);
+      });
+
+      const toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.className = 'btn-show-more-solutions';
+
+      const updateBtnText = (isExpanded) => {
+        toggleBtn.innerHTML = isExpanded
+          ? `${HRIcons.chevronUp(12)} <span>Hide Other Solutions (${otherSols.length})</span>`
+          : `${HRIcons.chevronDown(12)} <span>Show ${otherSols.length} More Solution${otherSols.length === 1 ? '' : 's'}</span>`;
+      };
+
+      if (autoExpand) {
+        accordionEl.classList.remove('hidden');
+        updateBtnText(true);
+      } else {
+        updateBtnText(false);
+      }
+
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isCurrentlyHidden = accordionEl.classList.contains('hidden');
+        if (isCurrentlyHidden) {
+          accordionEl.classList.remove('hidden');
+          updateBtnText(true);
+        } else {
+          accordionEl.classList.add('hidden');
+          updateBtnText(false);
+        }
+      });
+
+      card.appendChild(toggleBtn);
+      card.appendChild(accordionEl);
+    }
+
+    card.addEventListener('click', (e) => {
+      // If clicking problem card outside interactive buttons, open latest solution
+      if (!e.target.closest('button') && !e.target.closest('.user-badge-tag') && !e.target.closest('.accordion-solution-item')) {
+        openSolutionDetail(latestSol.id);
+      }
+    });
+
     return card;
   }
 
@@ -1393,13 +1566,36 @@
       const res = await fetch(`/api/problems/${slug}`);
       const data = await res.json();
       if (data.problem && data.problem.statementHtml) {
-        detailStatementContainer.innerHTML = data.problem.statementHtml;
+        const isLeetCode = data.problem.platform === 'leetcode';
+        const platformBadge = isLeetCode 
+          ? `<div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; background: rgba(255, 161, 22, 0.15); border: 1px solid rgba(255, 161, 22, 0.4); color: #FFA116; font-size: 0.75rem; font-weight: 600; margin-bottom: 12px;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: #FFA116; display: inline-block;"></span>
+              LeetCode Problem
+            </div>`
+          : `<div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; background: rgba(0, 229, 255, 0.15); border: 1px solid rgba(0, 229, 255, 0.4); color: #00e5ff; font-size: 0.75rem; font-weight: 600; margin-bottom: 12px;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: #00e5ff; display: inline-block;"></span>
+              HackerRank Problem
+            </div>`;
+            
+        const extLink = data.problem.url || (isLeetCode ? `https://leetcode.com/problems/${slug}/` : `https://www.hackerrank.com/challenges/${slug}/problem`);
+        const extButtonHtml = `
+          <div style="margin-top: 16px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.15); text-align: right;">
+            <a href="${extLink}" target="_blank" rel="noopener noreferrer" class="btn-retro ${isLeetCode ? 'btn-yellow' : 'btn-cyan'}" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 0.75rem;">
+              <span>${isLeetCode ? 'Open on LeetCode' : 'View on HackerRank'}</span>
+              ${HRIcons.external(12)}
+            </a>
+          </div>
+        `;
+
+        detailStatementContainer.innerHTML = platformBadge + `<div class="statement-content-box leetcode-statement">${data.problem.statementHtml}</div>` + extButtonHtml;
       } else {
+        const isLeetCode = data.problem && data.problem.platform === 'leetcode';
+        const targetUrl = data.problem?.url || (isLeetCode ? `https://leetcode.com/problems/${slug}/` : `https://www.hackerrank.com/challenges/${slug}/problem`);
         detailStatementContainer.innerHTML = `
           <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
             <p style="margin-bottom: 0.75rem;">Problem statement not available locally.</p>
-            <a href="https://www.hackerrank.com/challenges/${slug}/problem" target="_blank" rel="noopener noreferrer" class="btn-retro btn-cyan" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-              <span>View on HackerRank</span>
+            <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="btn-retro ${isLeetCode ? 'btn-yellow' : 'btn-cyan'}" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+              <span>${isLeetCode ? 'View on LeetCode' : 'View on HackerRank'}</span>
               ${HRIcons.external(12)}
             </a>
           </div>
@@ -1442,23 +1638,34 @@
 
       // Render Problem Statement & Challenge Links
       const problem = sol.problemStatement || null;
-      const challengeUrl = problem?.url || `https://www.hackerrank.com/challenges/${sol.challengeSlug}/problem`;
+      const isLC = sol.platform === 'leetcode' || problem?.platform === 'leetcode';
+      const challengeUrl = problem?.url || (isLC ? `https://leetcode.com/problems/${sol.challengeSlug}/` : `https://www.hackerrank.com/challenges/${sol.challengeSlug}/problem`);
+
       if (detailHackerrankLink) {
         detailHackerrankLink.style.display = 'inline-flex';
         detailHackerrankLink.href = challengeUrl;
+        detailHackerrankLink.style.borderColor = isLC ? 'rgba(255, 161, 22, 0.4)' : 'rgba(0, 229, 255, 0.4)';
+        detailHackerrankLink.style.color = isLC ? '#FFA116' : 'var(--color-brand)';
+        detailHackerrankLink.innerHTML = `<span>${isLC ? 'LeetCode' : 'HackerRank'}</span>${HRIcons.external(11)}`;
       }
       if (detailStatementSlug) {
-        detailStatementSlug.textContent = sol.challengeSlug ? sol.challengeSlug.toUpperCase() : 'CHALLENGE';
+        detailStatementSlug.textContent = isLC ? 'LEETCODE' : 'HACKERRANK';
+        detailStatementSlug.style.color = isLC ? '#FFA116' : 'var(--color-brand)';
+        detailStatementSlug.style.borderColor = isLC ? 'rgba(255, 161, 22, 0.4)' : 'rgba(0, 229, 255, 0.3)';
+        detailStatementSlug.style.background = isLC ? 'rgba(255, 161, 22, 0.12)' : 'rgba(0, 229, 255, 0.12)';
       }
       if (detailStatementTitle) {
         detailStatementTitle.textContent = sol.challengeTitle || 'Problem Statement';
       }
       if (detailStatementExternalLink) {
         detailStatementExternalLink.href = challengeUrl;
+        detailStatementExternalLink.style.borderColor = isLC ? 'rgba(255, 161, 22, 0.4)' : 'rgba(0, 229, 255, 0.4)';
+        detailStatementExternalLink.style.color = isLC ? '#FFA116' : 'var(--color-brand)';
+        detailStatementExternalLink.innerHTML = `<span>${isLC ? 'Open on LeetCode' : 'Open on HackerRank'}</span>${HRIcons.external(11)}`;
       }
       if (detailStatementContainer) {
         if (problem && problem.statementHtml) {
-          detailStatementContainer.innerHTML = problem.statementHtml;
+          detailStatementContainer.innerHTML = `<div class="statement-content-box ${isLC ? 'leetcode-statement' : ''}">${problem.statementHtml}</div>`;
         } else {
           loadProblemStatement(sol.challengeSlug);
         }

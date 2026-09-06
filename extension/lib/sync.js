@@ -35,7 +35,8 @@
         const prob = problemsMap[slug] || {};
         for (const [username, sol] of Object.entries(userMap)) {
           payloadSolutions.push({
-            submissionId: `${slug}_${username}`,
+            submissionId: sol.submissionId || `${slug}_${username}`,
+            platform: sol.platform || prob.platform || 'hackerrank',
             challengeSlug: slug,
             challengeTitle: prob.title || slug,
             contestSlug: 'master',

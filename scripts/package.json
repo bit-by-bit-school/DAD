@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "pixelarticons": "^2.4.1"
   }

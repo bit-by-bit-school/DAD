@@ -1,3 +1,5 @@
+import assert from 'node:assert';
+
 const BASE_URL = 'http://localhost:3000';
 const ADMIN_TOKEN = 'hr_admin_master_token_2026';
 
@@ -56,6 +58,18 @@ async function runVerification() {
         score: 1.0,
         status: 'Accepted',
         username: 'sarah_dev'
+      },
+      {
+        submissionId: 'test_sub_leetcode_01',
+        platform: 'leetcode',
+        challengeSlug: 'two-sum',
+        challengeTitle: 'Two Sum',
+        contestSlug: 'master',
+        language: 'python',
+        code: 'class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        seen = {}\n        for i, num in enumerate(nums):\n          if target - num in seen:\n            return [seen[target - num], i]\n          seen[num] = i\n        return []',
+        score: 1.0,
+        status: 'Accepted',
+        username: 'alex_coder'
       }
     ];
 
@@ -78,10 +92,13 @@ async function runVerification() {
       throw new Error('Sync failed to create separate user accounts for alex_coder / sarah_dev');
     }
 
-    // 4. Query Solutions List with Multiselect User Filtering
-    console.log('\n4️⃣ Querying Solutions List with Multi-User Filtering (/api/solutions?usernames=alex_coder,sarah_dev)...');
+    // 4. Query Solutions List with Multiselect User Filtering & Platform Filtering
+    console.log('\n4️⃣ Querying Solutions List with Multi-User & Platform Filtering (/api/solutions?platform=leetcode)...');
     const listRes = await request(`${BASE_URL}/api/solutions?usernames=alex_coder,sarah_dev`);
+    const lcListRes = await request(`${BASE_URL}/api/solutions?platform=leetcode`);
     console.log(`   ✅ Total Solutions for alex_coder & sarah_dev: ${listRes.solutions.length}`);
+    console.log(`   ✅ Total LeetCode Solutions returned from server: ${lcListRes.solutions.length}`);
+    assert(lcListRes.solutions.some(s => s.challengeSlug === 'two-sum'), 'Platform query returned LeetCode two-sum solution');
     const mappedUsers = listRes.solutions.map(s => s.user.username);
     console.log(`   Mapped solution submitters: [${Array.from(new Set(mappedUsers)).join(', ')}]`);
 

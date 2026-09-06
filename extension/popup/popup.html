@@ -79,14 +79,27 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h1>HackerRank Hub</h1>
+          <h1>Solutions Hub</h1>
         </div>
       </div>
-      <div id="auth-status-badge" class="auth-badge checking" title="Checking HackerRank login status">
+      <div id="auth-status-badge" class="auth-badge checking" title="Checking login status">
         <span class="status-dot"></span>
         <span class="status-text">Checking login...</span>
       </div>
     </header>
+
+    <!-- Platform Selector Tabs -->
+    <div class="platform-tabs">
+      <button type="button" id="tab-hackerrank" class="platform-tab active" data-platform="hackerrank">
+        <span class="tab-dot dot-hackerrank"></span> HackerRank
+      </button>
+      <button type="button" id="tab-leetcode" class="platform-tab" data-platform="leetcode">
+        <span class="tab-dot dot-leetcode"></span> LeetCode
+      </button>
+      <button type="button" id="tab-all" class="platform-tab" data-platform="all">
+        <span class="tab-dot dot-all"></span> All
+      </button>
+    </div>
 
     <!-- Main Content -->
     <main class="popup-content">
@@ -255,6 +268,7 @@
   <script src="../data/problems-list.js"></script>
   <script src="../lib/storage.js"></script>
   <script src="../lib/api.js"></script>
+  <script src="../lib/leetcode-api.js"></script>
   <script src="../lib/sync.js"></script>
   <script src="../lib/icons.js"></script>
   <script src="popup.js"></script>

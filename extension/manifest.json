@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "HackerRank Solutions Hub",
-  "version": "1.0.0",
-  "description": "Download, store, browse, search, and compare HackerRank solutions categorized by problems and users.",
+  "name": "Solutions Hub (HackerRank & LeetCode)",
+  "version": "1.1.0",
+  "description": "Download, store, browse, search, and compare HackerRank and LeetCode solutions categorized by problems and users.",
   "icons": {
     "16": "icons/icon-16.png",
     "48": "icons/icon-48.png",
@@ -10,7 +10,7 @@
   },
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "HackerRank Solutions Hub",
+    "default_title": "Solutions Hub (HackerRank & LeetCode)",
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",
@@ -27,6 +27,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://*.hackerrank.com/*"
+    "https://*.hackerrank.com/*",
+    "https://*.leetcode.com/*"
   ]
 }

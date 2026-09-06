@@ -1,5 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function detectLanguage(code, filename = '') {
   if (filename.endsWith('.js')) return 'javascript';
@@ -24,7 +28,7 @@ function detectLanguage(code, filename = '') {
   if (clean.includes('function ') || clean.includes('const ') || clean.includes('let ') || clean.includes('var ') || clean.includes('console.log')) {
     return 'javascript';
   }
-  return 'python'; // default for typical hackerrank submissions in this repo
+  return 'python';
 }
 
 function slugToTitle(slug) {
@@ -41,26 +45,46 @@ function slugToTitle(slug) {
     .join(' ');
 }
 
-const initDir = fs.existsSync(path.resolve('./initFiles')) ? path.resolve('./initFiles') : path.resolve('.');
-const allJsonPath = fs.existsSync(path.join(initDir, 'all.json')) ? path.join(initDir, 'all.json') : path.resolve('./all.json');
-const problemSlugs = JSON.parse(fs.readFileSync(allJsonPath, 'utf8'));
+const ROOT_DIR = path.resolve(__dirname, '..');
+const initDir = fs.existsSync(path.join(ROOT_DIR, 'initFiles')) ? path.join(ROOT_DIR, 'initFiles') : ROOT_DIR;
+
+// Load HackerRank problem slugs
+const hrAllPath = path.join(initDir, 'all.json');
+const hrProblemSlugs = fs.existsSync(hrAllPath) ? JSON.parse(fs.readFileSync(hrAllPath, 'utf8')) : [];
+
+// Load LeetCode index from leetcode-all.json
+const lcAllPath = path.join(initDir, 'leetcode-all.json');
+let leetcodeMap = new Map();
+if (fs.existsSync(lcAllPath)) {
+  try {
+    const lcList = JSON.parse(fs.readFileSync(lcAllPath, 'utf8'));
+    for (const item of lcList) {
+      if (item.titleSlug) {
+        leetcodeMap.set(item.titleSlug, item);
+      }
+    }
+    console.log(`Loaded ${leetcodeMap.size} LeetCode questions from ${lcAllPath}`);
+  } catch (e) {
+    console.warn('Could not parse leetcode-all.json:', e);
+  }
+}
 
 const problems = {};
 const solutions = {};
 const userStats = {};
-
 let totalSolutions = 0;
 
-for (const slug of problemSlugs) {
-  const dirPath = fs.existsSync(path.join(initDir, slug)) ? path.join(initDir, slug) : path.resolve('.', slug);
-  let statementHtml = '';
+// 1. Process HackerRank problem directories & solutions
+for (const slug of hrProblemSlugs) {
+  const dirPath = path.join(initDir, slug);
   const problemTitle = slugToTitle(slug);
 
   problems[slug] = {
     slug,
     title: problemTitle,
     category: 'Algorithms',
-    difficulty: 'Medium', // will refine for known ones
+    difficulty: 'Medium',
+    platform: 'hackerrank',
     url: `https://www.hackerrank.com/challenges/${slug}/problem`,
     hasStatement: false
   };
@@ -70,11 +94,10 @@ for (const slug of problemSlugs) {
     for (const file of files) {
       const fullPath = path.join(dirPath, file);
       if (file === 'problemStatement.html') {
-        statementHtml = fs.readFileSync(fullPath, 'utf8');
+        const statementHtml = fs.readFileSync(fullPath, 'utf8');
         problems[slug].hasStatement = true;
         problems[slug].statementHtml = statementHtml;
       } else if (!file.endsWith('.html') && !file.endsWith('.json')) {
-        // This is a user solution file
         const username = file.replace(/\.js$/, '').replace(/\.py$/, '');
         const code = fs.readFileSync(fullPath, 'utf8');
         const language = detectLanguage(code, file);
@@ -104,6 +127,38 @@ for (const slug of problemSlugs) {
   }
 }
 
+// 2. Process LeetCode problems (from initFiles directories and leetcodeMap)
+const allInitDirs = fs.readdirSync(initDir);
+for (const dirName of allInitDirs) {
+  const fullDirPath = path.join(initDir, dirName);
+  if (!fs.statSync(fullDirPath).isDirectory()) continue;
+  if (problems[dirName]) continue; // Already handled under HackerRank
+
+  const statementPath = path.join(fullDirPath, 'problemStatement.html');
+  const hasStatement = fs.existsSync(statementPath);
+  const lcInfo = leetcodeMap.get(dirName);
+
+  if (hasStatement || lcInfo) {
+    const title = lcInfo ? lcInfo.title : slugToTitle(dirName);
+    const difficulty = lcInfo ? lcInfo.difficulty : 'Medium';
+    const category = (lcInfo && lcInfo.topicTags && lcInfo.topicTags.length > 0) ? lcInfo.topicTags[0].name : 'Algorithms';
+    const statementHtml = hasStatement ? fs.readFileSync(statementPath, 'utf8') : undefined;
+
+    problems[dirName] = {
+      slug: dirName,
+      title,
+      category,
+      difficulty,
+      platform: 'leetcode',
+      url: `https://leetcode.com/problems/${dirName}/`,
+      hasStatement,
+      statementHtml,
+      solvedCount: 0,
+      solvedUsers: []
+    };
+  }
+}
+
 // Calculate solved counts per problem
 for (const slug of Object.keys(problems)) {
   const solves = solutions[slug] ? Object.keys(solutions[slug]).length : 0;
@@ -112,14 +167,13 @@ for (const slug of Object.keys(problems)) {
 }
 
 console.log(`Compiled ${Object.keys(problems).length} problems, ${totalSolutions} solutions across ${Object.keys(userStats).length} users.`);
-console.log('User stats:', userStats);
 
-const dataDir = path.resolve('./extension/data');
+const dataDir = path.join(ROOT_DIR, 'extension', 'data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Write seed-data.js as an ES Module / UMD / Global compatible file
+// Write seed-data.js
 const seedDataContent = `// Auto-generated seed data containing local problems and solutions
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -132,7 +186,7 @@ const seedDataContent = `// Auto-generated seed data containing local problems a
     problems: ${JSON.stringify(problems, null, 2)},
     solutions: ${JSON.stringify(solutions, null, 2)},
     users: ${JSON.stringify(Object.values(userStats), null, 2)},
-    problemList: ${JSON.stringify(problemSlugs, null, 2)},
+    problemList: ${JSON.stringify(Object.keys(problems), null, 2)},
     version: 1,
     generatedAt: ${Date.now()}
   };
@@ -149,7 +203,7 @@ const problemListContent = `(function (root, factory) {
     root.HR_PROBLEM_SLUGS = factory();
   }
 })(typeof self !== 'undefined' ? self : this, function () {
-  return ${JSON.stringify(problemSlugs, null, 2)};
+  return ${JSON.stringify(Object.keys(problems), null, 2)};
 });
 `;
 

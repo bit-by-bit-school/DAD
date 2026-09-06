@@ -1,1 +1,1 @@
-[x] add a clear feedback button to inspector
+[] change schema to have comment thread and add ability to resolve comment thread.

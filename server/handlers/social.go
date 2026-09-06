@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"hackerrank-server/db"
 	"hackerrank-server/models"
+	"hackerrank-server/services"
 )
 
 func RateSolutionHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,11 +72,42 @@ func RateSolutionHandler(w http.ResponseWriter, r *http.Request) {
 		rating.Readability = rScore
 	}
 
+	// Create notification & Web Push if rater is not solution owner
+	var sol models.Solution
+	if err := db.DB.Where("id = ?", solutionID).First(&sol).Error; err == nil {
+		if sol.UserID != currentUser.ID {
+			notif := models.Notification{
+				ID:         uuid.New().String(),
+				UserID:     sol.UserID,
+				ActorID:    &currentUser.ID,
+				SolutionID: solutionID,
+				Type:       "RATING",
+				Message:    fmt.Sprintf("@%s rated your solution for \"%s\" (Cleverness: %d/5, Readability: %d/5)", currentUser.Username, sol.ChallengeTitle, cScore, rScore),
+			}
+			db.DB.Create(&notif)
+
+			go services.SendPushToUser(sol.UserID, services.PushPayload{
+				Title: "New Solution Rating",
+				Body:  fmt.Sprintf("@%s rated your solution for \"%s\" (Clever: %d/5, Read: %d/5)", currentUser.Username, sol.ChallengeTitle, cScore, rScore),
+				Icon:  "/assets/icon-192.png",
+				Badge: "/assets/badge-72.png",
+				Tag:   "rating-" + solutionID,
+				Data: map[string]interface{}{
+					"type":       "RATING",
+					"solutionId": solutionID,
+					"url":        fmt.Sprintf("/?solutionId=%s", solutionID),
+				},
+				Actions: services.DefaultPushActions(),
+			})
+		}
+	}
+
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 		"rating":  rating,
 	})
 }
+
 
 func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -173,7 +205,22 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 			Message:    fmt.Sprintf("@%s left a comment on \"%s\"", currentUser.Username, sol.ChallengeTitle),
 		}
 		db.DB.Create(&notif)
+
+		go services.SendPushToUser(sol.UserID, services.PushPayload{
+			Title: "New Comment on Your Solution",
+			Body:  fmt.Sprintf("@%s: %s", currentUser.Username, payload.Content),
+			Icon:  "/assets/icon-192.png",
+			Badge: "/assets/badge-72.png",
+			Tag:   "comment-" + solutionID,
+			Data: map[string]interface{}{
+				"type":       "COMMENT",
+				"solutionId": solutionID,
+				"url":        fmt.Sprintf("/?solutionId=%s", solutionID),
+			},
+			Actions: services.DefaultPushActions(),
+		})
 	}
+
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{

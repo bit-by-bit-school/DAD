@@ -171,7 +171,22 @@ func PublishReviewHandler(w http.ResponseWriter, r *http.Request) {
 			Message:    fmt.Sprintf("@%s published Review Round #%d (%s) for \"%s\"", currentUser.Username, roundNum, status, sol.ChallengeTitle),
 		}
 		db.DB.Create(&notif)
+
+		go services.SendPushToUser(sol.UserID, services.PushPayload{
+			Title: "Code Review Published",
+			Body:  fmt.Sprintf("@%s published Review Round #%d (%s) for \"%s\"", currentUser.Username, roundNum, status, sol.ChallengeTitle),
+			Icon:  "/assets/icon-192.png",
+			Badge: "/assets/badge-72.png",
+			Tag:   "review-" + solutionID,
+			Data: map[string]interface{}{
+				"type":       "REVIEW",
+				"solutionId": solutionID,
+				"url":        fmt.Sprintf("/?solutionId=%s", solutionID),
+			},
+			Actions: services.DefaultPushActions(),
+		})
 	}
+
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success":     true,

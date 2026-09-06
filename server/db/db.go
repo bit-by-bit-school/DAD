@@ -46,7 +46,9 @@ func InitDB() *gorm.DB {
 		&models.Comment{},
 		&models.ReviewRound{},
 		&models.Notification{},
+		&models.PushSubscription{},
 	)
+
 	if err != nil {
 		log.Fatalf("Failed to auto-migrate database: %v", err)
 	}

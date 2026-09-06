@@ -271,6 +271,7 @@
     await multiselectUser.init();
     await verifyAuth();
     initNotificationSystem();
+    initWebPushSystem();
     setupInfiniteScroll();
 
     await restoreStateFromUrl();
@@ -1135,6 +1136,338 @@
       activeUserRole.className = 'role-badge user';
     }
     updateRoleUI();
+    if (typeof syncWebPushSubscription === 'function') {
+      syncWebPushSubscription();
+    }
+  }
+
+  // ==========================================================================
+  // Web Push Notification Controller
+  // ==========================================================================
+  let webPushState = {
+    supported: false,
+    enabledOnServer: false,
+    publicKey: null,
+    swRegistration: null,
+    subscription: null
+  };
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  async function initWebPushSystem() {
+    const pushBanner = document.getElementById('push-permission-banner');
+    const btnBannerEnable = document.getElementById('btn-banner-enable-push');
+    const btnBannerDismiss = document.getElementById('btn-banner-dismiss-push');
+    const btnTogglePush = document.getElementById('btn-toggle-push');
+    const btnTestPush = document.getElementById('btn-test-push');
+
+    if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) {
+      webPushState.supported = false;
+      updatePushStatusUI('unsupported');
+      return;
+    }
+    webPushState.supported = true;
+
+    // Register service worker
+    try {
+      webPushState.swRegistration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      console.log('[WebPush] Service worker registered with scope:', webPushState.swRegistration.scope);
+    } catch (err) {
+      console.warn('[WebPush] Service worker registration error:', err);
+      updatePushStatusUI('unsupported');
+      return;
+    }
+
+    // Listen for service worker messages (e.g. notification click deep links)
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'NAVIGATE_SOLUTION' && event.data.solutionId) {
+        activateTab('tab-detail', true);
+        openSolutionDetail(event.data.solutionId);
+      }
+    });
+
+    // Query VAPID public key
+    try {
+      const res = await fetch('/api/notifications/vapid-public-key');
+      const data = await res.json();
+      if (data.enabled && data.publicKey) {
+        webPushState.enabledOnServer = true;
+        webPushState.publicKey = data.publicKey;
+      } else {
+        webPushState.enabledOnServer = false;
+        updatePushStatusUI('server_disabled');
+        return;
+      }
+    } catch (err) {
+      console.warn('[WebPush] Error fetching VAPID public key:', err);
+      updatePushStatusUI('server_disabled');
+      return;
+    }
+
+    // Bind UI actions
+    if (btnBannerEnable) {
+      btnBannerEnable.addEventListener('click', async () => {
+        await requestAndSubscribePush();
+      });
+    }
+
+    if (btnBannerDismiss) {
+      btnBannerDismiss.addEventListener('click', () => {
+        if (pushBanner) pushBanner.classList.add('hidden');
+        sessionStorage.setItem('push_banner_dismissed', 'true');
+      });
+    }
+
+    if (btnTogglePush) {
+      btnTogglePush.addEventListener('click', async () => {
+        if (webPushState.subscription) {
+          await unsubscribePush();
+        } else {
+          await requestAndSubscribePush();
+        }
+      });
+    }
+
+    if (btnTestPush) {
+      btnTestPush.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await triggerTestPushNotification();
+      });
+    }
+
+    // Initial subscription sync
+    await syncWebPushSubscription();
+  }
+
+  async function syncWebPushSubscription() {
+    if (!webPushState.supported || !webPushState.enabledOnServer || !webPushState.swRegistration) {
+      return;
+    }
+
+    const pushBanner = document.getElementById('push-permission-banner');
+    const permission = Notification.permission;
+
+    if (permission === 'denied') {
+      if (pushBanner) pushBanner.classList.add('hidden');
+      webPushState.subscription = null;
+      updatePushStatusUI('denied');
+      return;
+    }
+
+    try {
+      const sub = await webPushState.swRegistration.pushManager.getSubscription();
+      webPushState.subscription = sub;
+
+      if (sub) {
+        // Active subscription exists
+        if (pushBanner) pushBanner.classList.add('hidden');
+        updatePushStatusUI('active');
+
+        // Sync with backend if user is authenticated
+        if (state.currentToken && state.currentUser && state.currentUser.username !== 'Guest') {
+          await fetch('/api/notifications/subscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${state.currentToken}`
+            },
+            body: JSON.stringify(sub)
+          }).catch(err => console.warn('[WebPush] Subscription sync failed:', err));
+        }
+      } else {
+        // No subscription active
+        if (permission === 'granted') {
+          // Permission is already granted but not subscribed yet - automatically subscribe if user is logged in
+          if (state.currentToken && state.currentUser && state.currentUser.username !== 'Guest') {
+            await requestAndSubscribePush(true);
+          } else {
+            updatePushStatusUI('inactive');
+          }
+        } else {
+          // Default permission - show prompt banner if user is logged in and not dismissed
+          const dismissed = sessionStorage.getItem('push_banner_dismissed') === 'true';
+          const isLoggedIn = state.currentToken && state.currentUser && state.currentUser.username !== 'Guest';
+          if (isLoggedIn && !dismissed && pushBanner) {
+            pushBanner.classList.remove('hidden');
+          } else if (pushBanner) {
+            pushBanner.classList.add('hidden');
+          }
+          updatePushStatusUI('default');
+        }
+      }
+    } catch (err) {
+      console.warn('[WebPush] Error checking subscription:', err);
+      updatePushStatusUI('default');
+    }
+  }
+
+  async function requestAndSubscribePush(isSilent = false) {
+    if (!webPushState.supported || !webPushState.enabledOnServer || !webPushState.swRegistration) {
+      showRetroToast('Web Push is not supported in this browser.', HRIcons.close(16));
+      return;
+    }
+
+    if (!state.currentToken || (state.currentUser && state.currentUser.username === 'Guest')) {
+      showRetroToast('Please log in with a user token before enabling push notifications.', HRIcons.shield(16));
+      const authModal = document.getElementById('auth-modal');
+      if (authModal) authModal.classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const perm = await Notification.requestPermission();
+      const pushBanner = document.getElementById('push-permission-banner');
+      if (pushBanner) pushBanner.classList.add('hidden');
+
+      if (perm !== 'granted') {
+        updatePushStatusUI('denied');
+        if (!isSilent) {
+          showRetroToast('Desktop notifications permission was not granted.', HRIcons.close(16));
+        }
+        return;
+      }
+
+      const sub = await webPushState.swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(webPushState.publicKey)
+      });
+
+      webPushState.subscription = sub;
+
+      const res = await fetch('/api/notifications/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.currentToken}`
+        },
+        body: JSON.stringify(sub)
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        updatePushStatusUI('active');
+        if (!isSilent) {
+          showRetroToast('Desktop push notifications enabled!', HRIcons.check(16));
+        }
+      } else {
+        console.warn('[WebPush] Server subscribe returned error:', data);
+        updatePushStatusUI('inactive');
+      }
+    } catch (err) {
+      console.error('[WebPush] Failed to subscribe to push:', err);
+      updatePushStatusUI('inactive');
+      if (!isSilent) {
+        showRetroToast('Failed to enable desktop notifications.', HRIcons.close(16));
+      }
+    }
+  }
+
+  async function unsubscribePush() {
+    if (!webPushState.subscription) return;
+    try {
+      const endpoint = webPushState.subscription.endpoint;
+      if (state.currentToken) {
+        await fetch('/api/notifications/unsubscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.currentToken}`
+          },
+          body: JSON.stringify({ endpoint })
+        }).catch(err => console.warn('[WebPush] Unsubscribe API call error:', err));
+      }
+
+      await webPushState.subscription.unsubscribe();
+      webPushState.subscription = null;
+      updatePushStatusUI('inactive');
+      showRetroToast('Desktop push notifications disabled.', HRIcons.close(16));
+    } catch (err) {
+      console.warn('[WebPush] Error unsubscribing:', err);
+    }
+  }
+
+  async function triggerTestPushNotification() {
+    if (!state.currentToken) {
+      showRetroToast('Please log in first to send a test push.', HRIcons.shield(16));
+      return;
+    }
+
+    try {
+      showRetroToast('Dispatching test notification...', HRIcons.bell(16));
+      const res = await fetch('/api/notifications/test-push', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${state.currentToken}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showRetroToast('Test notification sent! Check your desktop.', HRIcons.check(16));
+      } else {
+        showRetroToast(data.error || 'Failed to send test push.', HRIcons.close(16));
+      }
+    } catch (err) {
+      console.warn('[WebPush] Error calling test push:', err);
+      showRetroToast('Error sending test notification.', HRIcons.close(16));
+    }
+  }
+
+  function updatePushStatusUI(status) {
+    const pushDot = document.getElementById('push-status-dot');
+    const pushText = document.getElementById('push-status-text');
+    const btnToggle = document.getElementById('btn-toggle-push');
+    const btnTest = document.getElementById('btn-test-push');
+
+    if (!pushDot || !pushText || !btnToggle) return;
+
+    pushDot.className = 'push-status-dot';
+
+    switch (status) {
+      case 'active':
+        pushDot.classList.add('active');
+        pushText.textContent = 'Desktop push: Active';
+        btnToggle.textContent = 'Disable';
+        btnToggle.disabled = false;
+        if (btnTest) btnTest.classList.remove('hidden');
+        break;
+      case 'denied':
+        pushDot.classList.add('blocked');
+        pushText.textContent = 'Desktop push: Blocked';
+        btnToggle.textContent = 'Blocked';
+        btnToggle.disabled = true;
+        if (btnTest) btnTest.classList.add('hidden');
+        break;
+      case 'unsupported':
+        pushDot.classList.add('blocked');
+        pushText.textContent = 'Desktop push: Unsupported';
+        btnToggle.textContent = 'N/A';
+        btnToggle.disabled = true;
+        if (btnTest) btnTest.classList.add('hidden');
+        break;
+      case 'server_disabled':
+        pushDot.classList.add('pending');
+        pushText.textContent = 'Desktop push: Not configured';
+        btnToggle.textContent = 'N/A';
+        btnToggle.disabled = true;
+        if (btnTest) btnTest.classList.add('hidden');
+        break;
+      case 'inactive':
+      case 'default':
+      default:
+        pushDot.classList.add('pending');
+        pushText.textContent = 'Desktop push: Off';
+        btnToggle.textContent = 'Enable';
+        btnToggle.disabled = false;
+        if (btnTest) btnTest.classList.add('hidden');
+        break;
+    }
   }
 
   // ==========================================================================
@@ -1142,6 +1475,7 @@
   // ==========================================================================
   let notificationPollTimer = null;
   let previousUnreadCount = -1;
+
 
   function initNotificationSystem() {
     const notificationBellBtn = document.getElementById('notification-bell-btn');

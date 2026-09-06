@@ -1,0 +1,30 @@
+# Caddy configuration for Solutions Hub (DAD)
+# Automatically provisions free Let's Encrypt TLS certificates and reverse-proxies to Go server.
+
+{
+    email admin@mukul.pro
+}
+
+dad.mukul.pro {
+    # Reverse proxy to internal Go server
+    reverse_proxy 127.0.0.1:3000
+
+    # Transparent compression
+    encode zstd gzip
+
+    # Production security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    }
+
+    # Explicit cache bypass for Service Worker (PWA / Web Push)
+    @sw path /sw.js
+    header @sw Cache-Control "no-cache, no-store, must-revalidate"
+
+    # Static asset caching
+    @static path /assets/*
+    header @static Cache-Control "public, max-age=31536000, immutable"
+}

@@ -152,9 +152,58 @@ if (!fs.existsSync(iconsDir)) {
   fs.mkdirSync(iconsDir, { recursive: true });
 }
 
+const serverAssetsDir = path.resolve('./server/public/assets');
+if (!fs.existsSync(serverAssetsDir)) {
+  fs.mkdirSync(serverAssetsDir, { recursive: true });
+}
+
 [16, 48, 128].forEach((size) => {
   const pngBuf = createPNG(size, size, dadIcon);
   const filePath = path.join(iconsDir, `icon-${size}.png`);
   fs.writeFileSync(filePath, pngBuf);
-  console.log(`Generated icon: ${filePath} (${size}x${size}, ${pngBuf.length} bytes)`);
+  console.log(`Generated extension icon: ${filePath} (${size}x${size}, ${pngBuf.length} bytes)`);
 });
+
+// Monochrome / alpha badge for notification status bars (pure white/cyan on transparent)
+function dadBadge(x, y, w, h) {
+  const cx = w / 2;
+  const cy = h / 2;
+  const normX = (x - cx) / (w / 2);
+  const normY = (y - cy) / (h / 2);
+
+  const inOuterD =
+    normX >= -0.55 &&
+    normX <= 0.50 &&
+    normY >= -0.65 &&
+    normY <= 0.65 &&
+    normX - normY <= 0.75 &&
+    normX + normY <= 0.75;
+
+  const inInnerHole =
+    normX >= -0.22 &&
+    normX <= 0.18 &&
+    normY >= -0.32 &&
+    normY <= 0.32 &&
+    normX - normY <= 0.42 &&
+    normX + normY <= 0.42;
+
+  if (inOuterD && !inInnerHole) {
+    return [0, 229, 255, 255]; // Ice Cyan
+  }
+  return [0, 0, 0, 0];
+}
+
+// Generate web push notification icons
+[48, 128, 192].forEach((size) => {
+  const pngBuf = createPNG(size, size, dadIcon);
+  const filePath = path.join(serverAssetsDir, `icon-${size}.png`);
+  fs.writeFileSync(filePath, pngBuf);
+  console.log(`Generated web push icon: ${filePath} (${size}x${size}, ${pngBuf.length} bytes)`);
+});
+
+// Generate 72x72 notification badge
+const badgeBuf = createPNG(72, 72, dadBadge);
+const badgePath = path.join(serverAssetsDir, 'badge-72.png');
+fs.writeFileSync(badgePath, badgeBuf);
+console.log(`Generated web push badge: ${badgePath} (72x72, ${badgeBuf.length} bytes)`);
+

@@ -129,11 +129,20 @@ func main() {
 
 	// Notifications
 	r.Route("/api/notifications", func(r chi.Router) {
-		r.Use(handlers.AuthenticateMiddleware)
-		r.Get("/", handlers.GetNotificationsHandler)
-		r.Patch("/{id}/read", handlers.MarkNotificationReadHandler)
-		r.Post("/read-all", handlers.MarkAllNotificationsReadHandler)
-		r.Delete("/{id}", handlers.DeleteNotificationHandler)
+		r.Get("/vapid-public-key", handlers.GetVapidPublicKeyHandler)
+
+		r.Group(func(r chi.Router) {
+			r.Use(handlers.AuthenticateMiddleware)
+			r.Get("/", handlers.GetNotificationsHandler)
+			r.Patch("/{id}/read", handlers.MarkNotificationReadHandler)
+			r.Post("/read-all", handlers.MarkAllNotificationsReadHandler)
+			r.Delete("/{id}", handlers.DeleteNotificationHandler)
+
+			// Web Push endpoints
+			r.Post("/subscribe", handlers.SubscribePushHandler)
+			r.Post("/unsubscribe", handlers.UnsubscribePushHandler)
+			r.Post("/test-push", handlers.TestPushNotificationHandler)
+		})
 	})
 
 	// Feedback endpoints
@@ -152,6 +161,14 @@ func main() {
 
 	fileServer := http.FileServer(filesDir)
 
+	// Explicit service worker endpoint with scope & cache bypass headers
+	r.Get("/sw.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Service-Worker-Allowed", "/")
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		http.ServeFile(w, r, filepath.Join(workDir, publicDir, "sw.js"))
+	})
+
 	// Long-term caching for static assets (images, challenge media)
 	assetsPath := filepath.Join(workDir, publicDir, "assets")
 	if _, err := os.Stat(assetsPath); err == nil {
@@ -161,6 +178,7 @@ func main() {
 			assetsFileServer.ServeHTTP(w, r)
 		})
 	}
+
 
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		path := filepath.Join(workDir, publicDir, filepath.Clean(r.URL.Path))

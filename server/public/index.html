@@ -115,6 +115,16 @@
               </div>
               <button id="btn-mark-all-read" class="btn-micro">Mark all as read</button>
             </div>
+            <div id="notification-push-bar" class="notification-push-bar">
+              <div class="push-status-info">
+                <span id="push-status-dot" class="push-status-dot"></span>
+                <span id="push-status-text" class="push-status-text">Desktop push: checking...</span>
+              </div>
+              <div class="push-actions">
+                <button id="btn-toggle-push" class="btn-micro push-btn-toggle" title="Toggle desktop notifications">Enable</button>
+                <button id="btn-test-push" class="btn-micro push-btn-test hidden" title="Send a test notification to this browser">Test</button>
+              </div>
+            </div>
             <div id="notification-list" class="notification-list">
               <div class="notification-empty">No notifications yet</div>
             </div>
@@ -138,8 +148,41 @@
   <!-- Main Container -->
   <main class="main-container">
 
+    <!-- Desktop Push Notification Prompt Banner -->
+    <div id="push-permission-banner" class="push-permission-banner hidden">
+      <div class="push-banner-content">
+        <div class="push-banner-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="color: var(--color-brand);" shape-rendering="crispEdges">
+            <path d="M9 2h6v2H9zM7 4h2v2H7zm8 0h2v2h-2zM5 6h2v7H5zm12 0h2v7h-2zM3 13h2v4H3zm16 0h2v4h-2z"/>
+            <path d="M3 15h18v2H3zm5 3h2v2H8zm6 0h2v2h-2zm-4 2h4v2h-4z"/>
+          </svg>
+        </div>
+        <div class="push-banner-body">
+          <div class="push-banner-title">
+            <span class="push-banner-label">DESKTOP PUSH NOTIFICATIONS</span>
+            <span class="push-banner-pill">REAL-TIME</span>
+          </div>
+          <div class="push-banner-desc">
+            Enable browser notifications to stay updated on solution comments, reviews, and star ratings even when Solutions Hub is in the background or closed.
+          </div>
+        </div>
+      </div>
+      <div class="push-banner-actions">
+        <button id="btn-banner-enable-push" class="btn-retro btn-cyan">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" shape-rendering="crispEdges">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          <span>Enable Notifications</span>
+        </button>
+        <button id="btn-banner-dismiss-push" class="btn-retro btn-ghost-subtle" title="Dismiss notification prompt">
+          <span>Later</span>
+        </button>
+      </div>
+    </div>
+
     <!-- 1. PROBLEM EXPLORER TAB -->
     <section id="tab-explorer" class="tab-content active">
+
       <div class="glass-panel filter-panel">
         <div class="panel-title">
           <div class="panel-title-group">

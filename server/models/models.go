@@ -165,3 +165,21 @@ type Notification struct {
 func (Notification) TableName() string {
 	return "Notification"
 }
+
+type PushSubscription struct {
+	ID        string    `gorm:"primaryKey;column:id" json:"id"`
+	UserID    string    `gorm:"column:userId;not null;index" json:"userId"`
+	Endpoint  string    `gorm:"column:endpoint;not null;uniqueIndex" json:"endpoint"`
+	P256dh    string    `gorm:"column:p256dh;not null" json:"p256dh"`
+	Auth      string    `gorm:"column:auth;not null" json:"auth"`
+	UserAgent string    `gorm:"column:userAgent" json:"userAgent,omitempty"`
+	CreatedAt time.Time `gorm:"column:createdAt;autoCreateTime" json:"createdAt"`
+	UpdatedAt time.Time `gorm:"column:updatedAt;autoUpdateTime" json:"updatedAt"`
+
+	User User `gorm:"foreignKey:UserID;references:ID" json:"user,omitempty"`
+}
+
+func (PushSubscription) TableName() string {
+	return "PushSubscription"
+}
+

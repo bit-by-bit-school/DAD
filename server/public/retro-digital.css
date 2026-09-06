@@ -2155,6 +2155,7 @@ select option,
   gap: 0.85rem;
   transition: all 0.2s ease;
   position: relative;
+  cursor: pointer;
 }
 
 .problem-card:hover {
@@ -2235,6 +2236,13 @@ select option,
   background: rgba(0, 0, 0, 0.25);
   padding: 0.85rem;
   margin-top: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.latest-solution-container:hover {
+  border-color: rgba(0, 229, 255, 0.35);
+  background: rgba(0, 229, 255, 0.04);
 }
 
 .latest-solution-header {
@@ -2310,6 +2318,102 @@ select option,
   box-shadow: 0 0 8px var(--color-brand-glow);
   background: rgba(0, 229, 255, 0.08);
 }
+
+/* ==========================================================================
+   Detail Workspace Solution Switcher Styles
+   ========================================================================== */
+
+.detail-solution-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.detail-solution-select-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-pixel);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.detail-solution-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.detail-solution-select {
+  height: 30px;
+  font-size: 0.78rem;
+  font-family: var(--font-segment);
+  padding: 0 1.8rem 0 0.6rem;
+  min-width: 220px;
+  max-width: 360px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: var(--bg-card);
+  color: var(--text-bright);
+  cursor: pointer;
+  outline: none;
+  text-overflow: ellipsis;
+  box-shadow: inset 1px 1px 0px #000;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.detail-solution-select:focus {
+  border-color: var(--color-brand);
+  box-shadow: inset 1px 1px 0px #000, 0 0 8px var(--color-brand-glow);
+}
+
+.detail-solution-select-arrow {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  color: var(--color-brand);
+  display: flex;
+  align-items: center;
+}
+
+.detail-stepper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 6px;
+  height: 28px;
+  min-width: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.detail-stepper-btn:hover:not(:disabled) {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 6px var(--color-brand-glow);
+}
+
+.detail-stepper-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.detail-solution-counter {
+  font-size: 0.72rem;
+  font-family: var(--font-segment);
+  color: var(--color-brand);
+  padding: 2px 6px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  white-space: nowrap;
+}
+
 
 
 

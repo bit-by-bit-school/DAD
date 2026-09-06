@@ -27,7 +27,10 @@
     limit: 30,
     hasMore: true,
     isLoading: false,
-    totalCount: 0
+    totalCount: 0,
+    // Challenge Solutions Cache for Detail Solution Switcher
+    currentChallengeSolutions: [],
+    currentChallengeSlug: null
   };
 
   // DOM Elements
@@ -187,6 +190,10 @@
   const detailChallengeTitle = document.getElementById('detail-challenge-title');
   const detailLanguageTag = document.getElementById('detail-language-tag');
   const detailUserName = document.getElementById('detail-user-name');
+  const detailSolutionSelect = document.getElementById('detail-solution-select');
+  const btnPrevSolution = document.getElementById('btn-prev-solution');
+  const btnNextSolution = document.getElementById('btn-next-solution');
+  const detailSolutionCounter = document.getElementById('detail-solution-counter');
   const detailReviewStatusBadge = document.getElementById('detail-review-status-badge');
   const detailHackerrankLink = document.getElementById('detail-hackerrank-link');
   const btnQuickViewStatement = document.getElementById('btn-quick-view-statement');
@@ -712,6 +719,38 @@
     if (btnQuickViewStatement) {
       btnQuickViewStatement.addEventListener('click', () => {
         activateSidebarSubtab('subtab-statement', true);
+      });
+    }
+
+    // Solution Switcher Dropdown & Stepper Navigation in Review Workspace
+    if (detailSolutionSelect) {
+      detailSolutionSelect.addEventListener('change', (e) => {
+        const selectedId = e.target.value;
+        if (selectedId && (!state.activeSolution || selectedId !== state.activeSolution.id)) {
+          openSolutionDetail(selectedId, true);
+        }
+      });
+    }
+
+    if (btnPrevSolution) {
+      btnPrevSolution.addEventListener('click', () => {
+        if (!state.currentChallengeSolutions || !state.activeSolution) return;
+        const idx = state.currentChallengeSolutions.findIndex(s => s.id === state.activeSolution.id);
+        if (idx > 0) {
+          const prevSol = state.currentChallengeSolutions[idx - 1];
+          openSolutionDetail(prevSol.id, true);
+        }
+      });
+    }
+
+    if (btnNextSolution) {
+      btnNextSolution.addEventListener('click', () => {
+        if (!state.currentChallengeSolutions || !state.activeSolution) return;
+        const idx = state.currentChallengeSolutions.findIndex(s => s.id === state.activeSolution.id);
+        if (idx >= 0 && idx < state.currentChallengeSolutions.length - 1) {
+          const nextSol = state.currentChallengeSolutions[idx + 1];
+          openSolutionDetail(nextSol.id, true);
+        }
       });
     }
 
@@ -1440,7 +1479,7 @@
         <div class="latest-solution-header">
           <div class="latest-label">
             ${HRIcons.check(12)}
-            <span>Latest Solution by @${latestUser}</span>
+            <span>@${latestUser}</span>
           </div>
           <span class="lang-tag">${escapeHtml(latestSol.language)}</span>
         </div>
@@ -1458,18 +1497,9 @@
             <span style="color: var(--text-muted); display: inline-flex;">${HRIcons.comment(12)}</span>
             <span class="segment-number" style="font-size: 0.75rem; color: var(--text-bright);">${latestComments}</span>
           </div>
-          <button type="button" class="btn-micro btn-open-latest" style="margin-left: auto; color: var(--color-brand); border-color: rgba(0, 229, 255, 0.4);">
-            Open Review
-          </button>
         </div>
       </div>
     `;
-
-    // Wire up Open Review button for Latest Solution
-    card.querySelector('.btn-open-latest')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openSolutionDetail(latestSol.id);
-    });
 
     // If more than 1 solution, add "Show More" accordion toggle & container
     if (totalSols > 1) {
@@ -1509,6 +1539,8 @@
 
         item.addEventListener('click', (e) => {
           e.stopPropagation();
+          state.currentChallengeSolutions = group.solutions;
+          state.currentChallengeSlug = group.slug;
           openSolutionDetail(sol.id);
         });
 
@@ -1551,6 +1583,8 @@
     card.addEventListener('click', (e) => {
       // If clicking problem card outside interactive buttons, open latest solution
       if (!e.target.closest('button') && !e.target.closest('.user-badge-tag') && !e.target.closest('.accordion-solution-item')) {
+        state.currentChallengeSolutions = group.solutions;
+        state.currentChallengeSlug = group.slug;
         openSolutionDetail(latestSol.id);
       }
     });
@@ -1606,6 +1640,89 @@
     }
   }
 
+  // Update Detail Solution Switcher (Dropdown & Stepper buttons)
+  async function updateDetailSolutionSwitcher(sol) {
+    if (!detailSolutionSelect) return;
+
+    const currentSlug = sol.challengeSlug;
+    if (!state.currentChallengeSolutions || state.currentChallengeSolutions.length === 0 || state.currentChallengeSlug !== currentSlug) {
+      try {
+        const res = await fetch(`/api/solutions?challengeSlug=${encodeURIComponent(currentSlug)}&limit=100`);
+        const data = await res.json();
+        state.currentChallengeSolutions = data.solutions || [sol];
+        state.currentChallengeSlug = currentSlug;
+      } catch (e) {
+        state.currentChallengeSolutions = [sol];
+        state.currentChallengeSlug = currentSlug;
+      }
+    }
+
+    // Keep active solution object updated in state.currentChallengeSolutions
+    const existingIdx = state.currentChallengeSolutions.findIndex(s => s.id === sol.id);
+    if (existingIdx >= 0) {
+      state.currentChallengeSolutions[existingIdx] = {
+        ...state.currentChallengeSolutions[existingIdx],
+        ...sol
+      };
+    } else {
+      state.currentChallengeSolutions.unshift(sol);
+    }
+
+    const sols = state.currentChallengeSolutions;
+    const total = sols.length;
+    const currentIndex = sols.findIndex(s => s.id === sol.id);
+
+    // Populate <select id="detail-solution-select">
+    detailSolutionSelect.innerHTML = '';
+    sols.forEach((s, idx) => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      const uname = s.user?.username || 'unknown';
+      const lang = (s.language || 'code').toUpperCase();
+      const numBadge = total > 1 ? `[${idx + 1}/${total}] ` : '';
+      
+      let extraInfo = '';
+      if (s.reviewRounds && s.reviewRounds.length > 0) {
+        const lastR = s.reviewRounds[s.reviewRounds.length - 1];
+        extraInfo = ` • R${lastR.roundNumber} ${lastR.status}`;
+      } else if (s.status) {
+        extraInfo = ` • ${s.status}`;
+      }
+      
+      opt.textContent = `${numBadge}@${uname} • ${lang}${extraInfo}`;
+      if (s.id === sol.id) {
+        opt.selected = true;
+      }
+      detailSolutionSelect.appendChild(opt);
+    });
+
+    detailSolutionSelect.value = sol.id;
+
+    // Update Stepper Navigation buttons
+    if (btnPrevSolution && btnNextSolution) {
+      if (total > 1) {
+        btnPrevSolution.style.display = 'inline-flex';
+        btnNextSolution.style.display = 'inline-flex';
+        btnPrevSolution.disabled = currentIndex <= 0;
+        btnNextSolution.disabled = currentIndex >= total - 1;
+      } else {
+        btnPrevSolution.style.display = 'none';
+        btnNextSolution.style.display = 'none';
+      }
+    }
+
+    // Update Counter badge
+    if (detailSolutionCounter) {
+      if (total > 1) {
+        detailSolutionCounter.style.display = 'inline-block';
+        detailSolutionCounter.textContent = `[${currentIndex >= 0 ? currentIndex + 1 : 1}/${total}]`;
+      } else {
+        detailSolutionCounter.style.display = 'inline-block';
+        detailSolutionCounter.textContent = `1 Solution`;
+      }
+    }
+  }
+
   // Open Solution Detail Tab (Merged Workspace)
   async function openSolutionDetail(id, updateUrl = true) {
     try {
@@ -1617,7 +1734,10 @@
 
       detailChallengeTitle.textContent = sol.challengeTitle;
       detailLanguageTag.textContent = sol.language.toUpperCase();
-      detailUserName.textContent = `@${sol.user?.username || 'unknown'}`;
+      if (detailUserName) detailUserName.textContent = `@${sol.user?.username || 'unknown'}`;
+
+      // Update Detail Solution Selector / Stepper
+      await updateDetailSolutionSwitcher(sol);
 
       // Update Review Status badge on header
       if (detailReviewStatusBadge) {

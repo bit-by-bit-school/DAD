@@ -331,6 +331,20 @@ const HRIcons = {
     </svg>
   `,
 
+  // Pixelarticons: Chevron Left
+  chevronLeft: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
+      <path d="M14 5h2v2h-2V5Zm-2 2h2v2h-2V7Zm-2 2h2v2h-2V9Zm-2 2h2v2H8v-2Zm2 2h2v2h-2v-2Zm2 2h2v2h-2v-2Zm2 2h2v2h-2v-2Z"/>
+    </svg>
+  `,
+
+  // Pixelarticons: Chevron Right
+  chevronRight: (size = 14) => `
+    <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">
+      <path d="M8 5h2v2H8V5Zm2 2h2v2h-2V7Zm2 2h2v2h-2V9Zm2 2h2v2h-2v-2Zm-2 2h2v2h-2v-2Zm-2 2h2v2h-2v-2Zm-2 2h2v2H8v-2Z"/>
+    </svg>
+  `,
+
   // Pixelarticons: Checkbox
   checkbox: (size = 16) => `
     <svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" class="hr-icon">

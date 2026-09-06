@@ -1502,7 +1502,9 @@
     let solvedByHtml = '';
     group.solvedByMap.forEach((u, username) => {
       const isAdmin = u.role === 'ADMIN';
-      solvedByHtml += `<span class="user-badge-tag${isAdmin ? ' admin' : ''}" title="${escapeHtml(username)}'s Solution">@${escapeHtml(username)}</span>`;
+      const userSol = group.solutions.find(s => (s.user?.id && u.id && s.user.id === u.id) || (s.user?.username || '').toLowerCase() === username.toLowerCase());
+      const solId = userSol ? userSol.id : '';
+      solvedByHtml += `<span class="user-badge-tag${isAdmin ? ' admin' : ''}" role="button" tabindex="0" data-username="${escapeHtml(username)}" data-solution-id="${solId}" title="View ${escapeHtml(username)}'s Solution">@${escapeHtml(username)}</span>`;
     });
 
     const descSnippet = group.descriptionSnippet ? escapeHtml(group.descriptionSnippet) : '';
@@ -1586,6 +1588,31 @@
         scrollList.scrollBy({ left: 120, behavior: 'smooth' });
       });
     }
+
+    // Setup solved-by user badge click handlers to open their specific solution
+    card.querySelectorAll('.user-badge-tag').forEach(tag => {
+      const handleUserClick = (e) => {
+        e.stopPropagation();
+        const solId = tag.dataset.solutionId;
+        const targetSol = solId
+          ? group.solutions.find(s => s.id === solId)
+          : group.solutions.find(s => (s.user?.username || '').toLowerCase() === (tag.dataset.username || '').toLowerCase());
+        const solToOpen = targetSol || latestSol;
+        if (solToOpen) {
+          state.currentChallengeSolutions = group.solutions;
+          state.currentChallengeSlug = group.slug;
+          openSolutionDetail(solToOpen.id);
+        }
+      };
+
+      tag.addEventListener('click', handleUserClick);
+      tag.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleUserClick(e);
+        }
+      });
+    });
 
     // If more than 1 solution, add "Show More" accordion toggle & container
     if (totalSols > 1) {

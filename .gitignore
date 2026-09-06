@@ -51,6 +51,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+feedback_log.json
+server/feedback_log.json
+
 
 # Environment & Local Configuration
 .env
